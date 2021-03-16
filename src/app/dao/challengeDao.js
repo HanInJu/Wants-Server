@@ -11,25 +11,6 @@ async function postchallenge(userId, period, amount, time) {
   connection.release();
   return rows;
 }
-// 책추가
-async function postbook(
-  writer,
-  publishDate,
-  publishNumber,
-  contents,
-  imageURL,
-  title,
-  publisher
-) {
-  const connection = await pool.getConnection(async (conn) => conn);
-  const postchallengeQuery = `
-  insert into Book(writer, publishDate, publishNumber, contents, imageURL, title, publisher)
-  value ('${writer}', '${publishDate}', '${publishNumber}', '${contents}', '${imageURL}', '${title}', '${publisher}')`;
-
-  const [rows] = await connection.query(postchallengeQuery);
-  connection.release();
-  return rows;
-}
 // 책있는지 확인
 async function getbook(publishNumber) {
   const connection = await pool.getConnection(async (conn) => conn);
@@ -82,7 +63,7 @@ async function getchallenge2(goalBookId) {
   const getchallenge2Query = `
   select *
   from (select goalBookId, page, percent, sum(time) from Challenge
-  where goalBookId = ${goalBookId}
+  where goalBookId = ${goalBookId} && status = 'Y'
   order by createAt DESC limit 1) a
   group by goalBookId`;
 
@@ -99,18 +80,81 @@ async function getchallenge3(goalId) {
    from Reading_journal
    where date(Reading_journal.postAt) = curdate() && Reading_journal.goalId = ${goalId}) as countJournal
 from Challenge
-where date(Challenge.createAt) = curdate() && Challenge.goalId = ${goalId};`;
+where date(Challenge.createAt) = curdate() && Challenge.goalId = ${goalId} && Challenge.status = 'Y';`;
 
   const [rows] = await connection.query(getchallenge2Query);
+  connection.release();
+  return rows;
+}
+// 챌린지 중복책인지 조회
+async function getgoalbook(publishNumber, goalId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const postchallengeQuery = `
+  select *
+  from Goal_book
+  where publishNumber = '${publishNumber}' && goalId = ${goalId}`;
+
+  const [rows] = await connection.query(postchallengeQuery);
+  connection.release();
+  return rows;
+}
+// 챌린지 책 변경
+async function patchchallengeBook(publishNumber, goalBookId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const patchchallengeBookQuery = `
+  UPDATE Goal_book
+  SET publishNumber = '${publishNumber}'
+  WHERE goalBookId = ${goalBookId};`;
+  const patchchallengeBook2Query = `
+  update Challenge
+  SET status = 'N'
+  WHERE goalbookId = ${goalBookId}`;
+  const [rows] = await connection.query(
+    patchchallengeBookQuery,
+    patchchallengeBook2Query
+  );
+  connection.release();
+  return rows;
+}
+// 챌린지 책 변경
+async function deletechallengeBook(goalBookId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const patchchallengeBookQuery = `
+  DELETE
+FROM Goal_book
+WHERE goalBookId = ${goalBookId};`;
+  const patchchallengeBook2Query = `
+  update Challenge
+  SET status = 'N'
+  WHERE goalbookId = ${goalBookId}`;
+  const [rows] = await connection.query(
+    patchchallengeBookQuery,
+    patchchallengeBook2Query
+  );
+  connection.release();
+  return rows;
+}
+// 생성목표 유저확인
+async function goalBookId(goalBookId, jwt) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const postchallengeQuery = `
+  select userId
+from Goal_book
+inner join Goal on Goal_book.goalId = Goal.goalId
+where goalBookId = ${goalBookId} && userId = ${jwt};`;
+
+  const [rows] = await connection.query(postchallengeQuery);
   connection.release();
   return rows;
 }
 module.exports = {
   postchallenge,
   getbook,
-  postbook,
   postchallengeBook,
   getchallenge1,
   getchallenge2,
   getchallenge3,
+  getgoalbook,
+  patchchallengeBook,
+  deletechallengeBook,
 };
