@@ -63,10 +63,24 @@ async function selectUserInfo(email) {
   );
   return [userInfoRows];
 }
+// 유저가 실제 존재하는지 확인
+async function getuser(userId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getuserQuery = `
+  select *
+from User
+where userId = ${userId};
+`;
 
+  const [getuserRows] = await connection.query(getuserQuery);
+  connection.release();
+
+  return getuserRows;
+}
 module.exports = {
   userEmailCheck,
   userNicknameCheck,
   insertUserInfo,
   selectUserInfo,
+  getuser,
 };
