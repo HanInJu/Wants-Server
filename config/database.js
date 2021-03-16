@@ -2,11 +2,11 @@ const mysql = require("mysql2/promise");
 const { logger } = require("./winston");
 
 const pool = mysql.createPool({
-  host: "wantsdb.clkqhot636j7.ap-northeast-2.rds.amazonaws.com",
-  user: "wantsadmin",
-  port: 3306,
-  password: "wants-rds",
-  database: "Wants",
+    host: 'wantsdb.clkqhot636j7.ap-northeast-2.rds.amazonaws.com',
+    user: 'wantsadmin',
+    port: 3306,
+    password: 'wants-rds',
+    database: 'Wants'
 });
 
 module.exports = {

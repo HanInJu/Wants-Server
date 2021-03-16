@@ -16,11 +16,21 @@ module.exports = function () {
   app.use(cors());
   // app.use(express.static(process.cwd() + '/public'));
 
+<<<<<<< HEAD
   /* App (Android, iOS) */
   require("../src/app/routes/indexRoute")(app);
   require("../src/app/routes/userRoute")(app);
   require("../src/app/routes/challengeRoute")(app);
   require("../src/app/routes/bookRoute")(app);
+=======
+    /* App (Android, iOS) */
+    require('../src/app/routes/indexRoute')(app);
+    require('../src/app/routes/userRoute')(app);
+    require('../src/app/routes/reviewRoute')(app);
+    require("../src/app/routes/challengeRoute")(app);
+
+
+>>>>>>> 4b9508023675447e84468f4daad9cc9916e61baa
   /* Web */
   // require('../src/web/routes/indexRoute')(app);
 
