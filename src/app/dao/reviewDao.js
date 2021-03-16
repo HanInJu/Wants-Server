@@ -64,9 +64,58 @@ async function postReview(reviewParams) {
   return reviewRows;
 }
 
+async function isValidReviewId(reviewId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const validReviewQuery = `
+                 SELECT EXISTS(SELECT * FROM Review WHERE reviewId = ?) as exist;
+                 `;
+  const validReviewParam = [reviewId];
+  const [validReviewRow] = await connection.query(
+      validReviewQuery,
+      validReviewParam
+  );
+
+  connection.release();
+  return validReviewRow;
+}
+
+async function isAuthorizedUser(reviewId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const validReviewQuery = `
+                 SELECT userId FROM Review WHERE reviewId = ?;
+                 `;
+  const validReviewParam = [reviewId];
+  const [validReviewRow] = await connection.query(
+      validReviewQuery,
+      validReviewParam
+  );
+
+  connection.release();
+  return validReviewRow;
+}
+
+async function changePublic(reviewId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const publicQuery = `
+    UPDATE Review SET isPublic = IF(isPublic = 1, 0, 1) WHERE reviewId = ?;
+                 `;
+
+  const publicParam = [reviewId];
+  const [publicRow] = await connection.query(
+      publicQuery,
+      publicParam
+  );
+
+  connection.release();
+  return publicRow;
+}
+
 module.exports = {
   postReview,
   whatIsYourName,
   isPosted,
   isValidBookId,
+  isAuthorizedUser,
+  changePublic,
+  isValidReviewId,
 };
