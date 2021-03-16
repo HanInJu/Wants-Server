@@ -157,4 +157,5 @@ module.exports = {
   getgoalbook,
   patchchallengeBook,
   deletechallengeBook,
+  goalBookId,
 };

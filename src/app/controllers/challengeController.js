@@ -2,6 +2,7 @@ const { pool } = require("../../../config/database");
 const { logger } = require("../../../config/winston");
 
 const challengeDao = require("../dao/challengeDao");
+const userDao = require("../dao/userDao");
 const moment = require("moment");
 
 exports.postchallenge = async function (req, res) {
@@ -290,9 +291,9 @@ exports.patchchallengeBook = async function (req, res) {
 //챌린지 책삭제
 exports.deletechallengeBook = async function (req, res) {
   try {
-    var jwt = req.verifiedToken.userId;
+    var jwt = req.verifiedToken.id;
 
-    const userRows = await userprofileDao.getuser(jwt);
+    const userRows = await userDao.getuser(jwt);
     if (userRows[0] === undefined)
       return res.json({
         isSuccess: false,
@@ -309,7 +310,7 @@ exports.deletechallengeBook = async function (req, res) {
         message: "입력을 해주세요.",
       });
 
-    const selectGoalUser = await challengeDao.selectGoalUser(goalBookId, jwt);
+    const selectGoalUser = await challengeDao.goalBookId(goalBookId, jwt);
     if (!selectGoalUser)
       return res.json({
         isSuccess: false,
