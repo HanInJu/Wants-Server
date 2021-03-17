@@ -125,7 +125,7 @@ exports.postReview = async function (req, res) {
 
 /*
  * 최종 수정일 : 2021.03.16.TUE
- * API 기 능 : 리뷰 공개여부 수정
+ * API 기 능 : 리뷰 공개여부 수정 -- 다시 수정해야 함
  */
 exports.changePublic = async function (req, res) {
     try {
