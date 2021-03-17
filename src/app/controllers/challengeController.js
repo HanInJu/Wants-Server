@@ -8,9 +8,9 @@ const moment = require("moment");
 exports.postchallenge = async function (req, res) {
   // period 값 DMY를 받으면 만료일 계산해서 DB에 저장하기
   try {
-    var jwt = req.verifiedToken.userId;
+    var jwt = req.verifiedToken.id;
 
-    const userRows = await userprofileDao.getuser(jwt);
+    const userRows = await userDao.getuser(jwt);
     if (userRows[0] === undefined)
       return res.json({
         isSuccess: false,
@@ -26,18 +26,36 @@ exports.postchallenge = async function (req, res) {
         code: 2100,
         message: "입력을 해주세요.",
       });
-    else if (period !== "D" && period !== "M" && period !== "Y")
+
+    if (period === "D") {
+      var addexpriodAt = moment().add(7, "d");
+      var expriodAt = addexpriodAt.format("YYYY-MM-DD HH:mm:ss");
+    } else if (period === "M") {
+      var addexpriodAt = moment().add(1, "M");
+      var expriodAt = addexpriodAt.format("YYYY-MM-DD HH:mm:ss");
+    } else if (period === "Y") {
+      var addexpriodAt = moment().add(1, "Y");
+      var expriodAt = addexpriodAt.format("YYYY-MM-DD HH:mm:ss");
+    } else
       return res.json({
         isSuccess: false,
         code: 2101,
         message: "기간 입력이 잘못되었습니다.",
       });
-
+    // 겹치는 날짜 확인
+    const calendarYNRows = await challengeDao.calendarYN(jwt, expriodAt);
+    if (calendarYNRows)
+      return res.json({
+        isSuccess: false,
+        code: 2122,
+        message: "해당 날짜에 이미 달성할 목표가 있습니다.",
+      });
     const postchallengeRows = await challengeDao.postchallenge(
       jwt,
       period,
       amount,
-      time
+      time,
+      expriodAt
     );
 
     if (postchallengeRows.affectedRows === 1) {
@@ -61,9 +79,9 @@ exports.postchallenge = async function (req, res) {
 exports.patchchallenge = async function (req, res) {
   // period 값 DMY를 받으면 만료일 계산해서 DB에 저장하기
   try {
-    var jwt = req.verifiedToken.userId;
+    var jwt = req.verifiedToken.id;
 
-    const userRows = await userprofileDao.getuser(jwt);
+    const userRows = await userDao.getuser(jwt);
     if (userRows[0] === undefined)
       return res.json({
         isSuccess: false,
@@ -79,7 +97,17 @@ exports.patchchallenge = async function (req, res) {
         code: 2100,
         message: "입력을 해주세요.",
       });
-    else if (period !== "D" && period !== "M" && period !== "Y")
+
+    if (period === "D") {
+      var addexpriodAt = moment().add(7, "d");
+      var expriodAt = addexpriodAt.format("YYYY-MM-DD HH:mm:ss");
+    } else if (period === "M") {
+      var addexpriodAt = moment().add(1, "M");
+      var expriodAt = addexpriodAt.format("YYYY-MM-DD HH:mm:ss");
+    } else if (period === "Y") {
+      var addexpriodAt = moment().add(1, "Y");
+      var expriodAt = addexpriodAt.format("YYYY-MM-DD HH:mm:ss");
+    } else
       return res.json({
         isSuccess: false,
         code: 2101,
@@ -87,24 +115,30 @@ exports.patchchallenge = async function (req, res) {
       });
 
     const postchallengeRows = await challengeDao.patchchallenge(
-      jwt,
       goalId,
       period,
       amount,
-      time
+      time,
+      expriodAt
     );
 
     if (postchallengeRows.changedRows === 1) {
       return res.json({
         isSuccess: true,
         code: 1000,
-        message: "챌린지 변경 성공",
+        message: "목표 변경 성공",
       });
-    } else
+    } else if (postchallengeRows.changedRows === 0)
+      return res.json({
+        isSuccess: false,
+        code: 2120,
+        message: "목표가 변경되지 않았습니다.",
+      });
+    else
       return res.json({
         isSuccess: false,
         code: 4000,
-        message: "챌린지 변경 실패",
+        message: "목표 변경 실패",
       });
   } catch (err) {
     logger.error(`App - SignUp Query error\n: ${err.message}`);
@@ -115,9 +149,9 @@ exports.patchchallenge = async function (req, res) {
 exports.postchallengeBook = async function (req, res) {
   // period 값 DMY를 받으면 만료일 계산해서 DB에 저장하기
   try {
-    var jwt = req.verifiedToken.userId;
+    var jwt = req.verifiedToken.id;
 
-    const userRows = await userprofileDao.getuser(jwt);
+    const userRows = await userDao.getuser(jwt);
     if (userRows[0] === undefined)
       return res.json({
         isSuccess: false,
@@ -171,9 +205,9 @@ exports.postchallengeBook = async function (req, res) {
 exports.getchallenge = async function (req, res) {
   // period 값 DMY를 받으면 만료일 계산해서 DB에 저장하기
   try {
-    var jwt = req.verifiedToken.userId;
+    var jwt = req.verifiedToken.id;
 
-    const userRows = await userprofileDao.getuser(jwt);
+    const userRows = await userDao.getuser(jwt);
     if (userRows[0] === undefined)
       return res.json({
         isSuccess: false,
@@ -220,9 +254,9 @@ exports.getchallenge = async function (req, res) {
 //챌린지 책변경
 exports.patchchallengeBook = async function (req, res) {
   try {
-    var jwt = req.verifiedToken.userId;
+    var jwt = req.verifiedToken.id;
 
-    const userRows = await userprofileDao.getuser(jwt);
+    const userRows = await userDao.getuser(jwt);
     if (userRows[0] === undefined)
       return res.json({
         isSuccess: false,

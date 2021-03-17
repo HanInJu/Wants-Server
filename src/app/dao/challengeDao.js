@@ -1,11 +1,11 @@
 const { pool } = require("../../../config/database");
 
 // 목표추가
-async function postchallenge(userId, period, amount, time) {
+async function postchallenge(userId, period, amount, time, expriodAt) {
   const connection = await pool.getConnection(async (conn) => conn);
   const postchallengeQuery = `
-  insert into Goal(userId, period, amount, time)
-  value (${userId}, '${period}', ${amount}, ${time})`;
+  insert into Goal(userId, period, amount, time, expriodAt)
+  value (${userId}, '${period}', ${amount}, ${time}, '${expriodAt}')`;
 
   const [rows] = await connection.query(postchallengeQuery);
   connection.release();
@@ -147,6 +147,31 @@ where goalBookId = ${goalBookId} && userId = ${jwt};`;
   connection.release();
   return rows;
 }
+// 챌린지 변경
+async function patchchallenge(goalId, period, amount, time, expriodAt) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const patchchallengeQuery = `
+  update Goal
+  SET period = '${period}', amount = ${amount}, time = ${time}, expriodAt = '${expriodAt}'
+  WHERE goalId = ${goalId}`;
+  const [rows] = await connection.query(patchchallengeQuery);
+  connection.release();
+  return rows;
+}
+//////////////////////////////////////////날짜확인//////////////////////////////////////////////
+async function calendarYN(jwt, expriodAt) {
+  // 데이터베이스 함수를 selectmypage로 함
+  const connection = await pool.getConnection(async (conn) => conn);
+  const calendarYNQuery = `
+  select *
+  from Goal
+  where userId = ${jwt}
+  and (createAt between now() and '${expriodAt}'
+     or expriodAt between now() and '${expriodAt}')`;
+  const [calendarYNRows] = await connection.query(calendarYNQuery);
+  connection.release();
+  return calendarYNRows;
+}
 module.exports = {
   postchallenge,
   getbook,
@@ -158,4 +183,6 @@ module.exports = {
   patchchallengeBook,
   deletechallengeBook,
   goalBookId,
+  patchchallenge,
+  calendarYN,
 };
