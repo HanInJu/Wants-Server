@@ -8,7 +8,7 @@ const moment = require("moment");
 exports.postchallenge = async function (req, res) {
   // period 값 DMY를 받으면 만료일 계산해서 DB에 저장하기
   try {
-    var jwt = req.verifiedToken.id;
+    var jwt = req.verifiedToken.userId;
 
     const userRows = await userDao.getuser(jwt);
     if (userRows[0] === undefined)
@@ -78,7 +78,7 @@ exports.postchallenge = async function (req, res) {
 //챌린지 변경
 exports.patchchallenge = async function (req, res) {
   try {
-    var jwt = req.verifiedToken.id;
+    var jwt = req.verifiedToken.userId;
 
     const userRows = await userDao.getuser(jwt);
     if (userRows[0] === undefined)
@@ -147,7 +147,7 @@ exports.patchchallenge = async function (req, res) {
 
 exports.postchallengeBook = async function (req, res) {
   try {
-    var jwt = req.verifiedToken.id;
+    var jwt = req.verifiedToken.userId;
 
     const userRows = await userDao.getuser(jwt);
     if (userRows[0] === undefined)
@@ -252,7 +252,7 @@ exports.getchallenge = async function (req, res) {
 //챌린지 책변경
 exports.patchchallengeBook = async function (req, res) {
   try {
-    var jwt = req.verifiedToken.id;
+    var jwt = req.verifiedToken.userId;
 
     const userRows = await userDao.getuser(jwt);
     if (userRows[0] === undefined)
@@ -323,7 +323,7 @@ exports.patchchallengeBook = async function (req, res) {
 //챌린지 책삭제
 exports.deletechallengeBook = async function (req, res) {
   try {
-    var jwt = req.verifiedToken.id;
+    var jwt = req.verifiedToken.userId;
 
     const userRows = await userDao.getuser(jwt);
     if (userRows[0] === undefined)
