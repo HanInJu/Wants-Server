@@ -77,7 +77,6 @@ exports.postchallenge = async function (req, res) {
 };
 //챌린지 변경
 exports.patchchallenge = async function (req, res) {
-  // period 값 DMY를 받으면 만료일 계산해서 DB에 저장하기
   try {
     var jwt = req.verifiedToken.id;
 
@@ -147,7 +146,6 @@ exports.patchchallenge = async function (req, res) {
 };
 
 exports.postchallengeBook = async function (req, res) {
-  // period 값 DMY를 받으면 만료일 계산해서 DB에 저장하기
   try {
     var jwt = req.verifiedToken.id;
 
