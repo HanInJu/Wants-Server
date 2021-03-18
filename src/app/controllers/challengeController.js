@@ -49,7 +49,8 @@ exports.postchallenge = async function (req, res) {
       });
     // 겹치는 날짜 확인
     const calendarYNRows = await challengeDao.calendarYN(jwt, expriodAt);
-    if (calendarYNRows)
+    console.log(calendarYNRows);
+    if (calendarYNRows.length > 0)
       return res.json({
         isSuccess: false,
         code: 2122,
