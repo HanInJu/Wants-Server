@@ -10,6 +10,11 @@ exports.postchallenge = async function (req, res) {
   try {
     var jwt = req.verifiedToken.id;
 
+    if (jwt === undefined) {
+      return res.json({
+        result: req.verifiedToken,
+      });
+    }
     const userRows = await userDao.getuser(jwt);
     if (userRows[0] === undefined)
       return res.json({
