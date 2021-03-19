@@ -33,8 +33,19 @@ async function isDuplicatedName(name) {
   return profileRows;
 }
 
+async function getMyProfile(userId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const profileQuery = `
+    SELECT name, vow, IFNULL(profilePictureURL, '사진이 없습니다.') as profilePictureURL FROM User WHERE userId = ?;
+                 `;
+  const [profileRows] = await connection.query(profileQuery, userId);
+  connection.release();
+  return profileRows;
+}
+
 module.exports = {
   postProfile,
   isSameProfile,
   isDuplicatedName,
+  getMyProfile,
 };

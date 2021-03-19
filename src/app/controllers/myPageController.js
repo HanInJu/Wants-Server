@@ -159,3 +159,46 @@ exports.isDuplicatedName = async function (req, res) {
     return false;
   }
 }
+
+/*
+ * 최종 수정일 : 2021.03.20.SAT
+ * API 기 능 : 내 프로필 조회
+ */
+exports.getProfile = async function (req, res) {
+  try {
+    const userId = req.verifiedToken.id;
+    const connection = await pool.getConnection(async (conn) => conn);
+
+    const userRows = await userDao.getuser(userId);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 4020,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+
+    try {
+      const myProfile = await myPageDao.getMyProfile(userId);
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "프로필 조회 성공",
+        results: myProfile[0],
+      });
+
+    } catch (err) {
+      logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
+      connection.release();
+      return res.json({
+        isSuccess: false,
+        code: 500,
+        message: "프로필 조회 실패",
+      });
+    }
+
+
+  } catch(err) {
+    logger.error(`example non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+    return false;
+  }
+}
