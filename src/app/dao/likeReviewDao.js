@@ -1,16 +1,16 @@
 const { pool } = require("../../../config/database");
 
-async function like(userId) {
+async function like(reviewId, userId) {
   const connection = await pool.getConnection(async (conn) => conn);
-  const profileQuery = `
-                 SELECT name FROM User WHERE userId = ?;
+  const likeQuery = `
+    INSERT INTO Review_like(reviewId, userId) VALUES(?,?) ON DUPLICATE KEY UPDATE status = IF(status = 1, 0, 1);
                  `;
 
-  const profileParams = [userId];
-  const [profileRows] = await connection.query(profileQuery, profileParams);
+  const likeParams = [reviewId, userId];
+  const [likeRows] = await connection.query(likeQuery, likeParams);
 
   connection.release();
-  return profileRows;
+  return likeRows;
 }
 
 module.exports = {

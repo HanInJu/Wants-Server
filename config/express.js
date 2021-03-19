@@ -22,6 +22,8 @@ module.exports = function () {
   require("../src/app/routes/bookRoute")(app);
   require("../src/app/routes/reviewRoute")(app);
   require("../src/app/routes/journalsRoute")(app);
+  require("../src/app/routes/likeReviewRoute")(app);
+  require("../src/app/routes/myPageRoute")(app);
 
   /* Web */
   // require('../src/web/routes/indexRoute')(app);
