@@ -33,11 +33,30 @@ exports.like = async function (req, res) {
         });
       }
 
-      await likeReviewDao.like(userId);
+      const reviewId = req.params.reviewId;
+      const isValidReviewId = await reviewDao.isValidReviewId(reviewId);
+      if (isValidReviewId[0].exist === 0) {
+        return res.json({
+          isSuccess: false,
+          code: 2012,
+          message: "유효하지 않은 Review Id입니다.",
+        });
+      }
+
+      const isReviewOwnerId = await reviewDao.isAuthorizedUser(reviewId);
+      if (isReviewOwnerId[0].userId === userId) {
+        return res.json({
+          isSuccess: false,
+          code: 2013,
+          message: "자신의 평가/리뷰는 좋아요를 누를 수 없습니다.",
+        });
+      }
+
+      await likeReviewDao.like(reviewId, userId);
       return res.json({
         isSuccess: true,
         code: 1000,
-        message: "평가/리뷰 좋아요 등록 성공",
+        message: "평가/리뷰 좋아요 등록/취소 성공",
       });
 
     } catch (err) {
