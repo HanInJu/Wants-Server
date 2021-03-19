@@ -256,6 +256,9 @@ exports.deleteReview = async function (req, res) {
                 message: "평가/리뷰 삭제 실패"
             });
         }
+    } catch (err) {
+        logger.error(`example non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+        return false;
     }
 }
 /*
