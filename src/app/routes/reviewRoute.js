@@ -5,8 +5,7 @@ module.exports = function (app) {
     app.get('/review/', jwtMiddleware, review.getReview);
     app.route('/review').post(jwtMiddleware, review.postReview);
     app.route('/review/:reviewId').patch(jwtMiddleware, review.reviseReview);
-
     app.route('/review/:reviewId').delete(jwtMiddleware, review.deleteReview);
-    //app.route('/report-review').post(jwtMiddleware, review.reportReview);
+    app.route('/report-review/:reviewId').post(jwtMiddleware, review.reportReview);
 
 };

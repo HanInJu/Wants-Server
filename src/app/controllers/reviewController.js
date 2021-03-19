@@ -203,7 +203,7 @@ exports.reviseReview = async function (req, res) {
         logger.error(`example non transaction DB Connection error\n: ${JSON.stringify(err)}`);
         return false;
     }
-}
+};
 /*
  * 최종 수정일 : 2021.03.19.FRI
  * API 기 능 : 리뷰 삭제
@@ -260,109 +260,63 @@ exports.deleteReview = async function (req, res) {
         logger.error(`example non transaction DB Connection error\n: ${JSON.stringify(err)}`);
         return false;
     }
-}
+};
 /*
- * API 기 능 : 일지 추가
+ * 최종 수정일 : 2021.03.19.FRI
+ * API 기 능 : 리뷰 신고
  */
-exports.postjournals = async function (req, res) {
-  try {
-    var jwt = req.verifiedToken.id;
+exports.reportReview = async function (req, res) {
+    try {
+            const userId = req.verifiedToken.id;
+            const connection = await pool.getConnection(async conn => conn);
+            const userRows = await userDao.getuser(userId);
+            if (userRows[0] === undefined)
+                return res.json({
+                    isSuccess: false,
+                    code: 4020,
+                    message: "가입되어있지 않은 유저입니다.",
+                });
 
-    const userRows = await userDao.getuser(jwt);
-    if (userRows[0] === undefined)
-      return res.json({
-        isSuccess: false,
-        code: 4020,
-        message: "가입되어있지 않은 유저입니다.",
-      });
+        try {
+            const reviewId = req.params.reviewId;
+            const isValidReviewId = await reviewDao.isValidReviewId(reviewId);
+            if (isValidReviewId[0].exist === 0) {
+                return res.json({
+                    isSuccess: false,
+                    code: 2012,
+                    message: "유효하지 않은 Review Id입니다."
+                });
+            }
 
-    const {
-      time,
-      text,
-      journalImageURL,
-      open,
-      goalBookId,
-      page,
-      percent,
-    } = req.body;
+            const isReviewOwnerId = await reviewDao.isAuthorizedUser(reviewId);
+            if(isReviewOwnerId[0].userId === userId) {
+                return res.json({
+                    isSuccess: false,
+                    code: 2016,
+                    message: "자신의 평가/리뷰는 신고할 수 없습니다."
+                });
+            }
 
-    if (
-      time.length === 0 ||
-      time === undefined ||
-      text.length === 0 ||
-      text === undefined ||
-      open.length === 0 ||
-      open === undefined ||
-      page.length === 0 ||
-      page === undefined ||
-      percent.length === 0 ||
-      percent === undefined ||
-      goalBookId.length === 0 ||
-      goalBookId === undefined
-    )
-      return res.json({
-        isSuccess: false,
-        code: 2100,
-        message: "입력을 해주세요.",
-      });
-    console.log(goalBookId);
-    const whatIsYourName = await reviewDao.whatIsYourName(jwt);
-    if (whatIsYourName[0].name === "Reader") {
-      return res.json({
-        isSuccess: false,
-        code: 3001,
-        message: "닉네임을 설정해주세요.",
-      });
+            const reportParams = [reviewId, userId]
+            await reviewDao.reportReview(reportParams);
+            return res.json({
+                isSuccess: false,
+                code: 1000,
+                message: "리뷰 신고접수 완료."
+            });
+
+        } catch (err) {
+            logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
+            connection.release();
+            return res.json({
+                isSuccess: false,
+                code: 500,
+                message: "평가/리뷰 신고 실패"
+            });
+        }
+
+    } catch (err) {
+        logger.error(`example non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+        return false;
     }
-
-    const goalId1 = await reviewDao.getgoalBookId(goalBookId);
-    const goalId = goalId1[0].GoalId;
-
-    console.log(goalId);
-    if (goalId.length == 0)
-      return res.json({
-        isSuccess: true,
-        code: 2225,
-        message: "읽은 책이 없습니다.",
-      });
-
-    const postjournalsRows = await reviewDao.postjournals(
-      time,
-      page,
-      percent,
-      goalBookId,
-      goalId,
-      jwt
-    );
-    console.log(goalId);
-    if (postjournalsRows.affectedRows === 1) {
-      const challengeId = postjournalsRows.insertId;
-      const postjournals2Rows = await reviewDao.postjournals2(
-        challengeId,
-        text,
-        journalImageURL,
-        open
-      );
-      if (postjournals2Rows.affectedRows === 1)
-        return res.json({
-          isSuccess: true,
-          code: 1000,
-          message: "일지 작성 성공",
-        });
-      else if (postjournals2Rows.affectedRows === 0)
-        return res.json({
-          isSuccess: true,
-          code: 4000,
-          message: "일지 작성 실패",
-        });
-    } else
-      return res.json({
-        isSuccess: false,
-        code: 4000,
-        message: "일지 작성 실패",
-      });
-  } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
-    return res.status(500).send(`Error: ${err.message}`);
-  }
 };
