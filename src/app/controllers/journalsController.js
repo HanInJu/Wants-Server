@@ -217,3 +217,53 @@ exports.deletejournals = async function (req, res) {
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
+
+// 일지 수정할때 이미 작성한 내용 불러오는 API
+exports.getpatchjournals = async function (req, res) {
+  try {
+    var jwt = req.verifiedToken.id;
+
+    const userRows = await userDao.getuser(jwt);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 4020,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+
+    const journalId = req.params.journalId;
+
+    console.log(journalId);
+    if (journalId === undefined || journalId.length === 0)
+      return res.json({
+        isSuccess: false,
+        code: 2100,
+        message: "입력을 해주세요.",
+      });
+
+    const getpatchjournalsRows = await journalsDao.getpatchjournals(journalId);
+
+    if (getpatchjournalsRows.length > 0 || getpatchjournalsRows === undefined) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "수정할 일지 조회 성공",
+        result: getpatchjournalsRows,
+      });
+    } else if (getpatchjournalsRows.length === 0) {
+      return res.json({
+        isSuccess: false,
+        code: 2229,
+        message: "불러올 일지가 없습니다.",
+      });
+    } else
+      return res.json({
+        isSuccess: false,
+        code: 4000,
+        message: "수정할 일지 조회 실패",
+      });
+  } catch (err) {
+    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
+  }
+};

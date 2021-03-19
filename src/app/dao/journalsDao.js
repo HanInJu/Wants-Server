@@ -53,10 +53,25 @@ async function deletejournals(journalId) {
   connection.release();
   return calendarYNRows;
 }
+//////////////////////////////////////////수정할 일지 조회//////////////////////////////////////////////
+async function getpatchjournals(journalId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const calendarYNQuery = `
+  select journalId, text, journalImageURL, open, time, page, Challenge.percent, title, writer, imageURL
+  from Reading_journal
+  inner join Challenge on Challenge.challengeId = Reading_journal.challengeId
+  inner join Goal_book on Goal_book.goalId = Reading_journal.goalId
+  inner join Book on Book.publishNumber = Goal_book.publishNumber
+  where journalId = ${journalId}`;
+  const [calendarYNRows] = await connection.query(calendarYNQuery);
+  connection.release();
+  return calendarYNRows;
+}
 module.exports = {
   postjournals,
   postjournals2,
   getgoalBookId,
   patchjournals,
   deletejournals,
+  getpatchjournals,
 };
