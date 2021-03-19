@@ -125,90 +125,89 @@ exports.postReview = async function (req, res) {
  * API 기 능 : 리뷰 내용, 별점, 공개여부 수정
  */
 exports.reviseReview = async function (req, res) {
+  try {
+    const userId = req.verifiedToken.id;
+    const connection = await pool.getConnection(async (conn) => conn);
+
+    const userRows = await userDao.getuser(userId);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 4020,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+
     try {
-        const userId = req.verifiedToken.id;
-        const connection = await pool.getConnection(async conn => conn);
+      const reviewId = req.params.reviewId;
+      const isValidReviewId = await reviewDao.isValidReviewId(reviewId);
+      if (isValidReviewId[0].exist === 0) {
+        return res.json({
+          isSuccess: false,
+          code: 2012,
+          message: "유효하지 않은 Review Id입니다.",
+        });
+      }
 
-        const userRows = await userDao.getuser(userId);
-        if (userRows[0] === undefined)
-            return res.json({
-                isSuccess: false,
-                code: 4020,
-                message: "가입되어있지 않은 유저입니다.",
-            });
+      const isReviewOwnerId = await reviewDao.isAuthorizedUser(reviewId);
+      if (isReviewOwnerId[0].userId != userId) {
+        return res.json({
+          isSuccess: false,
+          code: 2013,
+          message: "평가/리뷰를 수정할 권한이 없습니다.",
+        });
+      }
 
-        try {
+      const { star, text, isPublic } = req.body;
 
-            const reviewId = req.params.reviewId;
-            const isValidReviewId = await reviewDao.isValidReviewId(reviewId);
-            if(isValidReviewId[0].exist === 0) {
-                return res.json({
-                    isSuccess: false,
-                    code: 2012,
-                    message: "유효하지 않은 Review Id입니다."
-                });
-            }
+      if (star == null || text == null || isPublic == null) {
+        return res.json({
+          isSuccess: false,
+          code: 2014,
+          message: "별점, 리뷰내용, 공개여부를 모두 입력/선택해주세요.",
+        });
+      }
 
-            const isReviewOwnerId = await reviewDao.isAuthorizedUser(reviewId);
-            if(isReviewOwnerId[0].userId != userId) {
-                return res.json({
-                    isSuccess: false,
-                    code: 2013,
-                    message: "평가/리뷰를 수정할 권한이 없습니다."
-                });
-            }
+      const exist = await reviewDao.isDuplicatedText(text);
 
-            const {
-                star, text, isPublic
-            } = req.body;
+      if (exist[0].exist === 1) {
+        return res.json({
+          isSuccess: false,
+          code: 2015,
+          message: "동일한 내용으로는 리뷰를 수정할 수 없습니다.",
+        });
+      }
 
-            if(star == null || text == null || isPublic == null) {
-                return res.json({
-                    isSuccess: false,
-                    code: 2014,
-                    message: "별점, 리뷰내용, 공개여부를 모두 입력/선택해주세요."
-                });
-            }
-
-            const exist = await reviewDao.isDuplicatedText(text);
-
-            if(exist[0].exist === 1) {
-                return res.json({
-                    isSuccess: false,
-                    code: 2015,
-                    message: "동일한 내용으로는 리뷰를 수정할 수 없습니다."
-                });
-            }
-
-            const reviseReviewParams = [star, text, isPublic, reviewId];
-            await reviewDao.reviseReview(reviseReviewParams);
-            return res.json({
-                isSuccess: true,
-                code: 1000,
-                message: "평가/리뷰 수정 성공"
-            });
-
-
-        } catch(err) {
-            logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
-            connection.release();
-            return res.json({
-                isSuccess: false,
-                code: 500,
-                message: "평가/리뷰 수정 실패"
-            });
-        }
-
+      const reviseReviewParams = [star, text, isPublic, reviewId];
+      await reviewDao.reviseReview(reviseReviewParams);
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "평가/리뷰 수정 성공",
+      });
     } catch (err) {
-        logger.error(`example non transaction DB Connection error\n: ${JSON.stringify(err)}`);
-        return false;
+      logger.error(
+        `example non transaction Query error\n: ${JSON.stringify(err)}`
+      );
+      connection.release();
+      return res.json({
+        isSuccess: false,
+        code: 500,
+        message: "평가/리뷰 수정 실패",
+      });
     }
+  } catch (err) {
+    logger.error(
+      `example non transaction DB Connection error\n: ${JSON.stringify(err)}`
+    );
+    return false;
+  }
 };
 /*
  * 최종 수정일 : 2021.03.19.FRI
  * API 기 능 : 리뷰 삭제
  */
 exports.deleteReview = async function (req, res) {
+
     try {
         const userId = req.verifiedToken.id;
         const connection = await pool.getConnection(async conn => conn);
@@ -319,4 +318,5 @@ exports.reportReview = async function (req, res) {
         logger.error(`example non transaction DB Connection error\n: ${JSON.stringify(err)}`);
         return false;
     }
+
 };

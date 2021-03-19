@@ -21,6 +21,7 @@ module.exports = function () {
   require("../src/app/routes/challengeRoute")(app);
   require("../src/app/routes/bookRoute")(app);
   require("../src/app/routes/reviewRoute")(app);
+  require("../src/app/routes/journalsRoute")(app);
 
   /* Web */
   // require('../src/web/routes/indexRoute')(app);

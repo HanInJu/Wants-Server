@@ -118,19 +118,36 @@ async function deleteReview(reviewId) {
   return deleteRow;
 }
 
-async function reportReview(reportParams) {
+//////////////////////////////////////////일지추가//////////////////////////////////////////////
+async function postjournals(time, page, percent, goalBookId, goalId, jwt) {
   const connection = await pool.getConnection(async (conn) => conn);
-  const reportQuery = `
-    INSERT INTO Review_report(reviewId, userId, status) VALUES(?,?,'REPORTED');
-                      `;
-
-  const [reportRow] = await connection.query(
-      reportQuery,
-      reportParams
-  );
-
+  const calendarYNQuery = `
+  insert into Challenge(time, page, percent, goalBookId, goalId, userId)
+  values (${time}, ${page}, ${percent}, ${goalBookId}, ${goalId}, ${jwt})`;
+  const [calendarYNRows] = await connection.query(calendarYNQuery);
   connection.release();
-  return reportRow;
+  return calendarYNRows;
+}
+//////////////////////////////////////////일지추가2//////////////////////////////////////////////
+async function postjournals2(challengeId, text, journalImageURL, open) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const calendarYNQuery = `
+  insert into Reading_journal(challengeId, text, journalImageURL, open)
+  values ( ${challengeId}, '${text}', '${journalImageURL}' , '${open}')`;
+  const [calendarYNRows] = await connection.query(calendarYNQuery);
+  connection.release();
+  return calendarYNRows;
+}
+//////////////////////////////////////////일지추가2//////////////////////////////////////////////
+async function getgoalBookId(goalBookId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const calendarYNQuery = `
+  select GoalId
+  from Goal_book
+  where goalBookId = ${goalBookId}`;
+  const [calendarYNRows] = await connection.query(calendarYNQuery);
+  connection.release();
+  return calendarYNRows;
 }
 
 module.exports = {
@@ -143,5 +160,7 @@ module.exports = {
   reviseReview,
   isValidReviewId,
   deleteReview,
-  reportReview,
+  postjournals,
+  postjournals2,
+  getgoalBookId,
 };
