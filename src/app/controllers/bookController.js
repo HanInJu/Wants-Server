@@ -66,42 +66,33 @@ exports.postbook = async function (req, res) {
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
-/*
-exports.getchallenge = async function (req, res) {
+
+exports.getbook = async function (req, res) {
   try {
-    const goalId = req.query.goalId;
-    const getchallenge1Rows = await challengeDao.getchallenge1(goalId);
+    const bookId = req.params.bookId;
+    const getbookRows = await bookDao.getbook(bookId);
 
-    var goalBookId = 0;
-    var getchallenge2Rows = [];
-    for (var i = 0; i < getchallenge1Rows[0].amount; i++) {
-      goalBookId = getchallenge1Rows[i].goalBookId;
-
-      const goalBookRows = await challengeDao.getchallenge2(goalBookId);
-
-      getchallenge2Rows.push(goalBookRows);
-    }
-
-    const getchallenge3Rows = await challengeDao.getchallenge3(goalId);
-
-    if (getchallenge1Rows.length > 0) {
+    if (getbookRows.length > 0) {
       return res.json({
         isSuccess: true,
         code: 1000,
-        message: "오늘의 챌린지 조회 성공",
-        getchallenge1Rows,
-        getchallenge2Rows,
-        getchallenge3Rows,
+        message: "책 조회 성공",
+        getbookRows,
+      });
+    } else if (getbookRows.length === 0) {
+      return res.json({
+        isSuccess: false,
+        code: 2231,
+        message: "책이 없습니다. 추가해주세요",
       });
     } else
       return res.json({
         isSuccess: false,
         code: 4000,
-        message: "오늘의 챌린지 조회 실패",
+        message: "책 조회 실패",
       });
   } catch (err) {
     logger.error(`App - SignUp Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
-*/
