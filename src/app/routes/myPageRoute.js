@@ -3,5 +3,6 @@ module.exports = function (app) {
   const jwtMiddleware = require("../../../config/jwtMiddleware");
 
   app.route('/profile').post(jwtMiddleware, myPage.profile);
+  app.get('/name', jwtMiddleware, myPage.isDuplicatedName);
 
 };

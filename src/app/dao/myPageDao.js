@@ -1,18 +1,40 @@
 const { pool } = require("../../../config/database");
 
-async function profile(userId) {
+async function postProfile(profileParams) {
   const connection = await pool.getConnection(async (conn) => conn);
   const profileQuery = `
-                 SELECT name FROM User WHERE userId = ?;
+    UPDATE User SET name = ?, profilePictureURL = ?, vow = ? WHERE userId = ?;
                  `;
 
-  const profileParams = [userId];
   const [profileRows] = await connection.query(profileQuery, profileParams);
+  connection.release();
+  return profileRows;
+}
 
+async function isSameProfile(profileParams) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const profileQuery = `
+    SELECT EXISTS(SELECT * FROM User WHERE name = ? AND profilePictureURL = ? AND vow = ? AND userId = ?) as exist;
+                 `;
+
+  const [profileRows] = await connection.query(profileQuery, profileParams);
+  connection.release();
+  return profileRows;
+}
+
+async function isDuplicatedName(name) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const profileQuery = `
+    SELECT EXISTS(SELECT * FROM User WHERE name = ?) as exist;
+                 `;
+
+  const [profileRows] = await connection.query(profileQuery, name);
   connection.release();
   return profileRows;
 }
 
 module.exports = {
-  profile,
+  postProfile,
+  isSameProfile,
+  isDuplicatedName,
 };
