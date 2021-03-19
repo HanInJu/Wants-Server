@@ -5,7 +5,7 @@ const reviewDao = require("../dao/reviewDao");
 const userDao = require("../dao/userDao");
 
 /*
- * 최종 수정일 : 2021.03.16.TUE
+ * 최종 수정일 : 2021.03.19.FRI
  * API 기 능 : 내 서재 - 내 리뷰 조회
  */
 exports.getReview = async function (req, res) {
@@ -23,26 +23,30 @@ exports.getReview = async function (req, res) {
 
     try {
       const align = req.param("align");
-      if (align == "DESC") {
-        //오래된 순 정렬
-      } else {
-        //그 외에는 모두 최신순
+      if (align == "asc") { //오래된 순 정렬
+
+      } else if (align == "desc") { //최신순 정렬
+
+      } else { //그 외 에러
+          return res.json({
+              isSuccess: false,
+              code: 2018,
+              message: "정렬 필터를 최신순 또는 오래된 순으로 선택해주세요.",
+          });
       }
+
     } catch (err) {
-      logger.error(
-        `example non transaction Query error\n: ${JSON.stringify(err)}`
-      );
+      logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
       connection.release();
       return res.json({
         isSuccess: false,
         code: 500,
-        message: "평가/리뷰 조회 실패",
+        message: "내 서재 평가/리뷰 조회 실패",
       });
     }
+
   } catch (err) {
-    logger.error(
-      `example non transaction DB Connection error\n: ${JSON.stringify(err)}`
-    );
+    logger.error(`example non transaction DB Connection error\n: ${JSON.stringify(err)}`);
     return false;
   }
 };
@@ -296,12 +300,22 @@ exports.reportReview = async function (req, res) {
                 });
             }
 
-            const reportParams = [reviewId, userId]
+            const reportParams = [reviewId, userId];
+            const isDuplicatedReport = await reviewDao.isDuplicatedReport(reportParams);
+
+            if(isDuplicatedReport[0].exist === 1) {
+                return res.json({
+                    isSuccess: false,
+                    code: 2017,
+                    message: "이미 신고한 평가/리뷰입니다."
+                });
+            }
+
             await reviewDao.reportReview(reportParams);
             return res.json({
                 isSuccess: false,
                 code: 1000,
-                message: "리뷰 신고접수 완료."
+                message: "평가/리뷰 신고접수 완료."
             });
 
         } catch (err) {

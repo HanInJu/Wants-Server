@@ -118,16 +118,23 @@ async function deleteReview(reviewId) {
   return deleteRow;
 }
 
+async function isDuplicatedReport(reportParams) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const duplicatedReportQuery = `
+    SELECT EXISTS(SELECT * FROM Review_report WHERE reviewId = ? AND userId = ?) AS exist;
+                      `;
+  const [duplicatedReportRow] = await connection.query(duplicatedReportQuery, reportParams);
+
+  connection.release();
+  return duplicatedReportRow;
+}
+
 async function reportReview(reportParams) {
   const connection = await pool.getConnection(async (conn) => conn);
   const reportQuery = `
     INSERT INTO Review_report(reviewId, userId, status) VALUES(?,?,'REPORTED');
                       `;
-
-  const [reportRow] = await connection.query(
-      reportQuery,
-      reportParams
-  );
+  const [reportRow] = await connection.query(reportQuery, reportParams);
 
   connection.release();
   return reportRow;
@@ -143,5 +150,6 @@ module.exports = {
   reviseReview,
   isValidReviewId,
   deleteReview,
+  isDuplicatedReport,
   reportReview,
 };
