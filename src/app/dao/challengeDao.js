@@ -38,7 +38,7 @@ async function postchallengeBook(goalId, publishNumber) {
 async function getchallenge1(goalId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const getchallenge1Query = `
-  select amount,
+  select Goal.goalId as goalId, amount,
   time,
   period,
   expriodAt,
@@ -80,7 +80,7 @@ async function getchallenge3(goalId) {
    from Reading_journal
    where date(Reading_journal.postAt) = curdate() && Reading_journal.goalId = ${goalId}) as countJournal
 from Challenge
-where date(Challenge.createAt) = curdate() && Challenge.goalId = ${goalId} && Challenge.status = 'Y';`;
+where date(Challenge.createAt) = curdate() && Challenge.goalId = ${goalId} && Challenge.status = 'Y'`;
 
   const [rows] = await connection.query(getchallenge2Query);
   connection.release();
@@ -172,6 +172,19 @@ async function calendarYN(jwt, expriodAt) {
   connection.release();
   return calendarYNRows;
 }
+// 오늘의 챌린지 조회1
+async function getgoalId(userId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getchallenge1Query = `
+  select *
+  from Goal
+  where userId = ${userId}
+  and (curdate() between createAt and Goal.expriodAt)`;
+
+  const [rows] = await connection.query(getchallenge1Query);
+  connection.release();
+  return rows;
+}
 module.exports = {
   postchallenge,
   getbook,
@@ -185,4 +198,5 @@ module.exports = {
   goalBookId,
   patchchallenge,
   calendarYN,
+  getgoalId,
 };

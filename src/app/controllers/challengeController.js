@@ -10,6 +10,11 @@ exports.postchallenge = async function (req, res) {
   try {
     var jwt = req.verifiedToken.id;
 
+    if (jwt === undefined) {
+      return res.json({
+        result: req.verifiedToken,
+      });
+    }
     const userRows = await userDao.getuser(jwt);
     if (userRows[0] === undefined)
       return res.json({
@@ -44,7 +49,8 @@ exports.postchallenge = async function (req, res) {
       });
     // 겹치는 날짜 확인
     const calendarYNRows = await challengeDao.calendarYN(jwt, expriodAt);
-    if (calendarYNRows)
+    console.log(calendarYNRows);
+    if (calendarYNRows.length > 0)
       return res.json({
         isSuccess: false,
         code: 2122,
@@ -213,16 +219,23 @@ exports.getchallenge = async function (req, res) {
         message: "가입되어있지 않은 유저입니다.",
       });
 
-    const goalId = req.query.goalId;
+    // goalId 찾기 유저 jwt로
+    const goalIdRows = await challengeDao.getgoalId(jwt);
+    const goalId = goalIdRows[0].goalId;
+    if (goalId.length === 0)
+      return res.json({
+        isSuccess: false,
+        code: 2223,
+        message: "설정한 목표가 없습니다. 목표를 설정해주세요.",
+      });
+
     const getchallenge1Rows = await challengeDao.getchallenge1(goalId);
 
     var goalBookId = 0;
     var getchallenge2Rows = [];
     for (var i = 0; i < getchallenge1Rows[0].amount; i++) {
       goalBookId = getchallenge1Rows[i].goalBookId;
-
       const goalBookRows = await challengeDao.getchallenge2(goalBookId);
-
       getchallenge2Rows.push(goalBookRows);
     }
 

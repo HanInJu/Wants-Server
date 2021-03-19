@@ -1,6 +1,6 @@
-module.exports = function(app){
-    const review = require('../controllers/reviewController');
-    const jwtMiddleware = require('../../../config/jwtMiddleware');
+module.exports = function (app) {
+  const review = require("../controllers/reviewController");
+  const jwtMiddleware = require("../../../config/jwtMiddleware");
 
     app.get('/review/', jwtMiddleware, review.getReview);
     app.route('/review').post(jwtMiddleware, review.postReview);
@@ -8,4 +8,5 @@ module.exports = function(app){
 
     app.route('/review/:reviewId').delete(jwtMiddleware, review.deleteReview);
     //app.route('/report-review').post(jwtMiddleware, review.reportReview);
+
 };
