@@ -219,16 +219,23 @@ exports.getchallenge = async function (req, res) {
         message: "가입되어있지 않은 유저입니다.",
       });
 
-    const goalId = req.query.goalId;
+    // goalId 찾기 유저 jwt로
+    const goalIdRows = await challengeDao.getgoalId(jwt);
+    const goalId = goalIdRows[0].goalId;
+    if (goalId.length === 0)
+      return res.json({
+        isSuccess: false,
+        code: 2223,
+        message: "설정한 목표가 없습니다. 목표를 설정해주세요.",
+      });
+
     const getchallenge1Rows = await challengeDao.getchallenge1(goalId);
 
     var goalBookId = 0;
     var getchallenge2Rows = [];
     for (var i = 0; i < getchallenge1Rows[0].amount; i++) {
       goalBookId = getchallenge1Rows[i].goalBookId;
-
       const goalBookRows = await challengeDao.getchallenge2(goalBookId);
-
       getchallenge2Rows.push(goalBookRows);
     }
 
