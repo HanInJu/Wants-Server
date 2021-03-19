@@ -67,7 +67,7 @@ async function postReview(reviewParams) {
 async function isValidReviewId(reviewId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const validReviewQuery = `
-                 SELECT EXISTS(SELECT * FROM Review WHERE reviewId = ?) as exist;
+    SELECT EXISTS(SELECT * FROM Review WHERE reviewId = ? AND status = 'OK') as exist;
                  `;
   const validReviewParam = [reviewId];
   const [validReviewRow] = await connection.query(
@@ -124,6 +124,21 @@ async function reviseReview(reviseReviewParams) {
   return publicRow;
 }
 
+async function deleteReview(reviewId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const deleteQuery = `
+                       UPDATE Review SET status = 'DELETE' WHERE reviewId = ?;
+                      `;
+
+  const [deleteRow] = await connection.query(
+      deleteQuery,
+      reviewId
+  );
+
+  connection.release();
+  return deleteRow;
+}
+
 module.exports = {
   postReview,
   whatIsYourName,
@@ -133,4 +148,5 @@ module.exports = {
   isDuplicatedText,
   reviseReview,
   isValidReviewId,
+  deleteReview,
 };
