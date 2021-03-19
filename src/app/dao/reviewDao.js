@@ -94,16 +94,30 @@ async function isAuthorizedUser(reviewId) {
   return validReviewRow;
 }
 
-async function changePublic(reviewId) {
+async function isDuplicatedText(text) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const duplicatedTextQuery = `
+    SELECT EXISTS(SELECT * FROM Review WHERE text = ?) as exist;
+                      `;
+
+  const [duplicatedTextRow] = await connection.query(
+      duplicatedTextQuery,
+      text
+  );
+
+  connection.release();
+  return duplicatedTextRow;
+}
+
+async function reviseReview(reviseReviewParams) {
   const connection = await pool.getConnection(async (conn) => conn);
   const publicQuery = `
-    UPDATE Review SET isPublic = IF(isPublic = 1, 0, 1) WHERE reviewId = ?;
-                 `;
+                      UPDATE Review SET star = ?, text = ?, isPublic = ? WHERE reviewId = ?;
+                      `;
 
-  const publicParam = [reviewId];
   const [publicRow] = await connection.query(
       publicQuery,
-      publicParam
+      reviseReviewParams
   );
 
   connection.release();
@@ -116,6 +130,7 @@ module.exports = {
   isPosted,
   isValidBookId,
   isAuthorizedUser,
-  changePublic,
+  isDuplicatedText,
+  reviseReview,
   isValidReviewId,
 };

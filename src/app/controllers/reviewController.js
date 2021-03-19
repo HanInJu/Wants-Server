@@ -124,8 +124,8 @@ exports.postReview = async function (req, res) {
 };
 
 /*
- * 최종 수정일 : 2021.03.16.TUE
- * API 기 능 : 리뷰 공개여부 수정 -- 다시 수정해야 함
+ * 최종 수정일 : 2021.03.19.FRI
+ * API 기 능 : 리뷰 내용, 별점, 공개여부 수정
  */
 exports.changePublic = async function (req, res) {
     try {
@@ -161,11 +161,34 @@ exports.changePublic = async function (req, res) {
                 });
             }
 
-            await reviewDao.changePublic(reviewId);
+            const {
+                star, text, isPublic
+            } = req.body;
+
+            if(star == null || text == null || isPublic == null) {
+                return res.json({
+                    isSuccess: false,
+                    code: 2014,
+                    message: "별점, 리뷰내용, 공개여부를 모두 입력/선택해주세요."
+                });
+            }
+
+            const exist = await reviewDao.isDuplicatedText(text);
+
+            if(exist[0].exist === 1) {
+                return res.json({
+                    isSuccess: false,
+                    code: 2015,
+                    message: "동일한 내용으로는 리뷰를 수정할 수 없습니다."
+                });
+            }
+
+            const reviseReviewParams = [star, text, isPublic, reviewId];
+            await reviewDao.reviseReview(reviseReviewParams);
             return res.json({
                 isSuccess: true,
                 code: 1000,
-                message: "평가/리뷰 공개여부 변경 성공"
+                message: "평가/리뷰 수정 성공"
             });
 
 
@@ -175,7 +198,7 @@ exports.changePublic = async function (req, res) {
             return res.json({
                 isSuccess: false,
                 code: 500,
-                message: "평가/리뷰 공개여부 변경 실패"
+                message: "평가/리뷰 수정 실패"
             });
         }
 
