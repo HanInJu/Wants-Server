@@ -73,6 +73,18 @@ exports.signUp = async function (req, res) {
     const insertUserInfoParams = [email, hashedPassword, nickname];
 
     const insertUserRows = await userDao.insertUserInfo(insertUserInfoParams);
+    const [userInfoRows] = await userDao.selectUserInfo(email);
+    //토큰 생성
+    let token = await jwt.sign(
+        {
+          id: userInfoRows[0].userId,
+        }, // 토큰의 내용(payload)
+        secret_config.jwtsecret, // 비밀 키
+        {
+          expiresIn: "365d",
+          subject: "userInfo",
+        } // 유효 시간은 365일
+    );
 
     //  await connection.commit(); // COMMIT
     // connection.release();
@@ -80,7 +92,9 @@ exports.signUp = async function (req, res) {
       isSuccess: true,
       code: 1000,
       message: "회원가입 성공",
+      jwt: token,
     });
+
   } catch (err) {
     // await connection.rollback(); // ROLLBACK
     // connection.release();
