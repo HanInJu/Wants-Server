@@ -8,4 +8,10 @@ module.exports = function (app) {
   //app.route('/review').delete(jwtMiddleware, review.deleteReview);
 
   //app.route('/report-review').post(jwtMiddleware, review.reportReview);
+
+  //app.get("/journals", jwtMiddleware, challenge.getjournals); // 일지 조회
+  app.post("/journals", jwtMiddleware, review.postjournals); // 일지 추가
+  app.patch("/journals", jwtMiddleware, review.patchjournals); // 일지 수정
+  //app.get("/journals/:journalsId", jwtMiddleware, challenge.getpatchjournals); // 일지 수정위한 조회
+  //app.delete("/journals", jwtMiddleware, challenge.deletejournals); // 일지 삭제
 };
