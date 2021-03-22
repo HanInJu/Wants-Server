@@ -199,6 +199,28 @@ async function getbookTime(goalBookId) {
   connection.release();
   return rows;
 }
+// 연속도서일 조회
+async function getcontinuity(goalId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getchallenge1Query = `
+  SELECT goalId, createAt, COUNT(row_num)
+  FROM (
+  SELECT goalId, createAt, goalBookId, @k:=@k+1 AS row_num, date_format(ADDDATE(createAt, -@k), '%Y-%m-%d') AS group_date
+    FROM (
+      SELECT a.goalId, a.createAt, goalBookId
+      FROM Challenge AS a
+      RIGHT JOIN Goal AS b ON a.goalId = b.goalId
+      WHERE a.createAt >= b.createAt && a.goalId = ${goalId}
+      GROUP BY a.goalId, DATE(a.createAt)
+      ORDER BY a.goalId
+    ) AS aa
+    GROUP BY goalId, DATE(createAt)
+  ) AS bb
+  GROUP BY goalId, group_date`;
+  const [rows] = await connection.query(getchallenge1Query);
+  connection.release();
+  return rows;
+}
 module.exports = {
   postchallenge,
   getbook,
@@ -214,4 +236,5 @@ module.exports = {
   calendarYN,
   getgoalId,
   getbookTime,
+  getcontinuity,
 };

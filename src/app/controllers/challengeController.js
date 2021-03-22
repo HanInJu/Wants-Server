@@ -433,3 +433,52 @@ exports.getbookTime = async function (req, res) {
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
+
+//챌린지 현황
+exports.getgoal = async function (req, res) {
+  try {
+    var jwt = req.verifiedToken.id;
+
+    const userRows = await userDao.getuser(jwt);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 4020,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+
+    const goalId = req.params.goalId;
+
+    if (goalId.length === 0 || goalId === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 2100,
+        message: "입력을 해주세요.",
+      });
+
+    const getcontinuityRows = await challengeDao.getcontinuity(goalId);
+
+    if (getbookTimeRows.length > 0 || getbookTimeRows === undefined) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "시간 조회 성공",
+        result: getbookTimeRows,
+      });
+    } else if (getbookTimeRows.length === 0) {
+      return res.json({
+        isSuccess: false,
+        code: 2229,
+        message: "불러올 시간이 없습니다. 책 읽어주세요.",
+      });
+    } else
+      return res.json({
+        isSuccess: false,
+        code: 4000,
+        message: "시간 조회 실패",
+      });
+  } catch (err) {
+    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
+  }
+};
