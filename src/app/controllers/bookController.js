@@ -48,6 +48,7 @@ exports.postbook = async function (req, res) {
           isSuccess: true,
           code: 1000,
           message: "책 추가 성공",
+          bookId: bookRows.insertId,
         });
       } else
         return res.json({
@@ -60,6 +61,7 @@ exports.postbook = async function (req, res) {
         isSuccess: false,
         code: 2110,
         message: "책이 이미 있습니다.",
+        bookId: getbookRows[0].bookId,
       });
   } catch (err) {
     logger.error(`App - SignUp Query error\n: ${err.message}`);
