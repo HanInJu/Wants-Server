@@ -73,6 +73,7 @@ exports.getbook = async function (req, res) {
   try {
     const bookId = req.params.bookId;
     const getbookRows = await bookDao.getbook(bookId);
+    const currentReadRows = await bookDao.currentRead(bookId);
 
     if (getbookRows.length > 0) {
       return res.json({
@@ -80,6 +81,7 @@ exports.getbook = async function (req, res) {
         code: 1000,
         message: "책 조회 성공",
         getbookRows,
+        currentReadRows,
       });
     } else if (getbookRows.length === 0) {
       return res.json({
