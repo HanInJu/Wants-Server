@@ -55,32 +55,16 @@ exports.signUp = async function (req, res) {
 
   try {
     // 이메일 중복 확인
-    try {
-      const emailRows = await userDao.userEmailCheck(email);
 
-      if (emailRows[0].exist === 1) {
-        return res.json({
-          isSuccess: false,
-          code: 2005,
-          message: "중복된 이메일입니다.",
-        });
-      }
-    } catch (err) {
+    const emailRows = await userDao.userEmailCheck(email);
+
+    if (emailRows[0].exist === 1) {
       return res.json({
         isSuccess: false,
-        code: 6000,
-        message: "중복된 이메일 에러.",
+        code: 2005,
+        message: "중복된 이메일입니다.",
       });
     }
-    // const emailRows = await userDao.userEmailCheck(email);
-    //
-    // if (emailRows[0].exist === 1) {
-    //   return res.json({
-    //     isSuccess: false,
-    //     code: 2005,
-    //     message: "중복된 이메일입니다.",
-    //   });
-    // }
 
     // TRANSACTION : advanced
     // await connection.beginTransaction(); // START TRANSACTION
@@ -88,31 +72,78 @@ exports.signUp = async function (req, res) {
       .createHash("sha512")
       .update(password)
       .digest("hex");
-    const insertUserInfoParams = [email, hashedPassword, nickname];
-    await userDao.insertUserInfo(insertUserInfoParams);
 
-    const [userInfoRows] = await userDao.selectUserInfo(email);
+    try {
+      const insertUserInfoParams = [email, hashedPassword, nickname];
+      await userDao.insertUserInfo(insertUserInfoParams);
+    } catch (err) {
+      return res.json({
+        isSuccess: false,
+        code: 6000,
+        message: "insert 에러",
+      });
+    }
+    // const insertUserInfoParams = [email, hashedPassword, nickname];
+    // await userDao.insertUserInfo(insertUserInfoParams); 여기가 원래
+
+    try {
+      const [userInfoRows] = await userDao.selectUserInfo(email);
+    } catch (err) {
+      return res.json({
+        isSuccess: false,
+        code: 6000,
+        message: "userInfoRows 에러",
+      });
+    }
+    // const [userInfoRows] = await userDao.selectUserInfo(email); //여기가 원래
+
+    try  {
+      const [userInfoRows] = await userDao.selectUserInfo(email);
+      let token = await jwt.sign(
+          {
+            id: userInfoRows[0].userId,
+          }, // 토큰의 내용(payload)
+          secret_config.jwtsecret, // 비밀 키
+          {
+            expiresIn: "365d",
+            subject: "userInfo",
+          } // 유효 시간은 365일
+      );
+
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "회원가입 성공",
+        jwt: token,
+      });
+    } catch (err) {
+      return res.json({
+        isSuccess: false,
+        code: 6000,
+        message: "token 에러",
+      });
+    }
 
     //토큰 생성
-    let token = await jwt.sign(
-        {
-          id: userInfoRows[0].userId,
-        }, // 토큰의 내용(payload)
-        secret_config.jwtsecret, // 비밀 키
-        {
-          expiresIn: "365d",
-          subject: "userInfo",
-        } // 유효 시간은 365일
-    );
+    // let token = await jwt.sign(
+    //     {
+    //       id: userInfoRows[0].userId,
+    //     }, // 토큰의 내용(payload)
+    //     secret_config.jwtsecret, // 비밀 키
+    //     {
+    //       expiresIn: "365d",
+    //       subject: "userInfo",
+    //     } // 유효 시간은 365일
+    // );
 
     //  await connection.commit(); // COMMIT
     // connection.release();
-    return res.json({
-      isSuccess: true,
-      code: 1000,
-      message: "회원가입 성공",
-      jwt: token,
-    });
+    // return res.json({
+    //   isSuccess: true,
+    //   code: 1000,
+    //   message: "회원가입 성공",
+    //   jwt: token,
+    // });
 
   } catch (err) {
     // await connection.rollback(); // ROLLBACK
