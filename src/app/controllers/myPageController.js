@@ -196,8 +196,42 @@ exports.getProfile = async function (req, res) {
       });
     }
 
-
   } catch(err) {
+    logger.error(`example non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+    return false;
+  }
+};
+
+/*
+ * 최종 수정일 : 2021.03.20.SAT
+ * API 기 능 : 나의 피스 조회
+ */
+exports.getRewards = async function (req, res) {
+  try {
+    const userId = req.verifiedToken.id;
+    const connection = await pool.getConnection(async (conn) => conn);
+
+    const userRows = await userDao.getuser(userId);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 4020,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+
+    try {
+      
+
+    } catch (err) {
+      logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
+      connection.release();
+      return res.json({
+        isSuccess: false,
+        code: 500,
+        message: "리워드 조회 실패",
+      });
+    }
+  } catch (err) {
     logger.error(`example non transaction DB Connection error\n: ${JSON.stringify(err)}`);
     return false;
   }
