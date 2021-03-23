@@ -291,7 +291,7 @@ exports.patchchallengeBook = async function (req, res) {
         code: 2100,
         message: "입력을 해주세요.",
       });
-    const selectGoalUser = await challengeDao.selectGoalUser(goalBookId, jwt);
+    const selectGoalUser = await challengeDao.goalBookId(goalBookId, jwt);
     if (!selectGoalUser)
       return res.json({
         isSuccess: false,
@@ -314,9 +314,11 @@ exports.patchchallengeBook = async function (req, res) {
       publishNumber,
       goalBookId
     );
-
+    const postchallengebook2Rows = await challengeDao.patchchallengeBook2(
+      goalBookId
+    );
     console.log(postchallengebookRows);
-    if (postchallengebookRows.changedRows === 1)
+    if (postchallengebook2Rows.changedRows === 1)
       return res.json({
         isSuccess: true,
         code: 1000,
@@ -367,8 +369,10 @@ exports.deletechallengeBook = async function (req, res) {
     const deletechallengeBook = await challengeDao.deletechallengeBook(
       goalBookId
     );
-
-    if (deletechallengeBook.affectedRows === 1)
+    const deletechallengeBook2 = await challengeDao.deletechallengeBook2(
+      goalBookId
+    );
+    if (deletechallengeBook2.affectedRows === 1)
       return res.json({
         isSuccess: true,
         code: 1000,

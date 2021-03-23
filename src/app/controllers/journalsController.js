@@ -68,14 +68,18 @@ exports.postjournals = async function (req, res) {
         code: 2225,
         message: "목표가 없습니다.",
       });
-
+    const charPercent2 = await journalsDao.getpercent(goalBookId);
+    const charPercent1 = charPercent2[0].percent;
+    const charPercent = percent - charPercent1;
+    console.log(charPercent);
     const postjournalsRows = await journalsDao.postjournals(
       time,
       page,
       percent,
       goalBookId,
       goalId,
-      jwt
+      jwt,
+      charPercent
     );
 
     if (postjournalsRows.affectedRows === 1) {
