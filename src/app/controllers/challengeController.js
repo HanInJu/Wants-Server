@@ -458,19 +458,24 @@ exports.getgoal = async function (req, res) {
       });
 
     const getcontinuityRows = await challengeDao.getcontinuity(goalId);
+    const getcontinuity2Rows = await challengeDao.getcontinuity2(goalId);
 
-    if (getbookTimeRows.length > 0 || getbookTimeRows === undefined) {
+    if (getcontinuityRows.length > 0 && getcontinuity2Rows.length > 0) {
       return res.json({
         isSuccess: true,
         code: 1000,
         message: "시간 조회 성공",
-        result: getbookTimeRows,
+        getcontinuityRows,
+        getcontinuity2Rows,
       });
-    } else if (getbookTimeRows.length === 0) {
+    } else if (
+      getcontinuityRows.length === 0 ||
+      getcontinuity2Rows.length === 0
+    ) {
       return res.json({
         isSuccess: false,
         code: 2229,
-        message: "불러올 시간이 없습니다. 책 읽어주세요.",
+        message: "인증할 내용이 없습니다.",
       });
     } else
       return res.json({

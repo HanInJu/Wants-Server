@@ -68,7 +68,7 @@ async function getpatchjournals(journalId) {
   return calendarYNRows;
 }
 //////////////////////////////////////////내가쓴 일지 조회//////////////////////////////////////////////
-async function getjournals(userId) {
+async function getjournals(userId, align) {
   const connection = await pool.getConnection(async (conn) => conn);
   const calendarYNQuery = `
   select title, Reading_journal.text as text, DATE_FORMAT(postAt, '%Y-%m-%d') as postAt,
@@ -77,7 +77,8 @@ from Reading_journal
 inner join Challenge on Reading_journal.challengeId = Challenge.challengeId
 inner join Goal_book on Goal_book.goalId = Challenge.goalId
 inner join Book on Book.bookId = Goal_book.bookId
-where Challenge.userId = ${userId}`;
+where Challenge.userId = ${userId}
+order by postAt ${align}`;
   const [calendarYNRows] = await connection.query(calendarYNQuery);
   connection.release();
   return calendarYNRows;

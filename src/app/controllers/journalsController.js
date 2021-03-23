@@ -4,7 +4,7 @@ const { logger } = require("../../../config/winston");
 const reviewDao = require("../dao/reviewDao");
 const journalsDao = require("../dao/journalsDao");
 const userDao = require("../dao/userDao");
-
+var url = require("url");
 /*
  * API 기 능 : 일지 추가
  */
@@ -272,6 +272,10 @@ exports.getjournals = async function (req, res) {
   try {
     var jwt = req.verifiedToken.id;
 
+    var align = req.query.align;
+
+    console.log(align);
+
     const userRows = await userDao.getuser(jwt);
     if (userRows[0] === undefined)
       return res.json({
@@ -280,7 +284,7 @@ exports.getjournals = async function (req, res) {
         message: "가입되어있지 않은 유저입니다.",
       });
 
-    const getjournalsRows = await journalsDao.getjournals(jwt);
+    const getjournalsRows = await journalsDao.getjournals(jwt, align);
 
     if (getjournalsRows.length > 0 || getjournalsRows === undefined) {
       return res.json({
