@@ -202,6 +202,7 @@ async function getbookTime(goalBookId) {
 // 연속도서일 조회
 async function getcontinuity(goalId) {
   const connection = await pool.getConnection(async (conn) => conn);
+  const Query = `SET @k=0;`;
   const getchallenge1Query = `
   SELECT goalId, createAt, COUNT(row_num)
   FROM (
@@ -217,7 +218,7 @@ async function getcontinuity(goalId) {
     GROUP BY goalId, DATE(createAt)
   ) AS bb
   GROUP BY goalId, group_date`;
-  const [rows] = await connection.query(getchallenge1Query);
+  const [rows] = await connection.query(Query, etchallenge1Query);
   connection.release();
   return rows;
 }

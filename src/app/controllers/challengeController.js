@@ -49,7 +49,7 @@ exports.postchallenge = async function (req, res) {
       });
     // 겹치는 날짜 확인
     const calendarYNRows = await challengeDao.calendarYN(jwt, expriodAt);
-    console.log(calendarYNRows);
+
     if (calendarYNRows.length > 0)
       return res.json({
         isSuccess: false,
@@ -69,6 +69,7 @@ exports.postchallenge = async function (req, res) {
         isSuccess: true,
         code: 1000,
         message: "챌린지 추가 성공",
+        goalId: postchallengeRows.insertId,
       });
     } else
       return res.json({
