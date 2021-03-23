@@ -55,14 +55,32 @@ exports.signUp = async function (req, res) {
 
   try {
     // 이메일 중복 확인
-    const emailRows = await userDao.userEmailCheck(email);
-    if (emailRows.length > 0) {
+    try {
+      const emailRows = await userDao.userEmailCheck(email);
+
+      if (emailRows[0].exist === 1) {
+        return res.json({
+          isSuccess: false,
+          code: 2005,
+          message: "중복된 이메일입니다.",
+        });
+      }
+    } catch (err) {
       return res.json({
         isSuccess: false,
-        code: 2005,
-        message: "중복된 이메일입니다.",
+        code: 6000,
+        message: "중복된 이메일 에러.",
       });
     }
+    // const emailRows = await userDao.userEmailCheck(email);
+    //
+    // if (emailRows[0].exist === 1) {
+    //   return res.json({
+    //     isSuccess: false,
+    //     code: 2005,
+    //     message: "중복된 이메일입니다.",
+    //   });
+    // }
 
     // TRANSACTION : advanced
     // await connection.beginTransaction(); // START TRANSACTION
@@ -71,9 +89,10 @@ exports.signUp = async function (req, res) {
       .update(password)
       .digest("hex");
     const insertUserInfoParams = [email, hashedPassword, nickname];
+    await userDao.insertUserInfo(insertUserInfoParams);
 
-    const insertUserRows = await userDao.insertUserInfo(insertUserInfoParams);
     const [userInfoRows] = await userDao.selectUserInfo(email);
+
     //토큰 생성
     let token = await jwt.sign(
         {

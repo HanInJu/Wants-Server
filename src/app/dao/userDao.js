@@ -4,9 +4,7 @@ const { pool } = require("../../../config/database");
 async function userEmailCheck(email) {
   const connection = await pool.getConnection(async (conn) => conn);
   const selectEmailQuery = `
-                SELECT email, name 
-                FROM User 
-                WHERE email = ?;
+    SELECT EXISTS(SELECT email, name FROM User WHERE email = ?) as exist;
                 `;
   const selectEmailParams = [email];
   const [emailRows] = await connection.query(
@@ -23,7 +21,7 @@ async function userNicknameCheck(nickname) {
   const selectNicknameQuery = `
                 SELECT email, name 
                 FROM User
-                WHERE nickname = ?;
+                WHERE name = ?;
                 `;
   const selectNicknameParams = [nickname];
   const [nicknameRows] = await connection.query(
