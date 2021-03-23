@@ -48,6 +48,7 @@ exports.postbook = async function (req, res) {
           isSuccess: true,
           code: 1000,
           message: "책 추가 성공",
+          bookId: bookRows.insertId,
         });
       } else
         return res.json({
@@ -60,6 +61,7 @@ exports.postbook = async function (req, res) {
         isSuccess: false,
         code: 2110,
         message: "책이 이미 있습니다.",
+        bookId: getbookRows[0].bookId,
       });
   } catch (err) {
     logger.error(`App - SignUp Query error\n: ${err.message}`);
@@ -71,6 +73,7 @@ exports.getbook = async function (req, res) {
   try {
     const bookId = req.params.bookId;
     const getbookRows = await bookDao.getbook(bookId);
+    const currentReadRows = await bookDao.currentRead(bookId);
 
     if (getbookRows.length > 0) {
       return res.json({
@@ -78,6 +81,7 @@ exports.getbook = async function (req, res) {
         code: 1000,
         message: "책 조회 성공",
         getbookRows,
+        currentReadRows,
       });
     } else if (getbookRows.length === 0) {
       return res.json({

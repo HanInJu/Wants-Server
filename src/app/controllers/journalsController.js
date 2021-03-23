@@ -267,3 +267,42 @@ exports.getpatchjournals = async function (req, res) {
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
+// 내가쓴 일지 조회
+exports.getjournals = async function (req, res) {
+  try {
+    var jwt = req.verifiedToken.id;
+
+    const userRows = await userDao.getuser(jwt);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 4020,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+
+    const getjournalsRows = await journalsDao.getjournals(jwt);
+
+    if (getjournalsRows.length > 0 || getjournalsRows === undefined) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "내가 쓴 일지 조회 성공",
+        result: getjournalsRows,
+      });
+    } else if (getjournalsRows.length === 0) {
+      return res.json({
+        isSuccess: false,
+        code: 2229,
+        message: "불러올 일지가 없습니다.",
+      });
+    } else
+      return res.json({
+        isSuccess: false,
+        code: 4000,
+        message: "내가 쓴 일지 조회 실패",
+      });
+  } catch (err) {
+    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
+  }
+};
