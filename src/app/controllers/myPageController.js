@@ -51,6 +51,15 @@ exports.profile = async function (req, res) {
         });
       }
 
+      const isDuplicatedName = await myPageDao.isDuplicatedName(name);
+      if(isDuplicatedName[0].exist === 1) {
+        return res.json({
+          isSuccess: false,
+          code: 2026,
+          message: "이미 사용중인 닉네임입니다.",
+        });
+      }
+
       if(vow.length > 30) {
         return res.json({
           isSuccess: false,

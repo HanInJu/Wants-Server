@@ -6,7 +6,7 @@ const userDao = require("../dao/userDao");
 
 /*
  * 최종 수정일 : 2021.03.19.FRI
- * API 기 능 : 내 서재 - 내 리뷰 조회
+ * API 기 능 : 내 서재 - 내 리뷰 조회 미완성!!!!
  */
 exports.getReview = async function (req, res) {
   try {
@@ -22,7 +22,9 @@ exports.getReview = async function (req, res) {
       });
 
     try {
-      const align = req.param("align");
+      //const align = req.param("align");
+        const align = req.params("align");
+        console.log(align);
       if (align == "asc") { //오래된 순 정렬
 
       } else if (align == "desc") { //최신순 정렬
