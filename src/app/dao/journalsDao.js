@@ -1,11 +1,19 @@
 const { pool } = require("../../../config/database");
 
 //////////////////////////////////////////일지추가//////////////////////////////////////////////
-async function postjournals(time, page, percent, goalBookId, goalId, jwt) {
+async function postjournals(
+  time,
+  page,
+  percent,
+  goalBookId,
+  goalId,
+  jwt,
+  charPercent
+) {
   const connection = await pool.getConnection(async (conn) => conn);
   const calendarYNQuery = `
-  insert into Challenge(time, page, percent, goalBookId, goalId, userId)
-  values (${time}, ${page}, ${percent}, ${goalBookId}, ${goalId}, ${jwt})`;
+  insert into Challenge(time, page, percent, goalBookId, goalId, userId, charPercent)
+  values (${time}, ${page}, ${percent}, ${goalBookId}, ${goalId}, ${jwt}, ${charPercent})`;
   const [calendarYNRows] = await connection.query(calendarYNQuery);
   connection.release();
   return calendarYNRows;
@@ -83,7 +91,18 @@ order by postAt ${align}`;
   connection.release();
   return calendarYNRows;
 }
-
+//////////////////////////////////////////내가쓴 일지 조회//////////////////////////////////////////////
+async function getpercent(goalBookId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const calendarYNQuery = `
+  select Challenge.percent
+  from Challenge
+  where goalBookId = ${goalBookId}
+  order by createAt DESC limit 1;`;
+  const [calendarYNRows] = await connection.query(calendarYNQuery);
+  connection.release();
+  return calendarYNRows;
+}
 module.exports = {
   postjournals,
   postjournals2,
@@ -92,4 +111,5 @@ module.exports = {
   deletejournals,
   getpatchjournals,
   getjournals,
+  getpercent,
 };

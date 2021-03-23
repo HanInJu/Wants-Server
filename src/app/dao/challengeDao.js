@@ -105,14 +105,18 @@ async function patchchallengeBook(publishNumber, goalBookId) {
   UPDATE Goal_book
   SET publishNumber = '${publishNumber}'
   WHERE goalBookId = ${goalBookId};`;
+  const [rows] = await connection.query(patchchallengeBookQuery);
+  connection.release();
+  return rows;
+}
+// 챌린지 책 변경
+async function patchchallengeBook2(goalBookId) {
+  const connection = await pool.getConnection(async (conn) => conn);
   const patchchallengeBook2Query = `
   update Challenge
   SET status = 'N'
   WHERE goalbookId = ${goalBookId}`;
-  const [rows] = await connection.query(
-    patchchallengeBookQuery,
-    patchchallengeBook2Query
-  );
+  const [rows] = await connection.query(patchchallengeBook2Query);
   connection.release();
   return rows;
 }
@@ -123,14 +127,18 @@ async function deletechallengeBook(goalBookId) {
   DELETE
 FROM Goal_book
 WHERE goalBookId = ${goalBookId};`;
+  const [rows] = await connection.query(patchchallengeBookQuery);
+  connection.release();
+  return rows;
+}
+// 챌린지 책 변경
+async function deletechallengeBook2(goalBookId) {
+  const connection = await pool.getConnection(async (conn) => conn);
   const patchchallengeBook2Query = `
   update Challenge
   SET status = 'N'
   WHERE goalbookId = ${goalBookId}`;
-  const [rows] = await connection.query(
-    patchchallengeBookQuery,
-    patchchallengeBook2Query
-  );
+  const [rows] = await connection.query(patchchallengeBook2Query);
   connection.release();
   return rows;
 }
@@ -274,4 +282,6 @@ module.exports = {
   getbookTime,
   getcontinuity,
   getcontinuity2,
+  patchchallengeBook2,
+  deletechallengeBook2,
 };
