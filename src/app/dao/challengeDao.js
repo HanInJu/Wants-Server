@@ -221,6 +221,47 @@ async function getcontinuity(goalId) {
   connection.release();
   return rows;
 }
+
+//해당 목표가 존재하는가? --Heather
+async function isValidGoalId(goalId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const validQuery = `
+    SELECT EXISTS(SELECT goalId FROM Goal WHERE goalId = ?) as exist;
+  `;
+  const [rows] = await connection.query(validQuery, goalId);
+  connection.release();
+  return rows;
+}
+
+//이미 달성한 목표인가? --Heather
+async function isAchieved(goalId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const query = `SELECT EXISTS(SELECT goalId FROM Goal WHERE goalId = ? AND isComplete = 1) as exist`;
+  const [rows] = await connection.query(query, goalId);
+  connection.release();
+  return rows;
+}
+
+//목표의 유저id는 누구인가? --Heather
+async function whoIsOwner(goalId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const query = `SELECT userId FROM Goal WHERE goalId = ?`;
+  const [rows] = await connection.query(query, goalId);
+  connection.release();
+  return rows;
+}
+
+
+//목표 달성 시 케이크 종류와 isComplete 1로 변경 --Heather
+async function postCake(cake, goalId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const query = `UPDATE Goal SET cake = ?, isComplete = 1 WHERE goalId = ?`;
+  const postParams = [cake, goalId];
+  const [rows] = await connection.query(query, postParams);
+  connection.release();
+  return rows;
+}
+
 module.exports = {
   postchallenge,
   getbook,
@@ -237,4 +278,8 @@ module.exports = {
   getgoalId,
   getbookTime,
   getcontinuity,
+  isValidGoalId,
+  isAchieved,
+  whoIsOwner,
+  postCake,
 };
