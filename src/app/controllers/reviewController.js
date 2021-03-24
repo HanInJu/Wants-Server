@@ -386,7 +386,7 @@ exports.getComments = async function (req, res) {
             return res.json({
                 isSuccess: false,
                 code: 500,
-                message: "평가/리뷰 신고 실패"
+                message: "평가/리뷰 댓글 조회 실패"
             });
         }
 

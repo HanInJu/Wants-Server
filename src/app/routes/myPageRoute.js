@@ -5,6 +5,6 @@ module.exports = function (app) {
   app.route('/profile').post(jwtMiddleware, myPage.profile);
   app.get('/name', jwtMiddleware, myPage.isDuplicatedName);
   app.get('/profile', jwtMiddleware, myPage.getProfile);
-  app.get('/rewards', jwtMiddleware, myPage.getRewards);
+  app.get('/rewards', jwtMiddleware, myPage.getPieces);
 
 };

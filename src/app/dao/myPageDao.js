@@ -43,9 +43,27 @@ async function getMyProfile(userId) {
   return profileRows;
 }
 
+async function getMyPieces(userId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const profileQuery = `
+    SELECT goalId, IF(isComplete = 1, '달성', '미완성') as isComplete, cake,
+           CONCAT((CASE WHEN period = 'D' THEN '일주일'
+                        WHEN period = 'M' THEN '한 달'
+                        WHEN period = 'Y' THEN '1년' END), '에 ', amount, '권 챌린지') as challengeName,
+           CONCAT(DATE_FORMAT(createAt, '%Y.%m.%d'), ' - ', DATE_FORMAT(expriodAt, '%Y.%m.%d')) as challengePeriod,
+           IF(isComplete = 1, '홀케이크', '표시없음') as wholeCake
+    FROM Goal
+    WHERE userId = ?;
+                 `;
+  const [profileRows] = await connection.query(profileQuery, userId);
+  connection.release();
+  return profileRows;
+}
+
 module.exports = {
   postProfile,
   isSameProfile,
   isDuplicatedName,
   getMyProfile,
+  getMyPieces,
 };
