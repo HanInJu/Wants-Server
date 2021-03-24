@@ -22,7 +22,7 @@ async function postbook(
 async function getbook(bookId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const getbookQuery = `
-  select title, writer, publisher, imageURL, DATE_FORMAT(publishDate, '%Y-%m-%d') as publishDate, contents,
+  select title, writer, publisher, imageURL, DATE_FORMAT(publishDate, '%Y.%m.%d') as publishDate, contents,
   count(Review.reviewId) as reviewSum, User.userId as userId, User.name as name, profilePictureURL,
   DATE_FORMAT(postAt, '%Y-%m-%d') as postAt,
   text, star, reviewId

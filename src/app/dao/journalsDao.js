@@ -65,7 +65,7 @@ async function deletejournals(journalId) {
 async function getpatchjournals(journalId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const calendarYNQuery = `
-  select journalId, text, journalImageURL, open, time, page, Challenge.percent, title, writer, imageURL
+  select journalId, text, journalImageURL, open, time, page, Challenge.percent, title, writer, imageURL, journalId
   from Reading_journal
   inner join Challenge on Challenge.challengeId = Reading_journal.challengeId
   inner join Goal_book on Goal_book.goalId = Reading_journal.goalId
@@ -79,8 +79,8 @@ async function getpatchjournals(journalId) {
 async function getjournals(userId, align) {
   const connection = await pool.getConnection(async (conn) => conn);
   const calendarYNQuery = `
-  select title, Reading_journal.text as text, DATE_FORMAT(postAt, '%Y-%m-%d') as postAt,
-  Challenge.percent as percent, time, page, Book.bookId
+  select title, Reading_journal.text as text, DATE_FORMAT(postAt, '%Y.%m.%d') as postAt,
+  Challenge.percent as percent, time, page, Book.bookId, journalId
 from Reading_journal
 inner join Challenge on Reading_journal.challengeId = Challenge.challengeId
 inner join Goal_book on Goal_book.goalId = Challenge.goalId
