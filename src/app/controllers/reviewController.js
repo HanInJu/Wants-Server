@@ -6,7 +6,7 @@ const userDao = require("../dao/userDao");
 
 /*
  * 최종 수정일 : 2021.03.19.FRI
- * API 기 능 : 내 서재 - 내 리뷰 조회 미완성!!!!
+ * API 기 능 : 내 서재 - 내 리뷰 조회 미완성 !!!!
  */
 exports.getReview = async function (req, res) {
   try {
@@ -336,3 +336,62 @@ exports.reportReview = async function (req, res) {
     }
 
 };
+
+exports.getComments = async function (req, res) {
+    try {
+        const userId = req.verifiedToken.id;
+        const connection = await pool.getConnection(async conn => conn);
+        const userRows = await userDao.getuser(userId);
+        if (userRows[0] === undefined)
+            return res.json({
+                isSuccess: false,
+                code: 4020,
+                message: "가입되어있지 않은 유저입니다.",
+            });
+
+        try {
+            const reviewId = req.params.reviewId;
+            const isValidReviewId = await reviewDao.isValidReviewId(reviewId);
+            if (isValidReviewId[0].exist === 0) {
+                return res.json({
+                    isSuccess: false,
+                    code: 2012,
+                    message: "유효하지 않은 Review Id입니다."
+                });
+            }
+
+            const reviewNum = await reviewDao.getCommentsNum(reviewId);
+
+            if(reviewNum[0].commentNum === 0) {
+                return res.json({
+                    isSuccess: true,
+                    code: 1000,
+                    message: "평가/리뷰의 댓글 조회 완료.",
+                    commentsNum: "댓글 " + reviewNum[0].commentNum + "개",
+                });
+            }
+
+            const reviewComments = await reviewDao.getComments(reviewId);
+            return res.json({
+                isSuccess: true,
+                code: 1000,
+                message: "평가/리뷰의 댓글 조회 완료.",
+                commentsNum: "댓글 " + reviewNum[0].commentNum + "개",
+                comments: reviewComments,
+            });
+
+        } catch (err) {
+            logger.error(`getComments - non transaction Query error\n: ${JSON.stringify(err)}`);
+            connection.release();
+            return res.json({
+                isSuccess: false,
+                code: 500,
+                message: "평가/리뷰 댓글 조회 실패"
+            });
+        }
+
+    } catch (err) {
+        logger.error(`getComments - non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+        return false;
+    }
+}

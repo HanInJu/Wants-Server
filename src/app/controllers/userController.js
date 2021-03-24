@@ -105,17 +105,20 @@ exports.signUp = async function (req, res) {
           }, // 토큰의 내용(payload)
           secret_config.jwtsecret, // 비밀 키
           {
-            expiresIn: "365d",
+            expiresIn: "90d",
             subject: "userInfo",
-          } // 유효 시간은 365일
+          } // 유효 시간은 90일
       );
 
+      //  await connection.commit(); // COMMIT
+      // connection.release();
       return res.json({
         isSuccess: true,
         code: 1000,
         message: "회원가입 성공",
         jwt: token,
       });
+
     } catch (err) {
       return res.json({
         isSuccess: false,
@@ -123,27 +126,6 @@ exports.signUp = async function (req, res) {
         message: "token 에러",
       });
     }
-
-    //토큰 생성
-    // let token = await jwt.sign(
-    //     {
-    //       id: userInfoRows[0].userId,
-    //     }, // 토큰의 내용(payload)
-    //     secret_config.jwtsecret, // 비밀 키
-    //     {
-    //       expiresIn: "365d",
-    //       subject: "userInfo",
-    //     } // 유효 시간은 365일
-    // );
-
-    //  await connection.commit(); // COMMIT
-    // connection.release();
-    // return res.json({
-    //   isSuccess: true,
-    //   code: 1000,
-    //   message: "회원가입 성공",
-    //   jwt: token,
-    // });
 
   } catch (err) {
     // await connection.rollback(); // ROLLBACK
@@ -234,9 +216,9 @@ exports.signIn = async function (req, res) {
       }, // 토큰의 내용(payload)
       secret_config.jwtsecret, // 비밀 키
       {
-        expiresIn: "365d",
+        expiresIn: "90d",
         subject: "userInfo",
-      } // 유효 시간은 365일
+      } // 유효 시간은 90일
     );
 
     res.json({
@@ -256,13 +238,13 @@ exports.signIn = async function (req, res) {
 };
 
 /**
- update : 2019.09.23
- 03.check API = token 검증
+ update : 2021.03.24
+ API 기능 : token 검증
  **/
 exports.check = async function (req, res) {
   res.json({
     isSuccess: true,
-    code: 200,
+    code: 1000,
     message: "검증 성공",
     info: req.verifiedToken,
   });

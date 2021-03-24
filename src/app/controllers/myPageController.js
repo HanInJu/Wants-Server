@@ -212,10 +212,10 @@ exports.getProfile = async function (req, res) {
 };
 
 /*
- * 최종 수정일 : 2021.03.20.SAT
+ * 최종 수정일 : 2021.03.24.WED
  * API 기 능 : 나의 피스 조회
  */
-exports.getRewards = async function (req, res) {
+exports.getPieces = async function (req, res) {
   try {
     const userId = req.verifiedToken.id;
     const connection = await pool.getConnection(async (conn) => conn);
@@ -229,19 +229,34 @@ exports.getRewards = async function (req, res) {
       });
 
     try {
-      
+      const myPieces = await myPageDao.getMyPieces(userId);
+      if(myPieces.length < 1) {
+        return res.json({
+          isSuccess: true,
+          code: 1000,
+          message: "등록한 챌린지가 없습니다. 챌린지를 등록해보세요.",
+        });
+      }
+      else {
+        return res.json({
+          isSuccess: true,
+          code: 1000,
+          message: "나의 피스 조회 성공.",
+          results: myPieces,
+        });
+      }
 
     } catch (err) {
-      logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
+      logger.error(`getPieces - non transaction Query error\n: ${JSON.stringify(err)}`);
       connection.release();
       return res.json({
         isSuccess: false,
         code: 500,
-        message: "리워드 조회 실패",
+        message: "나의 피스 조회 실패",
       });
     }
   } catch (err) {
-    logger.error(`example non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+    logger.error(`getPieces - non transaction DB Connection error\n: ${JSON.stringify(err)}`);
     return false;
   }
 }

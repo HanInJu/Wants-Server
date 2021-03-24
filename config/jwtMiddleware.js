@@ -8,7 +8,7 @@ const jwtMiddleware = (req, res, next) => {
     return res.status(403).json({
       isSuccess: false,
       code: 4444,
-      message: "로그인이 되어 있지 않습니다.",
+      message: "로그인 되어 있지 않습니다.",
     });
   }
 
@@ -24,8 +24,8 @@ const jwtMiddleware = (req, res, next) => {
   const onError = (error) => {
     res.status(403).json({
       isSuccess: false,
-      code: 403,
-      message: "검증 실패",
+      code: 4001,
+      message: "토큰 검증 실패",
     });
   };
 

@@ -8,4 +8,5 @@ module.exports = function (app) {
     app.route('/review/:reviewId').delete(jwtMiddleware, review.deleteReview);
     app.route('/report-review/:reviewId').post(jwtMiddleware, review.reportReview);
 
+    app.get('/review/:reviewId/comments', jwtMiddleware, review.getComments);
 };
