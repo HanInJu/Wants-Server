@@ -12,4 +12,6 @@ module.exports = function (app) {
   app.patch("/challenge", jwtMiddleware, challenge.patchchallenge); // 목표 변경
 
   app.get("/challenge/:goalBookId/times", jwtMiddleware, challenge.getbookTime); // 오늘 읽은 책의 총 시간
+
+  app.route('/cake').post(jwtMiddleware, challenge.postCake); //챌린지 목표 달성 시 부여될 케이크 종류
 };
