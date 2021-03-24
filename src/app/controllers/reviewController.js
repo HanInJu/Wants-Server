@@ -361,6 +361,16 @@ exports.getComments = async function (req, res) {
             }
 
             const reviewNum = await reviewDao.getCommentsNum(reviewId);
+
+            if(reviewNum[0].commentNum === 0) {
+                return res.json({
+                    isSuccess: true,
+                    code: 1000,
+                    message: "평가/리뷰의 댓글 조회 완료.",
+                    commentsNum: "댓글 " + reviewNum[0].commentNum + "개",
+                });
+            }
+
             const reviewComments = await reviewDao.getComments(reviewId);
             return res.json({
                 isSuccess: true,
