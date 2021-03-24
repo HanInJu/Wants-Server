@@ -121,7 +121,7 @@ exports.isDuplicatedName = async function (req, res) {
 
     try {
 
-      const name = req.body.name;
+      const name = req.param("name");
       if (name === "Reader") {
         return res.json({
           isSuccess: false,
