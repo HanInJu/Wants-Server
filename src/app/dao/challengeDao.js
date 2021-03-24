@@ -201,7 +201,7 @@ async function getbookTime(goalBookId) {
   from Challenge
   inner join Goal_book on Goal_book.goalBookId = Challenge.goalBookId
   inner join Book on Book.bookId = Goal_book.bookId
-  where Challenge.goalBookId = ${goalBookId} && curdate() = DATE_FORMAT(Challenge.createAt, '%Y-%m-%d')
+  where Challenge.goalBookId = ${goalBookId} && curdate() = DATE_FORMAT(Challenge.createAt, '%Y.%m.%d')
   group by Goal_book.goalBookId`;
   const [rows] = await connection.query(getchallenge1Query);
   connection.release();
@@ -212,7 +212,7 @@ async function getcontinuity(goalId) {
   const connection = await pool.getConnection(async (conn) => conn);
   await connection.beginTransaction();
   const getchallenge1Query = `
-  SELECT goalId, date_format(createAt, '%Y-%m-%d') as createAt, COUNT(row_num)
+  SELECT goalId, date_format(createAt, '%Y.%m.%d') as createAt, COUNT(row_num)
   FROM (
 SELECT goalId, createAt, goalBookId, @var:=@var+1 AS row_num, date_format(ADDDATE(createAt, -@var), '%Y-%m-%d') AS group_date
     FROM (
@@ -245,8 +245,8 @@ async function getcontinuity2(goalId) {
       from Challenge
       where date_format(createAt, '%Y-%m-%d') = date_format(now(), '%Y-%m-%d')
       group by goalId = ${goalId}) as todayPercent,
-  date_format(Goal.createAt, '%Y-%m-%d') as startAt,
-  date_format(Goal.expriodAt, '%Y-%m-%d') as expriodAt,
+  date_format(Goal.createAt, '%Y.%m.%d') as startAt,
+  date_format(Goal.expriodAt, '%Y.%m.%d') as expriodAt,
   period, amount,
   (select count(Challenge.percent)
       from Challenge
