@@ -60,10 +60,32 @@ async function getMyPieces(userId) {
   return profileRows;
 }
 
+async function getReadingInfo(userId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const query = `
+    
+                 `;
+  const [rows] = await connection.query(query, userId);
+  connection.release();
+  return rows;
+}
+
+async function getReadingGraph(userId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const query = `
+    
+                 `;
+  const [rows] = await connection.query(query, userId);
+  connection.release();
+  return rows;
+}
+
 module.exports = {
   postProfile,
   isSameProfile,
   isDuplicatedName,
   getMyProfile,
   getMyPieces,
+  getReadingInfo,
+  getReadingGraph,
 };

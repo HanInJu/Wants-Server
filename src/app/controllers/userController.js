@@ -242,10 +242,15 @@ exports.signIn = async function (req, res) {
  API 기능 : token 검증
  **/
 exports.check = async function (req, res) {
+  const iat = new Date(req.verifiedToken.iat * 1000).toLocaleString();
+  const exp = new Date(req.verifiedToken.exp * 1000).toLocaleString();
+
   res.json({
     isSuccess: true,
     code: 1000,
     message: "검증 성공",
-    info: req.verifiedToken,
+    userId: req.verifiedToken.id,
+    iat: iat,
+    exp: exp,
   });
 };
