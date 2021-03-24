@@ -49,7 +49,7 @@ exports.postchallenge = async function (req, res) {
       });
     // 겹치는 날짜 확인
     const calendarYNRows = await challengeDao.calendarYN(jwt, expriodAt);
-    console.log(calendarYNRows);
+
     if (calendarYNRows.length > 0)
       return res.json({
         isSuccess: false,
@@ -69,6 +69,7 @@ exports.postchallenge = async function (req, res) {
         isSuccess: true,
         code: 1000,
         message: "챌린지 추가 성공",
+        goalId: postchallengeRows.insertId,
       });
     } else
       return res.json({
@@ -290,7 +291,7 @@ exports.patchchallengeBook = async function (req, res) {
         code: 2100,
         message: "입력을 해주세요.",
       });
-    const selectGoalUser = await challengeDao.selectGoalUser(goalBookId, jwt);
+    const selectGoalUser = await challengeDao.goalBookId(goalBookId, jwt);
     if (!selectGoalUser)
       return res.json({
         isSuccess: false,
@@ -313,9 +314,11 @@ exports.patchchallengeBook = async function (req, res) {
       publishNumber,
       goalBookId
     );
-
+    const postchallengebook2Rows = await challengeDao.patchchallengeBook2(
+      goalBookId
+    );
     console.log(postchallengebookRows);
-    if (postchallengebookRows.changedRows === 1)
+    if (postchallengebook2Rows.changedRows === 1)
       return res.json({
         isSuccess: true,
         code: 1000,
@@ -366,8 +369,10 @@ exports.deletechallengeBook = async function (req, res) {
     const deletechallengeBook = await challengeDao.deletechallengeBook(
       goalBookId
     );
-
-    if (deletechallengeBook.affectedRows === 1)
+    const deletechallengeBook2 = await challengeDao.deletechallengeBook2(
+      goalBookId
+    );
+    if (deletechallengeBook2.affectedRows === 1)
       return res.json({
         isSuccess: true,
         code: 1000,
@@ -457,19 +462,24 @@ exports.getgoal = async function (req, res) {
       });
 
     const getcontinuityRows = await challengeDao.getcontinuity(goalId);
+    const getcontinuity2Rows = await challengeDao.getcontinuity2(goalId);
 
-    if (getbookTimeRows.length > 0 || getbookTimeRows === undefined) {
+    if (getcontinuityRows.length > 0 && getcontinuity2Rows.length > 0) {
       return res.json({
         isSuccess: true,
         code: 1000,
         message: "시간 조회 성공",
-        result: getbookTimeRows,
+        getcontinuityRows,
+        getcontinuity2Rows,
       });
-    } else if (getbookTimeRows.length === 0) {
+    } else if (
+      getcontinuityRows.length === 0 ||
+      getcontinuity2Rows.length === 0
+    ) {
       return res.json({
         isSuccess: false,
         code: 2229,
-        message: "불러올 시간이 없습니다. 책 읽어주세요.",
+        message: "인증할 내용이 없습니다.",
       });
     } else
       return res.json({

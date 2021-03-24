@@ -105,14 +105,18 @@ async function patchchallengeBook(publishNumber, goalBookId) {
   UPDATE Goal_book
   SET publishNumber = '${publishNumber}'
   WHERE goalBookId = ${goalBookId};`;
+  const [rows] = await connection.query(patchchallengeBookQuery);
+  connection.release();
+  return rows;
+}
+// 챌린지 책 변경
+async function patchchallengeBook2(goalBookId) {
+  const connection = await pool.getConnection(async (conn) => conn);
   const patchchallengeBook2Query = `
   update Challenge
   SET status = 'N'
   WHERE goalbookId = ${goalBookId}`;
-  const [rows] = await connection.query(
-    patchchallengeBookQuery,
-    patchchallengeBook2Query
-  );
+  const [rows] = await connection.query(patchchallengeBook2Query);
   connection.release();
   return rows;
 }
@@ -123,14 +127,18 @@ async function deletechallengeBook(goalBookId) {
   DELETE
 FROM Goal_book
 WHERE goalBookId = ${goalBookId};`;
+  const [rows] = await connection.query(patchchallengeBookQuery);
+  connection.release();
+  return rows;
+}
+// 챌린지 책 변경
+async function deletechallengeBook2(goalBookId) {
+  const connection = await pool.getConnection(async (conn) => conn);
   const patchchallengeBook2Query = `
   update Challenge
   SET status = 'N'
   WHERE goalbookId = ${goalBookId}`;
-  const [rows] = await connection.query(
-    patchchallengeBookQuery,
-    patchchallengeBook2Query
-  );
+  const [rows] = await connection.query(patchchallengeBook2Query);
   connection.release();
   return rows;
 }
@@ -202,22 +210,58 @@ async function getbookTime(goalBookId) {
 // 연속도서일 조회
 async function getcontinuity(goalId) {
   const connection = await pool.getConnection(async (conn) => conn);
+  await connection.beginTransaction();
   const getchallenge1Query = `
-  SELECT goalId, createAt, COUNT(row_num)
+  SELECT goalId, date_format(createAt, '%Y-%m-%d') as createAt, COUNT(row_num)
   FROM (
-  SELECT goalId, createAt, goalBookId, @k:=@k+1 AS row_num, date_format(ADDDATE(createAt, -@k), '%Y-%m-%d') AS group_date
+SELECT goalId, createAt, goalBookId, @var:=@var+1 AS row_num, date_format(ADDDATE(createAt, -@var), '%Y-%m-%d') AS group_date
     FROM (
-      SELECT a.goalId, a.createAt, goalBookId
+      SELECT @var:=0, a.goalId, a.createAt, goalBookId
       FROM Challenge AS a
       RIGHT JOIN Goal AS b ON a.goalId = b.goalId
       WHERE a.createAt >= b.createAt && a.goalId = ${goalId}
       GROUP BY a.goalId, DATE(a.createAt)
-      ORDER BY a.goalId
-    ) AS aa
+      ORDER BY a.goalId    ) AS aa
     GROUP BY goalId, DATE(createAt)
   ) AS bb
-  GROUP BY goalId, group_date`;
+  GROUP BY goalId, group_date
+  order by bb.createAt desc limit 1`;
   const [rows] = await connection.query(getchallenge1Query);
+  await connection.commit();
+  connection.release();
+  return rows;
+}
+// 현황 조회
+async function getcontinuity2(goalId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  await connection.beginTransaction();
+  const getchallenge1Query = `
+  select count(Reading_journal.journalId) as sumjournal,
+  (select sum(time)
+      from Challenge
+      where date_format(createAt, '%Y-%m-%d') = date_format(now(), '%Y-%m-%d')
+      group by goalId = ${goalId}) as todayTime,
+  (select sum(charPercent)
+      from Challenge
+      where date_format(createAt, '%Y-%m-%d') = date_format(now(), '%Y-%m-%d')
+      group by goalId = ${goalId}) as todayPercent,
+  date_format(Goal.createAt, '%Y-%m-%d') as startAt,
+  date_format(Goal.expriodAt, '%Y-%m-%d') as expriodAt,
+  period, amount,
+  (select count(Challenge.percent)
+      from Challenge
+      where goalId = ${goalId} && percent = 100
+      group by goalId) as sumAmount,
+  User.name,
+  TO_DAYS(Goal.expriodAt) - TO_DAYS(curdate()) as Dday
+from Challenge
+inner join Reading_journal on Challenge.challengeId = Reading_journal.challengeId
+inner join Goal on Challenge.goalId = Goal.goalId
+inner join User on User.userId = Goal.userId
+where Challenge.goalId = ${goalId}
+group by Challenge.goalId`;
+  const [rows] = await connection.query(getchallenge1Query);
+  await connection.commit();
   connection.release();
   return rows;
 }
@@ -237,4 +281,7 @@ module.exports = {
   getgoalId,
   getbookTime,
   getcontinuity,
+  getcontinuity2,
+  patchchallengeBook2,
+  deletechallengeBook2,
 };
