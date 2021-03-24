@@ -252,7 +252,7 @@ exports.getPieces = async function (req, res) {
       return res.json({
         isSuccess: false,
         code: 500,
-        message: "리워드 조회 실패",
+        message: "나의 피스 조회 실패",
       });
     }
   } catch (err) {
