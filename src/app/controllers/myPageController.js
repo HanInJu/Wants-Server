@@ -212,7 +212,7 @@ exports.getProfile = async function (req, res) {
 };
 
 /*
- * 최종 수정일 : 2021.03.20.SAT
+ * 최종 수정일 : 2021.03.24.WED
  * API 기 능 : 나의 피스 조회
  */
 exports.getRewards = async function (req, res) {

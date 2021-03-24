@@ -140,6 +140,32 @@ async function reportReview(reportParams) {
   return reportRow;
 }
 
+async function getComments(reviewId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const reportQuery = `
+    SELECT IFNULL(profilePictureURL, '사진 없음') as profileImageURL, R.userId, name,
+           DATE_FORMAT(postAt, '%Y.%m.%d') as postAt, text
+    FROM Review_comment R
+           INNER JOIN User U on U.userId = R.userId
+    WHERE R.reviewId = ?;
+                      `;
+  const [reportRow] = await connection.query(reportQuery, reviewId);
+
+  connection.release();
+  return reportRow;
+}
+
+async function getCommentsNum(reviewId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const reportQuery = `
+    SELECT COUNT(commentId) as commentNum FROM Review_comment WHERE reviewId = ?;
+                      `;
+  const [reportRow] = await connection.query(reportQuery, reviewId);
+
+  connection.release();
+  return reportRow;
+}
+
 module.exports = {
   postReview,
   whatIsYourName,
@@ -152,4 +178,6 @@ module.exports = {
   deleteReview,
   isDuplicatedReport,
   reportReview,
+  getComments,
+  getCommentsNum,
 };

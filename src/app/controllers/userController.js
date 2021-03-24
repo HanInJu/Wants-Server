@@ -238,8 +238,8 @@ exports.signIn = async function (req, res) {
 };
 
 /**
- update : 2019.09.23
- 03.check API = token 검증
+ update : 2021.03.24
+ API 기능 : token 검증
  **/
 exports.check = async function (req, res) {
   res.json({
