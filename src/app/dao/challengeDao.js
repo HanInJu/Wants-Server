@@ -42,14 +42,16 @@ async function getchallenge1(goalId) {
   time,
   period,
   expriodAt,
+  Book.bookId,
   Book.title,
   Book.writer,
   Book.imageURL,
   Book.publishNumber,
-  Goal_book.goalBookId
+  Goal_book.goalBookId,
+    Goal.isComplete
 from Goal
     inner join Goal_book on Goal.goalId = Goal_book.goalId
-    inner join (select title, writer, imageURL, publishNumber from Book) Book
+    inner join (select title, writer, imageURL, publishNumber, bookId from Book) Book
                on Book.publishNumber = Goal_book.publishNumber
 where Goal.goalId = ${goalId}`;
 
@@ -61,10 +63,12 @@ where Goal.goalId = ${goalId}`;
 async function getchallenge2(goalBookId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const getchallenge2Query = `
-  select *
-  from (select goalBookId, page, percent, sum(time) from Challenge
-  where goalBookId = ${goalBookId} && status = 'Y'
-  order by createAt DESC limit 1) a
+  select *, (select Goal_book.reading from Goal_book where goalBookId = ${goalBookId}) as isReading
+  from (select goalBookId, page, percent, sum(time)
+        from Challenge
+        where goalBookId = ${goalBookId} && status = 'Y'
+        order by createAt DESC
+        limit 1) a
   group by goalBookId`;
 
   const [rows] = await connection.query(getchallenge2Query);
