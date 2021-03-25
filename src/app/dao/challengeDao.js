@@ -38,10 +38,7 @@ async function postchallengeBook(goalId, publishNumber) {
 async function getchallenge1(goalId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const getchallenge1Query = `
-  select Goal.goalId as goalId, amount,
-  time,
-  period,
-  expriodAt,
+  select Goal.goalId as goalId,
   Book.bookId,
   Book.title,
   Book.writer,
@@ -79,12 +76,23 @@ async function getchallenge2(goalBookId) {
 async function getchallenge3(goalId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const getchallenge2Query = `
-  select sum(Challenge.time) as sumChallengeTime,
-  (select count(journalId)
-   from Reading_journal
-   where date(Reading_journal.postAt) = curdate() && Reading_journal.goalId = ${goalId}) as countJournal
+  select count(Reading_journal.journalId) as sumjournal,
+  (select sum(time)
+  from Challenge
+  where goalId = ${goalId} && date_format(createAt, '%Y-%m-%d') = date_format(now(), '%Y-%m-%d')
+  group by goalId) as todayTime, amount, Goal.time, period, User.userId,
+  (select count(Challenge.percent)
+      from Challenge
+      where goalId = ${goalId} && percent = 100
+      group by goalId) as sumAmount,
+  User.name, date_format(Goal.expriodAt, '%Y.%m.%d') as expriodAt,
+  TO_DAYS(Goal.expriodAt) - TO_DAYS(curdate()) as Dday
 from Challenge
-where date(Challenge.createAt) = curdate() && Challenge.goalId = ${goalId} && Challenge.status = 'Y'`;
+inner join Reading_journal on Challenge.challengeId = Reading_journal.challengeId
+inner join Goal on Challenge.goalId = Goal.goalId
+inner join User on User.userId = Goal.userId
+where Challenge.goalId = ${goalId} && Challenge.status = 'Y'
+group by Challenge.goalId`;
 
   const [rows] = await connection.query(getchallenge2Query);
   connection.release();
@@ -197,6 +205,19 @@ async function getgoalId(userId) {
   connection.release();
   return rows;
 }
+// 오늘의 챌린지 조회2
+async function getgoalId2(userId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getchallenge1Query = `
+  select *
+  from Goal
+  where userId = ${userId}
+  order by expriodAt desc limit 1`;
+
+  const [rows] = await connection.query(getchallenge1Query);
+  connection.release();
+  return rows;
+}
 // 오늘 읽은 책하나 총 시간
 async function getbookTime(goalBookId) {
   const connection = await pool.getConnection(async (conn) => conn);
@@ -216,20 +237,20 @@ async function getcontinuity(goalId) {
   const connection = await pool.getConnection(async (conn) => conn);
   await connection.beginTransaction();
   const getchallenge1Query = `
-  SELECT goalId, date_format(createAt, '%Y.%m.%d') as createAt, COUNT(row_num)
+  SELECT goalId, date_format(createAt, '%Y.%m.%d') as createAt, count(row_num) as countDay
   FROM (
 SELECT goalId, createAt, goalBookId, @var:=@var+1 AS row_num, date_format(ADDDATE(createAt, -@var), '%Y-%m-%d') AS group_date
     FROM (
       SELECT @var:=0, a.goalId, a.createAt, goalBookId
       FROM Challenge AS a
       RIGHT JOIN Goal AS b ON a.goalId = b.goalId
-      WHERE a.createAt >= b.createAt && a.goalId = ${goalId}
+      WHERE a.goalId = ${goalId}
       GROUP BY a.goalId, DATE(a.createAt)
-      ORDER BY a.goalId    ) AS aa
+      ORDER BY createAt ASC    ) AS aa
     GROUP BY goalId, DATE(createAt)
   ) AS bb
   GROUP BY goalId, group_date
-  order by bb.createAt desc limit 1`;
+ORDER BY createAt DESC limit 1`;
   const [rows] = await connection.query(getchallenge1Query);
   await connection.commit();
   connection.release();
@@ -299,7 +320,6 @@ async function whoIsOwner(goalId) {
   return rows;
 }
 
-
 //목표 달성 시 케이크 종류와 isComplete 1로 변경 --Heather
 async function postCake(cake, goalId) {
   const connection = await pool.getConnection(async (conn) => conn);
@@ -333,4 +353,5 @@ module.exports = {
   isAchieved,
   whoIsOwner,
   postCake,
+  getgoalId2,
 };
