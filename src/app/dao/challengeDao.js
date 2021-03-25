@@ -238,13 +238,13 @@ async function getcontinuity2(goalId) {
   const getchallenge1Query = `
   select count(Reading_journal.journalId) as sumjournal,
   (select sum(time)
-      from Challenge
-      where date_format(createAt, '%Y-%m-%d') = date_format(now(), '%Y-%m-%d')
-      group by goalId = ${goalId}) as todayTime,
-  (select sum(charPercent)
-      from Challenge
-      where date_format(createAt, '%Y-%m-%d') = date_format(now(), '%Y-%m-%d')
-      group by goalId = ${goalId}) as todayPercent,
+  from Challenge
+  where goalId = ${goalId} && date_format(createAt, '%Y-%m-%d') = date_format(now(), '%Y-%m-%d')
+  group by goalId) as todayTime,
+  (select sum(Challenge.charPercent)
+  from Challenge
+  where goalId = ${goalId} && date_format(createAt, '%Y-%m-%d') = date_format(now(), '%Y-%m-%d')
+  group by goalId) as todayPercent,
   date_format(Goal.createAt, '%Y.%m.%d') as startAt,
   date_format(Goal.expriodAt, '%Y.%m.%d') as expriodAt,
   period, amount,
