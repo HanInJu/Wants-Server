@@ -59,6 +59,7 @@ async function selectUserInfo(email) {
     selectUserInfoQuery,
     selectUserInfoParams
   );
+  connection.release();
   return [userInfoRows];
 }
 // 유저가 실제 존재하는지 확인
