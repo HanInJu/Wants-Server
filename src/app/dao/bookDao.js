@@ -22,16 +22,50 @@ async function postbook(
 async function getbook(bookId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const getbookQuery = `
-  select title, writer, publisher, imageURL, DATE_FORMAT(publishDate, '%Y.%m.%d') as publishDate, contents,
-  count(Review.reviewId) as reviewSum, User.userId as userId, User.name as name, profilePictureURL,
-  DATE_FORMAT(postAt, '%Y-%m-%d') as postAt,
-  text, star, reviewId
+  select title,
+  writer,
+  publisher,
+  imageURL,
+  DATE_FORMAT(publishDate, '%Y.%m.%d') as publishDate,
+  contents,
+  count(Review.reviewId)               as reviewSum,
+  User.userId                          as userId,
+  User.name                            as name,
+  profilePictureURL,
+  DATE_FORMAT(postAt, '%Y-%m-%d')      as postAt,
+  text,
+  star,
+  reviewId,
+  Goal_book.status
 from Book
-inner join Review on Review.bookId = Book.bookId
-inner join User on User.userId = Review.userId
+    inner join Review on Review.bookId = Book.bookId
+inner join Goal_book on Book.bookId = Goal_book.bookId
+    inner join User on User.userId = Review.userId
 where Book.bookId = ${bookId}
-order by Book.publishNumber DESC
-limit 1`;
+order by postAt DESC
+limit 1;`;
+  const [rows] = await connection.query(getbookQuery);
+  connection.release();
+  return rows;
+}
+async function getbook2(reviewId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getbookQuery = `
+  select count(Review_like.status) as ReviewlikeCount
+  from Review_like
+  where Review_like.status = 'Y' && Review_like.reviewId = ${reviewId}
+  order by reviewId`;
+  const [rows] = await connection.query(getbookQuery);
+  connection.release();
+  return rows;
+}
+async function getbook3(reviewId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getbookQuery = `
+  select count(Review_comment.status) as ReviewcommentCount
+  from Review_comment
+  where Review_comment.reviewId = ${reviewId}
+  order by reviewId`;
   const [rows] = await connection.query(getbookQuery);
   connection.release();
   return rows;
@@ -52,4 +86,6 @@ module.exports = {
   postbook,
   getbook,
   currentRead,
+  getbook2,
+  getbook3,
 };
