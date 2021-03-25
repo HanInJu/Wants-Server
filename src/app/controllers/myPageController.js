@@ -121,7 +121,7 @@ exports.isDuplicatedName = async function (req, res) {
 
     try {
 
-      const name = req.body.name;
+      const name = req.param("name");
       if (name === "Reader") {
         return res.json({
           isSuccess: false,
@@ -253,6 +253,100 @@ exports.getPieces = async function (req, res) {
         isSuccess: false,
         code: 500,
         message: "나의 피스 조회 실패",
+      });
+    }
+  } catch (err) {
+    logger.error(`getPieces - non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+    return false;
+  }
+};
+
+/*
+ * 최종 수정일 : 2021.03.24.WED
+ * API 기 능 : 나의 도서통계 중 정보 조회 -- Nami
+ */
+exports.getReadingInfo = async function (req, res) {
+  try {
+    const userId = req.verifiedToken.id;
+    const connection = await pool.getConnection(async (conn) => conn);
+
+    const userRows = await userDao.getuser(userId);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 4020,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+
+    try {
+      const myPieces = await myPageDao.getMyPieces(userId);
+      if(myPieces.length < 1) {
+        return res.json({
+          isSuccess: true,
+          code: 1000,
+          message: "등록한 챌린지가 없습니다.",
+        });
+      }
+      else {
+
+        //이 부분에 추가 필요!
+
+        return res.json({
+          isSuccess: true,
+          code: 1000,
+          message: "나의 도서 통계 조회 성공.",
+          results: myPieces,
+        });
+      }
+
+    } catch (err) {
+      logger.error(`getPieces - non transaction Query error\n: ${JSON.stringify(err)}`);
+      connection.release();
+      return res.json({
+        isSuccess: false,
+        code: 500,
+        message: "나의 도서 통계 조회 실패",
+      });
+    }
+  } catch (err) {
+    logger.error(`getPieces - non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+    return false;
+  }
+}
+
+/*
+ * 최종 수정일 : 2021.03.24.WED
+ * API 기 능 : 나의 도서통계 중 그래프 정보 조회
+ */
+exports.getReadingGraph = async function (req, res) {
+  try {
+    const userId = req.verifiedToken.id;
+    const connection = await pool.getConnection(async (conn) => conn);
+
+    const userRows = await userDao.getuser(userId);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 4020,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+
+    try {
+
+        return res.json({
+          isSuccess: true,
+          code: 1000,
+          message: "나의 도서 통계 그래프 정보조회 성공.",
+        });
+
+
+    } catch (err) {
+      logger.error(`getPieces - non transaction Query error\n: ${JSON.stringify(err)}`);
+      connection.release();
+      return res.json({
+        isSuccess: false,
+        code: 500,
+        message: "나의 도서통계 그래프 정보조회 실패",
       });
     }
   } catch (err) {
