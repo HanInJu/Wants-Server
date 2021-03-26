@@ -235,11 +235,12 @@ exports.getchallenge = async function (req, res) {
     const getchallenge1Rows = await challengeDao.getchallenge1(goalId);
     const getchallenge3Rows = await challengeDao.getchallenge3(goalId);
 
-    if (getchallenge1Rows.length === 0 || getchallenge3Rows.length === 0) {
+    if (getchallenge1Rows.length === 0) {
       return res.json({
         isSuccess: false,
         code: 2223,
-        message: "도전한 책이 없습니다.",
+        message: "도전한 챌린지가 없습니다.",
+        getchallenge3Rows,
         isExpired,
       });
     }
@@ -252,7 +253,7 @@ exports.getchallenge = async function (req, res) {
       const goalBookRows = await challengeDao.getchallenge2(goalBookId);
       getchallenge2Rows.push(goalBookRows);
     }
-    console.log(1);
+
     if (getchallenge1Rows.length > 0) {
       return res.json({
         isSuccess: true,

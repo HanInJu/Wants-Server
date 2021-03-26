@@ -76,23 +76,24 @@ async function getchallenge2(goalBookId) {
 async function getchallenge3(goalId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const getchallenge2Query = `
-  select count(Reading_journal.journalId) as sumjournal,
-  (select sum(time)
+  select (select sum(time)
   from Challenge
-  where goalId = ${goalId} && date_format(createAt, '%Y-%m-%d') = date_format(now(), '%Y-%m-%d')
-  group by goalId) as todayTime, amount, Goal.time, period, User.userId,
-  (select count(Challenge.percent)
+  where goalId = ${goalId} && date_format(createAt, '%Y-%m-%d') = date_format(now(), '%Y-%m-%d') && Challenge.status = 'Y'
+  group by goalId) as todayTime,
+       amount, Goal.time, period, User.userId,
+  (select ifnull(count(Challenge.percent), 0)
       from Challenge
-      where goalId = ${goalId} && percent = 100
+      where goalId = ${goalId} && percent = 100 && Challenge.status = 'Y'
       group by goalId) as sumAmount,
   User.name, date_format(Goal.expriodAt, '%Y.%m.%d') as expriodAt,
-  TO_DAYS(Goal.expriodAt) - TO_DAYS(curdate()) as Dday
-from Challenge
+  TO_DAYS(Goal.expriodAt) - TO_DAYS(curdate()) as Dday, sumJournal
+from Goal
+inner join User on User.userId = Goal.userId,
+     (select count(Reading_journal.journalId) as sumJournal from Challenge
 inner join Reading_journal on Challenge.challengeId = Reading_journal.challengeId
-inner join Goal on Challenge.goalId = Goal.goalId
-inner join User on User.userId = Goal.userId
-where Challenge.goalId = ${goalId} && Challenge.status = 'Y'
-group by Challenge.goalId`;
+         where Challenge.goalId = ${goalId}) a
+where Goal.goalId = ${goalId}
+group by Goal.goalId`;
 
   const [rows] = await connection.query(getchallenge2Query);
   connection.release();
