@@ -99,8 +99,8 @@ exports.postjournals = async function (req, res) {
       else if (postjournals2Rows.affectedRows === 0)
         return res.json({
           isSuccess: true,
-          code: 4000,
-          message: "일지 작성 실패",
+          code: 2301,
+          message: "일지가 작성되지 않았습니다.",
         });
     } else
       return res.json({
@@ -290,7 +290,7 @@ exports.getjournals = async function (req, res) {
 
     const getjournalsRows = await journalsDao.getjournals(jwt, align);
 
-    if (getjournalsRows.length > 0 || getjournalsRows === undefined) {
+    if (getjournalsRows.length > 0 || getjournalsRows != undefined) {
       return res.json({
         isSuccess: true,
         code: 1000,
@@ -308,6 +308,46 @@ exports.getjournals = async function (req, res) {
         isSuccess: false,
         code: 4000,
         message: "내가 쓴 일지 조회 실패",
+      });
+  } catch (err) {
+    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
+  }
+};
+
+// 커뮤니티 일지 조회
+exports.getcomjournals = async function (req, res) {
+  try {
+    var jwt = req.verifiedToken.id;
+
+    const userRows = await userDao.getuser(jwt);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 4020,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+
+    const getcomjournalsRows = await journalsDao.getcomjournals();
+
+    if (getcomjournalsRows.length > 0 || getcomjournalsRows !== undefined) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "커뮤니티 일지 조회 성공",
+        result: getcomjournalsRows,
+      });
+    } else if (getcomjournalsRows.length === 0) {
+      return res.json({
+        isSuccess: false,
+        code: 2229,
+        message: "커뮤니티에 작성된 일지가 없습니다.",
+      });
+    } else
+      return res.json({
+        isSuccess: false,
+        code: 4000,
+        message: "커뮤니티 일지 조회 실패",
       });
   } catch (err) {
     logger.error(`App - SignUp Query error\n: ${err.message}`);
