@@ -230,14 +230,14 @@ exports.getPieces = async function (req, res) {
 
     try {
       const myPieces = await myPageDao.getMyPieces(userId);
+      console.log(myPieces.length);
       if(myPieces.length < 1) {
         return res.json({
           isSuccess: true,
           code: 1000,
           message: "등록한 챌린지가 없습니다. 챌린지를 등록해보세요.",
         });
-      }
-      else {
+      } else {
         return res.json({
           isSuccess: true,
           code: 1000,

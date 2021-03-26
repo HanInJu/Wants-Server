@@ -21,111 +21,162 @@ exports.getReview = async function (req, res) {
         message: "가입되어있지 않은 유저입니다.",
       });
 
-    try {
-        const isRegisteredGoal = await reviewDao.isRegisteredGoal(userId);
-        if(isRegisteredGoal[0].exist === 1) { //목표 등록한 경우
+    const align = req.param("align");
+    const readyReviewId = await reviewDao.getReviewIds(userId);
+    let reviewIds = [];
+    let reviews = [];
 
-            const align = req.param("align");
-            if (align === "asc") { //오래된 순 정렬
-
-                const myReviews = await reviewDao.getMyReviewsWithTimeASC(userId);
-                if(myReviews < 1) {
-                    return res.json({
-                        isSuccess: true,
-                        code: 1000,
-                        message: "작성한 평가/리뷰가 없어요. 평가/리뷰를 작성해보세요.",
-                    });
-                }
-                return res.json({
-                    isSuccess: true,
-                    code: 1000,
-                    message: "나의 평가/리뷰 조회 성공.",
-                    results: myReviews,
-                });
-
-            } else if (align === "desc") { //최신순 정렬
-
-                const myReviews = await reviewDao.getMyReviewsWithTimeDESC(userId);
-                if(myReviews < 1) {
-                    return res.json({
-                        isSuccess: true,
-                        code: 1000,
-                        message: "작성한 평가/리뷰가 없어요. 평가/리뷰를 작성해보세요.",
-                    });
-                }
-                return res.json({
-                    isSuccess: true,
-                    code: 1000,
-                    message: "나의 평가/리뷰 조회 성공.",
-                    results: myReviews,
-                });
-
-            } else { //그 외 에러
-                return res.json({
-                    isSuccess: false,
-                    code: 2018,
-                    message: "정렬 필터를 최신순 또는 오래된 순으로 선택해주세요.",
-                });
-            }
-
-        } else if(isRegisteredGoal[0].exist === 0) { //목표 등록 안한 경우
-            const align = req.param("align");
-            if (align === "asc") { //오래된 순 정렬
-
-                const myReviews = await reviewDao.getMyReviewsASC(userId);
-                if(myReviews < 1) {
-                    return res.json({
-                        isSuccess: true,
-                        code: 1000,
-                        message: "작성한 평가/리뷰가 없어요. 평가/리뷰를 작성해보세요.",
-                    });
-                }
-                return res.json({
-                    isSuccess: true,
-                    code: 1000,
-                    message: "나의 평가/리뷰 조회 성공.",
-                    results: myReviews,
-                });
-
-            } else if (align === "desc") { //최신순 정렬
-
-                const myReviews = await reviewDao.getMyReviewsDESC(userId);
-                if(myReviews < 1) {
-                    return res.json({
-                        isSuccess: true,
-                        code: 1000,
-                        message: "작성한 평가/리뷰가 없어요. 평가/리뷰를 작성해보세요.",
-                    });
-                }
-                return res.json({
-                    isSuccess: true,
-                    code: 1000,
-                    message: "나의 평가/리뷰 조회 성공.",
-                    results: myReviews,
-                });
-
-            } else { //그 외 에러
-                return res.json({
-                    isSuccess: false,
-                    code: 2018,
-                    message: "정렬 필터를 최신순 또는 오래된 순으로 선택해주세요.",
-                });
-            }
-        }
-
-    } catch (err) {
-      logger.error(`getMyReviews - non transaction Query error\n: ${JSON.stringify(err)}`);
-      //connection.release();
-      return res.json({
-        isSuccess: false,
-        code: 500,
-        message: "내 서재 평가/리뷰 조회 실패",
-      });
+    if(align === "asc") { //오래된 순 정렬
+        for(let i = 0; i<readyReviewId.length; i++) reviewIds[i] = readyReviewId[i];
     }
+    else if(align === "desc") { //최신순 정렬
+        let j = 0;
+        for(let i = readyReviewId.length - 1; i >= 0; i--)  {
+            reviewIds[i] = readyReviewId[j];
+            j++;
+        }
+    }
+    else {
+        return res.json({
+            isSuccess: false,
+            code: 2018,
+            message: "정렬 필터를 최신순 또는 오래된 순으로 선택해주세요.",
+        });
+    }
+
+    for(let i = 0; i<reviewIds.length; i++) {
+
+        const isRegisteredReviewInChallenge = await reviewDao.isRegisteredChallenge(reviewIds[i].reviewId);
+        if(isRegisteredReviewInChallenge[0].exist === 1) //챌린지가 등록된 리뷰
+            reviews[i] = await reviewDao.getReviewRegistered(reviewIds[i].reviewId);
+
+        else if(isRegisteredReviewInChallenge[0].exist === 0) //챌린지가 등록되지 않은 리뷰
+            reviews[i] = await reviewDao.getReviewNotRegistered(reviewIds[i].reviewId);
+
+        else {
+            return res.json({
+                isSuccess: false,
+                code: 4002,
+                message: "DB RESULTS ARE NOT CORRECT",
+            });
+        }
+    }
+    return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "나의 평가/리뷰 조회 성공.",
+        results: reviews,
+    });
+
+    // try {
+    //     const isRegisteredGoal = await reviewDao.isRegisteredGoal(userId);
+    //     if(isRegisteredGoal[0].exist === 1) { //목표 등록한 경우
+    //
+    //         const align = req.param("align");
+    //         if (align === "asc") { //오래된 순 정렬
+    //
+    //             const myReviews = await reviewDao.getMyReviewsWithTimeASC(userId);
+    //             if(myReviews < 1) {
+    //                 return res.json({
+    //                     isSuccess: true,
+    //                     code: 1000,
+    //                     message: "작성한 평가/리뷰가 없어요. 평가/리뷰를 작성해보세요.",
+    //                 });
+    //             }
+    //             return res.json({
+    //                 isSuccess: true,
+    //                 code: 1000,
+    //                 message: "나의 평가/리뷰 조회 성공.",
+    //                 //results: myReviews,
+    //             });
+    //
+    //         } else if (align === "desc") { //최신순 정렬
+    //
+    //             const myReviews = await reviewDao.getMyReviewsWithTimeDESC(userId);
+    //             if(myReviews < 1) {
+    //                 return res.json({
+    //                     isSuccess: true,
+    //                     code: 1000,
+    //                     message: "작성한 평가/리뷰가 없어요. 평가/리뷰를 작성해보세요.",
+    //                 });
+    //             }
+    //             return res.json({
+    //                 isSuccess: true,
+    //                 code: 1000,
+    //                 message: "나의 평가/리뷰 조회 성공.",
+    //                 results: myReviews,
+    //             });
+    //
+    //         } else { //그 외 에러
+    //             return res.json({
+    //                 isSuccess: false,
+    //                 code: 2018,
+    //                 message: "정렬 필터를 최신순 또는 오래된 순으로 선택해주세요.",
+    //             });
+    //         }
+    //
+    //     } else if(isRegisteredGoal[0].exist === 0) { //목표 등록 안한 경우
+    //         const align = req.param("align");
+    //         if (align === "asc") { //오래된 순 정렬
+    //
+    //             const myReviews = await reviewDao.getMyReviewsASC(userId);
+    //             if(myReviews < 1) {
+    //                 return res.json({
+    //                     isSuccess: true,
+    //                     code: 1000,
+    //                     message: "작성한 평가/리뷰가 없어요. 평가/리뷰를 작성해보세요.",
+    //                 });
+    //             }
+    //             return res.json({
+    //                 isSuccess: true,
+    //                 code: 1000,
+    //                 message: "나의 평가/리뷰 조회 성공.",
+    //                 results: myReviews,
+    //             });
+    //
+    //         } else if (align === "desc") { //최신순 정렬
+    //
+    //             const myReviews = await reviewDao.getMyReviewsDESC(userId);
+    //             if(myReviews < 1) {
+    //                 return res.json({
+    //                     isSuccess: true,
+    //                     code: 1000,
+    //                     message: "작성한 평가/리뷰가 없어요. 평가/리뷰를 작성해보세요.",
+    //                 });
+    //             }
+    //             return res.json({
+    //                 isSuccess: true,
+    //                 code: 1000,
+    //                 message: "나의 평가/리뷰 조회 성공.",
+    //                 results: myReviews,
+    //             });
+    //
+    //         } else { //그 외 에러
+    //             return res.json({
+    //                 isSuccess: false,
+    //                 code: 2018,
+    //                 message: "정렬 필터를 최신순 또는 오래된 순으로 선택해주세요.",
+    //             });
+    //         }
+    //     }
+    //
+    // } catch (err) {
+    //   logger.error(`getMyReviews - non transaction Query error\n: ${JSON.stringify(err)}`);
+    //   //connection.release();
+    //   return res.json({
+    //     isSuccess: false,
+    //     code: 500,
+    //     message: "내 서재 평가/리뷰 조회 실패",
+    //   });
+    // }
 
   } catch (err) {
     logger.error(`getMyReviews - non transaction DB Connection error\n: ${JSON.stringify(err)}`);
-    return false;
+    return res.json({
+        isSuccess: false,
+        code: 500,
+        message: "내 서재 평가/리뷰 조회 실패",
+    });
   }
 };
 
