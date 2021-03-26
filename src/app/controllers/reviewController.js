@@ -11,7 +11,7 @@ const userDao = require("../dao/userDao");
 exports.getReview = async function (req, res) {
   try {
     const userId = req.verifiedToken.id;
-    const connection = await pool.getConnection(async (conn) => conn);
+    //const connection = await pool.getConnection(async (conn) => conn);
 
     const userRows = await userDao.getuser(userId);
     if (userRows[0] === undefined)
@@ -22,7 +22,6 @@ exports.getReview = async function (req, res) {
       });
 
     try {
-
         const isRegisteredGoal = await reviewDao.isRegisteredGoal(userId);
         if(isRegisteredGoal[0].exist === 1) { //목표 등록한 경우
 
@@ -116,7 +115,7 @@ exports.getReview = async function (req, res) {
 
     } catch (err) {
       logger.error(`getMyReviews - non transaction Query error\n: ${JSON.stringify(err)}`);
-      connection.release();
+      //connection.release();
       return res.json({
         isSuccess: false,
         code: 500,
@@ -139,7 +138,7 @@ exports.postReview = async function (req, res) {
 
   try {
     const userId = req.verifiedToken.id;
-    const connection = await pool.getConnection(async (conn) => conn);
+    //const connection = await pool.getConnection(async (conn) => conn);
 
     const userRows = await userDao.getuser(userId);
     if (userRows[0] === undefined)
@@ -188,7 +187,7 @@ exports.postReview = async function (req, res) {
       logger.error(
         `example non transaction Query error\n: ${JSON.stringify(err)}`
       );
-      connection.release();
+      //connection.release();
       return res.json({
         isSuccess: false,
         code: 500,
@@ -210,7 +209,7 @@ exports.postReview = async function (req, res) {
 exports.reviseReview = async function (req, res) {
   try {
     const userId = req.verifiedToken.id;
-    const connection = await pool.getConnection(async (conn) => conn);
+    //const connection = await pool.getConnection(async (conn) => conn);
 
     const userRows = await userDao.getuser(userId);
     if (userRows[0] === undefined)
@@ -271,7 +270,7 @@ exports.reviseReview = async function (req, res) {
       logger.error(
         `example non transaction Query error\n: ${JSON.stringify(err)}`
       );
-      connection.release();
+      //connection.release();
       return res.json({
         isSuccess: false,
         code: 500,
@@ -293,7 +292,7 @@ exports.deleteReview = async function (req, res) {
 
     try {
         const userId = req.verifiedToken.id;
-        const connection = await pool.getConnection(async conn => conn);
+        //const connection = await pool.getConnection(async conn => conn);
         const userRows = await userDao.getuser(userId);
         if (userRows[0] === undefined)
             return res.json({
@@ -331,7 +330,7 @@ exports.deleteReview = async function (req, res) {
 
         } catch (err) {
             logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
-            connection.release();
+            //connection.release();
             return res.json({
                 isSuccess: false,
                 code: 500,
@@ -350,7 +349,7 @@ exports.deleteReview = async function (req, res) {
 exports.reportReview = async function (req, res) {
     try {
             const userId = req.verifiedToken.id;
-            const connection = await pool.getConnection(async conn => conn);
+            //const connection = await pool.getConnection(async conn => conn);
             const userRows = await userDao.getuser(userId);
             if (userRows[0] === undefined)
                 return res.json({
@@ -399,7 +398,7 @@ exports.reportReview = async function (req, res) {
 
         } catch (err) {
             logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
-            connection.release();
+            //connection.release();
             return res.json({
                 isSuccess: false,
                 code: 500,
@@ -417,7 +416,7 @@ exports.reportReview = async function (req, res) {
 exports.getComments = async function (req, res) {
     try {
         const userId = req.verifiedToken.id;
-        const connection = await pool.getConnection(async conn => conn);
+        //const connection = await pool.getConnection(async conn => conn);
         const userRows = await userDao.getuser(userId);
         if (userRows[0] === undefined)
             return res.json({
@@ -459,7 +458,7 @@ exports.getComments = async function (req, res) {
 
         } catch (err) {
             logger.error(`getComments - non transaction Query error\n: ${JSON.stringify(err)}`);
-            connection.release();
+            //connection.release();
             return res.json({
                 isSuccess: false,
                 code: 500,

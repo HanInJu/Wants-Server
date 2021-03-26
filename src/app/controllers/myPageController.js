@@ -23,7 +23,7 @@ exports.profile = async function (req, res) {
     }
 
     const userId = req.verifiedToken.id;
-    const connection = await pool.getConnection(async (conn) => conn);
+    //const connection = await pool.getConnection(async (conn) => conn);
 
     const userRows = await userDao.getuser(userId);
     if (userRows[0] === undefined)
@@ -88,7 +88,7 @@ exports.profile = async function (req, res) {
       logger.error(
         `example non transaction Query error\n: ${JSON.stringify(err)}`
       );
-      connection.release();
+      //connection.release();
       return res.json({
         isSuccess: false,
         code: 500,
@@ -110,7 +110,7 @@ exports.profile = async function (req, res) {
 exports.isDuplicatedName = async function (req, res) {
   try {
     const userId = req.verifiedToken.id;
-    const connection = await pool.getConnection(async (conn) => conn);
+    //const connection = await pool.getConnection(async (conn) => conn);
 
     const userRows = await userDao.getuser(userId);
     if (userRows[0] === undefined)
@@ -156,7 +156,7 @@ exports.isDuplicatedName = async function (req, res) {
       logger.error(
         `example non transaction Query error\n: ${JSON.stringify(err)}`
       );
-      connection.release();
+      //connection.release();
       return res.json({
         isSuccess: false,
         code: 500,
@@ -178,7 +178,7 @@ exports.isDuplicatedName = async function (req, res) {
 exports.getProfile = async function (req, res) {
   try {
     const userId = req.verifiedToken.id;
-    const connection = await pool.getConnection(async (conn) => conn);
+    //const connection = await pool.getConnection(async (conn) => conn);
 
     const userRows = await userDao.getuser(userId);
     if (userRows[0] === undefined)
@@ -200,7 +200,7 @@ exports.getProfile = async function (req, res) {
       logger.error(
         `example non transaction Query error\n: ${JSON.stringify(err)}`
       );
-      connection.release();
+      //connection.release();
       return res.json({
         isSuccess: false,
         code: 500,
@@ -222,7 +222,7 @@ exports.getProfile = async function (req, res) {
 exports.getPieces = async function (req, res) {
   try {
     const userId = req.verifiedToken.id;
-    const connection = await pool.getConnection(async (conn) => conn);
+    //const connection = await pool.getConnection(async (conn) => conn);
 
     const userRows = await userDao.getuser(userId);
     if (userRows[0] === undefined)
@@ -252,7 +252,7 @@ exports.getPieces = async function (req, res) {
       logger.error(
         `getPieces - non transaction Query error\n: ${JSON.stringify(err)}`
       );
-      connection.release();
+      //connection.release();
       return res.json({
         isSuccess: false,
         code: 500,
@@ -275,6 +275,8 @@ exports.getinfo = async function (req, res) {
     var jwt = req.verifiedToken.id;
 
     const userRows = await userDao.getuser(jwt);
+
+    //const connection = await pool.getConnection(async (conn) => conn);
 
     if (userRows[0] === undefined)
       return res.json({
@@ -306,16 +308,38 @@ exports.getinfo = async function (req, res) {
         getReadingInfoRows,
       });
     } else if (getReadingInfoRows.length === 0) {
+    }
+  } catch (err) {
+    logger.error(
+      `getPieces - non transaction DB Connection error\n: ${JSON.stringify(
+        err
+      )}`
+    );
+    return false;
+  }
+};
+
+/*
+ * 최종 수정일 : 2021.03.24.WED
+ * API 기 능 : 나의 도서통계 중 그래프 정보 조회
+ */
+exports.getReadingGraph = async function (req, res) {
+  try {
+    const userId = req.verifiedToken.id;
+    //const connection = await pool.getConnection(async (conn) => conn);
+
+    const userRows = await userDao.getuser(userId);
+    if (userRows[0] === undefined)
       return res.json({
         isSuccess: false,
         code: 2231,
         message: "불러올 목표가 없습니다. 목표를 정해주세요.",
       });
-    } else
+    else
       return res.json({
-        isSuccess: false,
-        code: 4000,
-        message: "독서통계 조회 실패",
+        isSuccess: true,
+        code: 1000,
+        message: "나의 도서 통계 그래프 정보조회 성공.",
       });
   } catch (err) {
     logger.error(`App - SignUp Query error\n: ${err.message}`);
