@@ -344,6 +344,57 @@ async function getbookList(goalId) {
   return rows;
 }
 
+// 기존의 도전중인 책 인덱스 찾기
+async function getgoalBookId(goalBookId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getchallenge1Query = `
+  select Goal_book.goalBookId as goalBookId
+  from (select goalId, goalBookId, Goal_book.reading from Goal_book where goalBookId = ${goalBookId}) a,
+       Goal_book
+  where Goal_book.goalId = a.goalId && Goal_book.reading = 'Y'`;
+  const [rows] = await connection.query(getchallenge1Query);
+  connection.release();
+  return rows;
+}
+
+// 기존의 도전중인 책 비활
+async function patchgoalBookId(goalBookId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getchallenge1Query = `
+  update Goal_book SET reading = 'N'
+  where goalBookId = ${goalBookId}`;
+  const [rows] = await connection.query(getchallenge1Query);
+  connection.release();
+  return rows;
+}
+
+// 새롭게 도전할 책 활성화
+async function patchgoalBookId2(goalBookId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getchallenge1Query = `
+  update Goal_book SET reading = 'Y'
+  where goalBookId = ${goalBookId}`;
+  const [rows] = await connection.query(getchallenge1Query);
+  connection.release();
+  return rows;
+}
+
+// 새롭게 도전할 책 활성화
+async function getYN(goalBookId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getchallenge1Query = `
+  select case aa.reading
+  when 1 then 'O'
+  else 'X'
+  end as isYN
+from (select count(Goal_book.reading) as reading
+from (select goalId, goalBookId from Goal_book where goalBookId = ${goalBookId}) a,
+  Goal_book
+where Goal_book.goalId = a.goalId && reading = 'Y') aa`;
+  const [rows] = await connection.query(getchallenge1Query);
+  connection.release();
+  return rows;
+}
 module.exports = {
   postchallenge,
   getbook,
@@ -369,4 +420,8 @@ module.exports = {
   postCake,
   getgoalId2,
   getbookList,
+  getgoalBookId,
+  patchgoalBookId,
+  patchgoalBookId2,
+  getYN,
 };

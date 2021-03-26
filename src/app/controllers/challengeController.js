@@ -492,6 +492,70 @@ exports.getgoal = async function (req, res) {
   }
 };
 
+// 도전할 책 설정
+exports.patchgoalBook = async function (req, res) {
+  try {
+    var jwt = req.verifiedToken.id;
+
+    const userRows = await userDao.getuser(jwt);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 4020,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+
+    const goalbookId = req.params.goalbookId;
+
+    if (goalbookId.length === 0)
+      return res.json({
+        isSuccess: false,
+        code: 2100,
+        message: "입력을 해주세요.",
+      });
+
+    const getgoalBookIdRows = await challengeDao.getgoalBookId(goalbookId); // 기존에 도전중이였던 목표책 인덱스 부름
+    if (getgoalBookIdRows.length > 0) {
+      console.log("기존꺼 비활");
+      const YgoalBookId = getgoalBookIdRows[0].goalBookId;
+      await challengeDao.patchgoalBookId(YgoalBookId); // 기존에 도전중이였던 목표책 인덱스 N으로 바꿈
+    }
+
+    const patchgoalBookId2Rows = await challengeDao.patchgoalBookId2(
+      goalbookId
+    );
+
+    // 비활성과 활성이 잘 되었는지, 'Y'가 도전중 한개인지 확인
+    const getYNRows = await challengeDao.getYN(goalbookId);
+    if (getYNRows[0].isYN === "X") {
+      console.log("기존꺼 비활이 잘못됨, 새롭게 도전할 책 되돌기 N으로");
+      await challengeDao.patchgoalBookId(goalbookId);
+    }
+
+    if (patchgoalBookId2Rows.changedRows === 1) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "도전할 책 변경 성공",
+      });
+    } else if (patchgoalBookId2Rows.changedRows === 0)
+      return res.json({
+        isSuccess: false,
+        code: 2225,
+        message: "도전할 책 변경이 제대로 이루어지지 않았습니다.",
+      });
+    else
+      return res.json({
+        isSuccess: false,
+        code: 4000,
+        message: "도전할 책 변경 실패",
+      });
+  } catch (err) {
+    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
+  }
+};
+
 /*
  * 최종 수정일 : 2021.03.24.WED
  * API 기 능 : 챌린지에 부여될 케이크 종류 넘겨주기

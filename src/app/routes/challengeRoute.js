@@ -15,4 +15,9 @@ module.exports = function (app) {
   app.route("/cake").post(jwtMiddleware, challenge.postCake); //챌린지 목표 달성 시 부여될 케이크 종류
 
   app.get("/challenge/goal/book", jwtMiddleware, challenge.getgoalBook); // 책관리조회
+  app.patch(
+    "/challenge/goal/book/:goalbookId",
+    jwtMiddleware,
+    challenge.patchgoalBook
+  ); // 도전중인 책 변경
 };
