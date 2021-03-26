@@ -5,7 +5,7 @@ const reviewDao = require("../dao/reviewDao");
 const userDao = require("../dao/userDao");
 
 /*
- * 최종 수정일 : 2021.03.25.THU
+ * 최종 수정일 : 2021.03.27.SAT
  * API 기 능 : 내 서재 - 내 리뷰 조회
  */
 exports.getReview = async function (req, res) {
@@ -136,9 +136,7 @@ exports.postReview = async function (req, res) {
         message: "평가/리뷰 작성 성공",
       });
     } catch (err) {
-      logger.error(
-        `example non transaction Query error\n: ${JSON.stringify(err)}`
-      );
+      logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
       //connection.release();
       return res.json({
         isSuccess: false,

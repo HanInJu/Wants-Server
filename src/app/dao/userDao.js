@@ -16,22 +16,6 @@ async function userEmailCheck(email) {
   return emailRows;
 }
 
-async function userNicknameCheck(nickname) {
-  const connection = await pool.getConnection(async (conn) => conn);
-  const selectNicknameQuery = `
-                SELECT email, name 
-                FROM User
-                WHERE name = ?;
-                `;
-  const selectNicknameParams = [nickname];
-  const [nicknameRows] = await connection.query(
-    selectNicknameQuery,
-    selectNicknameParams
-  );
-  connection.release();
-  return nicknameRows;
-}
-
 async function insertUserInfo(insertUserInfoParams) {
   const connection = await pool.getConnection(async (conn) => conn);
   const insertUserInfoQuery = `
@@ -76,10 +60,54 @@ where userId = ${userId};
 
   return getuserRows;
 }
+
+async function byeUser(userId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const query = `
+    DELETE User, Rs FROM User INNER JOIN Recent_search Rs on User.userId = Rs.userId WHERE User.userId = ?;
+                `;
+  const [rows] = await connection.query(query, userId);
+  connection.release();
+  return rows;
+}
+
+async function byeReview(userId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const query = `
+    DELETE R, Rl, Rr, Rc, Rcr
+    FROM Review R
+    LEFT JOIN Review_like Rl on R.userId = Rl.userId OR R.reviewId = Rl.reviewId
+    LEFT JOIN Review_report Rr on R.userId = Rr.userId OR R.reviewId = Rr.reviewId
+    LEFT JOIN Review_comment Rc on R.userId = Rc.userId OR Rc.reviewId = R.reviewId
+    LEFT JOiN Review_comment_report Rcr on R.userId = Rcr.userId OR Rcr.commentId = Rc.commentId
+    WHERE R.userId = ?;
+                `;
+  const [rows] = await connection.query(query, userId);
+  connection.release();
+  return rows;
+}
+
+async function byeChallenge(userId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const query = `
+    DELETE G, Gb, C, Rj
+    FROM Goal G
+    INNER JOIN Goal_book Gb on G.goalId = Gb.goalId
+    INNER JOIN Challenge C on G.userId = C.userId
+    LEFT JOIN Reading_journal Rj on G.goalId = Rj.goalId
+    WHERE G.userId = ?;         
+                `;
+  const [rows] = await connection.query(query, userId);
+  connection.release();
+  return rows;
+}
+
 module.exports = {
   userEmailCheck,
-  userNicknameCheck,
   insertUserInfo,
   selectUserInfo,
   getuser,
+  byeUser,
+  byeReview,
+  byeChallenge,
 };

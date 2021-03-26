@@ -222,3 +222,46 @@ exports.check = async function (req, res) {
     exp: exp,
   });
 };
+
+/*
+ * 최종 수정일 : 2021.03.27.SAT
+ * API 기 능 : 회원 탈퇴
+ */
+exports.bye = async function (req, res) {
+
+  const userId = req.verifiedToken.id;
+  const userRows = await userDao.getuser(userId);
+  if (userRows[0] === undefined)
+    return res.json({
+      isSuccess: false,
+      code: 4020,
+      message: "가입되어있지 않은 유저입니다.",
+    });
+
+  const conn = await pool.getConnection()
+  try {
+    await conn.beginTransaction(); // 트랜잭션 적용 시작
+    await userDao.byeUser(userId);
+    await userDao.byeReview(userId);
+    await userDao.byeChallenge(userId);
+    await conn.commit() // 커밋
+
+    return res.json({
+      isSuccess: true,
+      code: 1000,
+      message: "탈퇴 성공",
+    });
+
+  } catch(err) {
+    logger.error(`Bye - non transaction Query error\n: ${JSON.stringify(err)}`);
+    await conn.rollback();
+    return res.json({
+      isSuccess: false,
+      code: 500,
+      message: "탈퇴 실패",
+    });
+  } finally {
+    conn.release(); // conn 회수
+  }
+
+};
