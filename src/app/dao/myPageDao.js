@@ -60,22 +60,21 @@ async function getMyPieces(userId) {
   return profileRows;
 }
 
+// 독서통계
 async function getReadingInfo(userId) {
   const connection = await pool.getConnection(async (conn) => conn);
-  const query = `
-    
-                 `;
-  const [rows] = await connection.query(query, userId);
-  connection.release();
-  return rows;
-}
+  const getReadingInfoQuery = `
+  select a.userId, a.vow, a.profilePictureURL, a.name, sum(time) as sumTime, a.countBook
+  from Goal_book
+           inner join Challenge on Challenge.goalBookId = Goal_book.goalBookId,
+       (select count(Goal_book.status) as countBook, User.name, User.profilePictureURL, User.vow, User.userId
+        from Goal_book
+                 inner join Goal on Goal_book.goalId = Goal.goalId
+                 inner join User on User.userId = Goal.userId
+        where Goal.userId = ${userId} && Goal_book.status = 'Y') a
+  where Challenge.userId = ${userId}`;
 
-async function getReadingGraph(userId) {
-  const connection = await pool.getConnection(async (conn) => conn);
-  const query = `
-    
-                 `;
-  const [rows] = await connection.query(query, userId);
+  const [rows] = await connection.query(getReadingInfoQuery);
   connection.release();
   return rows;
 }
@@ -87,5 +86,5 @@ module.exports = {
   getMyProfile,
   getMyPieces,
   getReadingInfo,
-  getReadingGraph,
+  //getReadingGraph,
 };
