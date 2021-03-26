@@ -47,12 +47,15 @@ exports.getReview = async function (req, res) {
     for(let i = 0; i<reviewIds.length; i++) {
 
         const isRegisteredReviewInChallenge = await reviewDao.isRegisteredChallenge(reviewIds[i].reviewId);
-        if(isRegisteredReviewInChallenge[0].exist === 1) //챌린지가 등록된 리뷰
-            reviews[i] = await reviewDao.getReviewRegistered(reviewIds[i].reviewId);
+        if(isRegisteredReviewInChallenge[0].exist === 1) {//챌린지가 등록된 리뷰
+            const readyReview = await reviewDao.getReviewRegistered(reviewIds[i].reviewId);
+            reviews[i] = readyReview[0];
+        }
 
-        else if(isRegisteredReviewInChallenge[0].exist === 0) //챌린지가 등록되지 않은 리뷰
-            reviews[i] = await reviewDao.getReviewNotRegistered(reviewIds[i].reviewId);
-
+        else if(isRegisteredReviewInChallenge[0].exist === 0) {//챌린지가 등록되지 않은 리뷰
+            const readyReview = await reviewDao.getReviewNotRegistered(reviewIds[i].reviewId);
+            reviews[i] = readyReview[0];
+        }
         else {
             return res.json({
                 isSuccess: false,
