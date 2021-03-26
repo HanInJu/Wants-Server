@@ -3,15 +3,14 @@ const { logger } = require("../../../config/winston");
 
 const myPageDao = require("../dao/myPageDao");
 const reviewDao = require("../dao/reviewDao");
+const challengeDao = require("../dao/challengeDao");
 const userDao = require("../dao/userDao");
-
 
 /*
  * 최종 수정일 : 2021.03.19.FRI
  * API 기 능 : 프로필 등록/수정
  */
 exports.profile = async function (req, res) {
-
   try {
     const { name, profilePictureURL, vow } = req.body;
 
@@ -43,7 +42,7 @@ exports.profile = async function (req, res) {
         });
       }
 
-      if(name.length > 30) {
+      if (name.length > 30) {
         return res.json({
           isSuccess: false,
           code: 2025,
@@ -52,7 +51,7 @@ exports.profile = async function (req, res) {
       }
 
       const isDuplicatedName = await myPageDao.isDuplicatedName(name);
-      if(isDuplicatedName[0].exist === 1) {
+      if (isDuplicatedName[0].exist === 1) {
         return res.json({
           isSuccess: false,
           code: 2026,
@@ -60,7 +59,7 @@ exports.profile = async function (req, res) {
         });
       }
 
-      if(vow.length > 30) {
+      if (vow.length > 30) {
         return res.json({
           isSuccess: false,
           code: 2026,
@@ -71,7 +70,7 @@ exports.profile = async function (req, res) {
       const profileParams = [name, profilePictureURL, vow, userId];
       const isSameProfile = await myPageDao.isSameProfile(profileParams);
 
-      if(isSameProfile[0].exist === 1) {
+      if (isSameProfile[0].exist === 1) {
         return res.json({
           isSuccess: false,
           code: 2028,
@@ -85,9 +84,10 @@ exports.profile = async function (req, res) {
         code: 1000,
         message: "프로필 등록/변경 성공",
       });
-
     } catch (err) {
-      logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
+      logger.error(
+        `example non transaction Query error\n: ${JSON.stringify(err)}`
+      );
       connection.release();
       return res.json({
         isSuccess: false,
@@ -95,9 +95,10 @@ exports.profile = async function (req, res) {
         message: "프로필 등록/변경 실패",
       });
     }
-
   } catch (err) {
-    logger.error(`example non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+    logger.error(
+      `example non transaction DB Connection error\n: ${JSON.stringify(err)}`
+    );
     return false;
   }
 };
@@ -120,7 +121,6 @@ exports.isDuplicatedName = async function (req, res) {
       });
 
     try {
-
       const name = req.param("name");
       if (name === "Reader") {
         return res.json({
@@ -130,7 +130,7 @@ exports.isDuplicatedName = async function (req, res) {
         });
       }
 
-      if(name.length > 30) {
+      if (name.length > 30) {
         return res.json({
           isSuccess: false,
           code: 2025,
@@ -139,7 +139,7 @@ exports.isDuplicatedName = async function (req, res) {
       }
 
       const isDuplicatedName = await myPageDao.isDuplicatedName(name);
-      if(isDuplicatedName[0].exist === 0) {
+      if (isDuplicatedName[0].exist === 0) {
         return res.json({
           isSuccess: true,
           code: 1000,
@@ -152,9 +152,10 @@ exports.isDuplicatedName = async function (req, res) {
           message: "이미 사용중인 닉네임입니다.",
         });
       }
-
-    }  catch (err) {
-      logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
+    } catch (err) {
+      logger.error(
+        `example non transaction Query error\n: ${JSON.stringify(err)}`
+      );
       connection.release();
       return res.json({
         isSuccess: false,
@@ -162,12 +163,13 @@ exports.isDuplicatedName = async function (req, res) {
         message: "닉네임 중복검사 실패",
       });
     }
-
   } catch (err) {
-    logger.error(`example non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+    logger.error(
+      `example non transaction DB Connection error\n: ${JSON.stringify(err)}`
+    );
     return false;
   }
-}
+};
 
 /*
  * 최종 수정일 : 2021.03.20.SAT
@@ -194,9 +196,10 @@ exports.getProfile = async function (req, res) {
         message: "프로필 조회 성공",
         results: myProfile[0],
       });
-
     } catch (err) {
-      logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
+      logger.error(
+        `example non transaction Query error\n: ${JSON.stringify(err)}`
+      );
       connection.release();
       return res.json({
         isSuccess: false,
@@ -204,9 +207,10 @@ exports.getProfile = async function (req, res) {
         message: "프로필 조회 실패",
       });
     }
-
-  } catch(err) {
-    logger.error(`example non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+  } catch (err) {
+    logger.error(
+      `example non transaction DB Connection error\n: ${JSON.stringify(err)}`
+    );
     return false;
   }
 };
@@ -230,14 +234,13 @@ exports.getPieces = async function (req, res) {
 
     try {
       const myPieces = await myPageDao.getMyPieces(userId);
-      if(myPieces.length < 1) {
+      if (myPieces.length < 1) {
         return res.json({
           isSuccess: true,
           code: 1000,
           message: "등록한 챌린지가 없습니다. 챌린지를 등록해보세요.",
         });
-      }
-      else {
+      } else {
         return res.json({
           isSuccess: true,
           code: 1000,
@@ -245,9 +248,10 @@ exports.getPieces = async function (req, res) {
           results: myPieces,
         });
       }
-
     } catch (err) {
-      logger.error(`getPieces - non transaction Query error\n: ${JSON.stringify(err)}`);
+      logger.error(
+        `getPieces - non transaction Query error\n: ${JSON.stringify(err)}`
+      );
       connection.release();
       return res.json({
         isSuccess: false,
@@ -256,21 +260,22 @@ exports.getPieces = async function (req, res) {
       });
     }
   } catch (err) {
-    logger.error(`getPieces - non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+    logger.error(
+      `getPieces - non transaction DB Connection error\n: ${JSON.stringify(
+        err
+      )}`
+    );
     return false;
   }
 };
 
-/*
- * 최종 수정일 : 2021.03.24.WED
- * API 기 능 : 나의 도서통계 중 정보 조회 -- Nami
- */
-exports.getReadingInfo = async function (req, res) {
+//독서통계
+exports.getinfo = async function (req, res) {
   try {
-    const userId = req.verifiedToken.id;
-    const connection = await pool.getConnection(async (conn) => conn);
+    var jwt = req.verifiedToken.id;
 
-    const userRows = await userDao.getuser(userId);
+    const userRows = await userDao.getuser(jwt);
+
     if (userRows[0] === undefined)
       return res.json({
         isSuccess: false,
@@ -278,79 +283,42 @@ exports.getReadingInfo = async function (req, res) {
         message: "가입되어있지 않은 유저입니다.",
       });
 
-    try {
-      const myPieces = await myPageDao.getMyPieces(userId);
-      if(myPieces.length < 1) {
-        return res.json({
-          isSuccess: true,
-          code: 1000,
-          message: "등록한 챌린지가 없습니다.",
-        });
-      }
-      else {
+    const getgoalIdRows = await challengeDao.getgoalId(jwt);
 
-        //이 부분에 추가 필요!
-
-        return res.json({
-          isSuccess: true,
-          code: 1000,
-          message: "나의 도서 통계 조회 성공.",
-          results: myPieces,
-        });
-      }
-
-    } catch (err) {
-      logger.error(`getPieces - non transaction Query error\n: ${JSON.stringify(err)}`);
-      connection.release();
-      return res.json({
-        isSuccess: false,
-        code: 500,
-        message: "나의 도서 통계 조회 실패",
-      });
+    if (getgoalIdRows.length > 0) {
+      var getcontinuityRows = await challengeDao.getcontinuity(
+        getgoalIdRows[0].goalId
+      ); // 연속된 시간 구함
+    } else {
+      var getcontinuityRows = [];
     }
-  } catch (err) {
-    logger.error(`getPieces - non transaction DB Connection error\n: ${JSON.stringify(err)}`);
-    return false;
-  }
-}
 
-/*
- * 최종 수정일 : 2021.03.24.WED
- * API 기 능 : 나의 도서통계 중 그래프 정보 조회
- */
-exports.getReadingGraph = async function (req, res) {
-  try {
-    const userId = req.verifiedToken.id;
-    const connection = await pool.getConnection(async (conn) => conn);
+    const getReadingInfoRows = await myPageDao.getReadingInfo(jwt);
 
-    const userRows = await userDao.getuser(userId);
-    if (userRows[0] === undefined)
+    console.log(getReadingInfoRows);
+
+    if (getReadingInfoRows.length > 0) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "독서통계 조회 성공",
+        getcontinuityRows,
+        getReadingInfoRows,
+      });
+    } else if (getReadingInfoRows.length === 0) {
       return res.json({
         isSuccess: false,
-        code: 4020,
-        message: "가입되어있지 않은 유저입니다.",
+        code: 2231,
+        message: "불러올 목표가 없습니다. 목표를 정해주세요.",
       });
-
-    try {
-
-        return res.json({
-          isSuccess: true,
-          code: 1000,
-          message: "나의 도서 통계 그래프 정보조회 성공.",
-        });
-
-
-    } catch (err) {
-      logger.error(`getPieces - non transaction Query error\n: ${JSON.stringify(err)}`);
-      connection.release();
+    } else
       return res.json({
         isSuccess: false,
-        code: 500,
-        message: "나의 도서통계 그래프 정보조회 실패",
+        code: 4000,
+        message: "독서통계 조회 실패",
       });
-    }
   } catch (err) {
-    logger.error(`getPieces - non transaction DB Connection error\n: ${JSON.stringify(err)}`);
-    return false;
+    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
   }
-}
+};
