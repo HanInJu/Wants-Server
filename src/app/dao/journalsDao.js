@@ -103,6 +103,36 @@ async function getpercent(goalBookId) {
   connection.release();
   return calendarYNRows;
 }
+//////////////////////////////////////////커뮤니티 일지 조회//////////////////////////////////////////////
+async function getcomjournals() {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const calendarYNQuery = `
+  select Book.title,
+  Book.imageURL,
+  Book.writer,
+  Book.bookId,
+  Book.publishNumber,
+  Challenge.percent,
+  Challenge.page,
+  Challenge.time,
+  Goal_book.status,
+  date_format(Reading_journal.postAt, '%Y.%m.%d') as postAt,
+  Reading_journal.text,
+  Reading_journal.journalImageURL,
+  Reading_journal.journalId,
+  User.userId,
+  User.profilePictureURL,
+  User.name
+from Reading_journal
+    inner join Challenge on Challenge.challengeId = Reading_journal.challengeId
+    inner join Goal_book on Challenge.goalBookId = Goal_book.goalBookId
+    inner join User on User.userId = Challenge.userId
+    inner join Book on Book.bookId = Goal_book.bookId
+order by postAt DESC`;
+  const [calendarYNRows] = await connection.query(calendarYNQuery);
+  connection.release();
+  return calendarYNRows;
+}
 module.exports = {
   postjournals,
   postjournals2,
@@ -112,4 +142,5 @@ module.exports = {
   getpatchjournals,
   getjournals,
   getpercent,
+  getcomjournals,
 };
