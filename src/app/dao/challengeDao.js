@@ -291,6 +291,18 @@ group by Challenge.goalId`;
   connection.release();
   return rows;
 }
+// 도전책조회
+async function getbookList(goalId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getchallenge1Query = `
+  select title, imageURL, writer, goalBookId, reading
+  from Goal_book
+  inner join Book on Book.bookId = Goal_book.bookId
+  where Goal_book.goalId = ${goalId}`;
+  const [rows] = await connection.query(getchallenge1Query);
+  connection.release();
+  return rows;
+}
 module.exports = {
   postchallenge,
   getbook,
@@ -311,4 +323,5 @@ module.exports = {
   patchchallengeBook2,
   deletechallengeBook2,
   getgoalId2,
+  getbookList,
 };
