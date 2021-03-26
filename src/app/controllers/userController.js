@@ -55,9 +55,7 @@ exports.signUp = async function (req, res) {
 
   try {
     // 이메일 중복 확인
-
     const emailRows = await userDao.userEmailCheck(email);
-
     if (emailRows[0].exist === 1) {
       return res.json({
         isSuccess: false,
@@ -73,31 +71,9 @@ exports.signUp = async function (req, res) {
       .update(password)
       .digest("hex");
 
-    try {
       const insertUserInfoParams = [email, hashedPassword, nickname];
       await userDao.insertUserInfo(insertUserInfoParams);
-    } catch (err) {
-      return res.json({
-        isSuccess: false,
-        code: 6000,
-        message: "insert 에러",
-      });
-    }
-    // const insertUserInfoParams = [email, hashedPassword, nickname];
-    // await userDao.insertUserInfo(insertUserInfoParams); 여기가 원래
 
-    try {
-      const [userInfoRows] = await userDao.selectUserInfo(email);
-    } catch (err) {
-      return res.json({
-        isSuccess: false,
-        code: 6000,
-        message: "userInfoRows 에러",
-      });
-    }
-    // const [userInfoRows] = await userDao.selectUserInfo(email); //여기가 원래
-
-    try  {
       const [userInfoRows] = await userDao.selectUserInfo(email);
       let token = await jwt.sign(
           {
@@ -118,14 +94,6 @@ exports.signUp = async function (req, res) {
         message: "회원가입 성공",
         jwt: token,
       });
-
-    } catch (err) {
-      return res.json({
-        isSuccess: false,
-        code: 6000,
-        message: "token 에러",
-      });
-    }
 
   } catch (err) {
     // await connection.rollback(); // ROLLBACK

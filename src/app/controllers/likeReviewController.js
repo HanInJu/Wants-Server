@@ -13,7 +13,7 @@ const userDao = require("../dao/userDao");
 exports.like = async function (req, res) {
   try {
     const userId = req.verifiedToken.id;
-    const connection = await pool.getConnection(async (conn) => conn);
+    //const connection = await pool.getConnection(async (conn) => conn);
 
     const userRows = await userDao.getuser(userId);
     if (userRows[0] === undefined)
@@ -61,7 +61,7 @@ exports.like = async function (req, res) {
 
     } catch (err) {
       logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
-      connection.release();
+      //connection.release();
       return res.json({
         isSuccess: false,
         code: 500,
@@ -82,7 +82,7 @@ exports.like = async function (req, res) {
 exports.comment = async function (req, res) {
   try {
     const userId = req.verifiedToken.id;
-    const connection = await pool.getConnection(async (conn) => conn);
+    //const connection = await pool.getConnection(async (conn) => conn);
 
     const userRows = await userDao.getuser(userId);
     if (userRows[0] === undefined)
@@ -133,7 +133,7 @@ exports.comment = async function (req, res) {
 
     } catch (err) {
       logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
-      connection.release();
+      //connection.release();
       return res.json({
         isSuccess: false,
         code: 500,
@@ -155,7 +155,7 @@ exports.deleteComment = async function (req, res) {
 
   try {
     const userId = req.verifiedToken.id;
-    const connection = await pool.getConnection(async (conn) => conn);
+    //const connection = await pool.getConnection(async (conn) => conn);
 
     const userRows = await userDao.getuser(userId);
     if (userRows[0] === undefined)
@@ -203,7 +203,7 @@ exports.deleteComment = async function (req, res) {
 
     } catch (err) {
       logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
-      connection.release();
+      //connection.release();
       return res.json({
         isSuccess: false,
         code: 500,
@@ -225,7 +225,7 @@ exports.deleteComment = async function (req, res) {
 exports.reportComment = async function (req, res) {
   try {
     const userId = req.verifiedToken.id;
-    const connection = await pool.getConnection(async (conn) => conn);
+    //const connection = await pool.getConnection(async (conn) => conn);
 
     const userRows = await userDao.getuser(userId);
     if (userRows[0] === undefined)
@@ -282,7 +282,7 @@ exports.reportComment = async function (req, res) {
 
     } catch (err) {
       logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
-      connection.release();
+      //connection.release();
       return res.json({
         isSuccess: false,
         code: 500,

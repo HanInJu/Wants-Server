@@ -24,7 +24,7 @@ exports.profile = async function (req, res) {
     }
 
     const userId = req.verifiedToken.id;
-    const connection = await pool.getConnection(async (conn) => conn);
+    //const connection = await pool.getConnection(async (conn) => conn);
 
     const userRows = await userDao.getuser(userId);
     if (userRows[0] === undefined)
@@ -88,7 +88,7 @@ exports.profile = async function (req, res) {
 
     } catch (err) {
       logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
-      connection.release();
+      //connection.release();
       return res.json({
         isSuccess: false,
         code: 500,
@@ -109,7 +109,7 @@ exports.profile = async function (req, res) {
 exports.isDuplicatedName = async function (req, res) {
   try {
     const userId = req.verifiedToken.id;
-    const connection = await pool.getConnection(async (conn) => conn);
+    //const connection = await pool.getConnection(async (conn) => conn);
 
     const userRows = await userDao.getuser(userId);
     if (userRows[0] === undefined)
@@ -155,7 +155,7 @@ exports.isDuplicatedName = async function (req, res) {
 
     }  catch (err) {
       logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
-      connection.release();
+      //connection.release();
       return res.json({
         isSuccess: false,
         code: 500,
@@ -176,7 +176,7 @@ exports.isDuplicatedName = async function (req, res) {
 exports.getProfile = async function (req, res) {
   try {
     const userId = req.verifiedToken.id;
-    const connection = await pool.getConnection(async (conn) => conn);
+    //const connection = await pool.getConnection(async (conn) => conn);
 
     const userRows = await userDao.getuser(userId);
     if (userRows[0] === undefined)
@@ -197,7 +197,7 @@ exports.getProfile = async function (req, res) {
 
     } catch (err) {
       logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
-      connection.release();
+      //connection.release();
       return res.json({
         isSuccess: false,
         code: 500,
@@ -218,7 +218,7 @@ exports.getProfile = async function (req, res) {
 exports.getPieces = async function (req, res) {
   try {
     const userId = req.verifiedToken.id;
-    const connection = await pool.getConnection(async (conn) => conn);
+    //const connection = await pool.getConnection(async (conn) => conn);
 
     const userRows = await userDao.getuser(userId);
     if (userRows[0] === undefined)
@@ -248,7 +248,7 @@ exports.getPieces = async function (req, res) {
 
     } catch (err) {
       logger.error(`getPieces - non transaction Query error\n: ${JSON.stringify(err)}`);
-      connection.release();
+      //connection.release();
       return res.json({
         isSuccess: false,
         code: 500,
@@ -268,7 +268,7 @@ exports.getPieces = async function (req, res) {
 exports.getReadingInfo = async function (req, res) {
   try {
     const userId = req.verifiedToken.id;
-    const connection = await pool.getConnection(async (conn) => conn);
+    //const connection = await pool.getConnection(async (conn) => conn);
 
     const userRows = await userDao.getuser(userId);
     if (userRows[0] === undefined)
@@ -301,7 +301,7 @@ exports.getReadingInfo = async function (req, res) {
 
     } catch (err) {
       logger.error(`getPieces - non transaction Query error\n: ${JSON.stringify(err)}`);
-      connection.release();
+      //connection.release();
       return res.json({
         isSuccess: false,
         code: 500,
@@ -321,7 +321,7 @@ exports.getReadingInfo = async function (req, res) {
 exports.getReadingGraph = async function (req, res) {
   try {
     const userId = req.verifiedToken.id;
-    const connection = await pool.getConnection(async (conn) => conn);
+    //const connection = await pool.getConnection(async (conn) => conn);
 
     const userRows = await userDao.getuser(userId);
     if (userRows[0] === undefined)
@@ -342,7 +342,7 @@ exports.getReadingGraph = async function (req, res) {
 
     } catch (err) {
       logger.error(`getPieces - non transaction Query error\n: ${JSON.stringify(err)}`);
-      connection.release();
+      //connection.release();
       return res.json({
         isSuccess: false,
         code: 500,

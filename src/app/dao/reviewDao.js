@@ -185,19 +185,20 @@ async function getMyReviewsWithTimeASC(userId) {
   const query = `
     SELECT G.userId,
            IF(Gb.status = 'Y', '완독', '읽는중') as isCompleted,
-           C.\`time\`,
+           C.timeSum,
            Gb.bookId,
            title,
            writer,
            imageURL,
            R.reviewId,
            R.star,
-           R.text
+           R.text,
+           IF(R.isPublic = 1, '전체공개', '나만보는중') as isPublic
     FROM Goal_book Gb
            INNER JOIN Goal G on G.goalId = Gb.goalId
            INNER JOIN Book B on Gb.bookId = B.bookId
            LEFT JOIN Review R on R.bookId = Gb.bookId
-           INNER JOIN (SELECT goalId, goalbookId, SUM(time) as \`time\`
+           INNER JOIN (SELECT goalId, goalbookId, SUM(time) as timeSum
                        FROM Challenge
                        GROUP BY goalId, goalBookId) C on C.goalBookId = Gb.goalBookId
     WHERE G.userId = ?
@@ -215,19 +216,20 @@ async function getMyReviewsWithTimeDESC(userId) {
   const query = `
     SELECT G.userId,
            IF(Gb.status = 'Y', '완독', '읽는중') as isCompleted,
-           C.\`time\`,
+           C.timeSum,
            Gb.bookId,
            title,
            writer,
            imageURL,
            R.reviewId,
            R.star,
-           R.text
+           R.text,
+           IF(R.isPublic = 1, '전체공개', '나만보는중') as isPublic
     FROM Goal_book Gb
            INNER JOIN Goal G on G.goalId = Gb.goalId
            INNER JOIN Book B on Gb.bookId = B.bookId
            LEFT JOIN Review R on R.bookId = Gb.bookId
-           INNER JOIN (SELECT goalId, goalbookId, SUM(time) as \`time\`
+           INNER JOIN (SELECT goalId, goalbookId, SUM(time) as timeSum
                        FROM Challenge
                        GROUP BY goalId, goalBookId) C on C.goalBookId = Gb.goalBookId
     WHERE G.userId = ?
@@ -245,7 +247,7 @@ async function getMyReviewsASC(userId) {
   const query = `
     SELECT R.userId,
            '읽는중' as isCompleted,
-           R.bookId, title, writer, imageURL, R.reviewId, R.star, R.text
+           R.bookId, title, writer, imageURL, R.reviewId, R.star, R.text, IF(R.isPublic = 1, '전체공개', '나만보는중') as isPublic
     FROM Review R
            INNER JOIN Book B on R.bookId = B.bookId
     WHERE R.userId = ?
@@ -262,7 +264,7 @@ async function getMyReviewsDESC(userId) {
   const query = `
     SELECT R.userId,
            '읽는중' as isCompleted,
-           R.bookId, title, writer, imageURL, R.reviewId, R.star, R.text
+           R.bookId, title, writer, imageURL, R.reviewId, R.star, R.text, IF(R.isPublic = 1, '전체공개', '나만보는중') as isPublic
     FROM Review R
            INNER JOIN Book B on R.bookId = B.bookId
     WHERE R.userId = ?
