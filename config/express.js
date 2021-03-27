@@ -24,6 +24,7 @@ module.exports = function () {
   require("../src/app/routes/journalsRoute")(app);
   require("../src/app/routes/likeReviewRoute")(app);
   require("../src/app/routes/myPageRoute")(app);
+  require("../src/app/routes/passwordRoute")(app);
 
   /* Web */
   // require('../src/web/routes/indexRoute')(app);

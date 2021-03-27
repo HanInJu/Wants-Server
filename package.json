@@ -29,6 +29,8 @@
     "multer": "^1.4.2",
     "multer-s3": "^2.9.0",
     "mysql2": "^2.0.0",
+    "nodemailer": "^6.5.0",
+    "nodemailer-smtp-transport": "^2.7.4",
     "regex-email": "^1.0.2",
     "streamifier": "^0.1.1",
     "tesseract.js": "^2.1.4",
