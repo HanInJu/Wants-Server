@@ -169,7 +169,7 @@ async function getCommentsNum(reviewId) {
 async function getReviewIds(userId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const query = `
-    SELECT reviewId FROM Review WHERE userId = ? ORDER BY postAt ASC;
+    SELECT reviewId FROM Review WHERE userId = ? AND Review.status = 'OK' ORDER BY postAt ASC;
                       `;
   const [row] = await connection.query(query, userId);
 
