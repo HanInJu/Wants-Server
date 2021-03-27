@@ -232,12 +232,12 @@ exports.getchallenge = async function (req, res) {
     const goalIdRows = await challengeDao.getgoalId(jwt); // 지금 유효한 목표가 있는지
     var isExpired = false;
     var goalId1 = 0;
-    console.log(goalIdRows);
 
     if (goalIdRows.length === 0 || goalIdRows === undefined) {
+      console.log(jwt);
       // 목표가 없다면
       const goalId2Rows = await challengeDao.getgoalId2(jwt); // 가장최근목표찾기
-      console.log(goalId2Row);
+
       if (goalId2Rows.length > 0) {
         // 목표가 하나라도 있으면 여기로 나옴
         goalId1 = goalId2Rows[0].goalId;
@@ -257,11 +257,13 @@ exports.getchallenge = async function (req, res) {
     const getchallenge3Rows = await challengeDao.getchallenge3(goalId1);
     console.log(getchallenge1Rows.length);
     if (getchallenge1Rows.length === 0) {
+      const goalBookRows = await challengeDao.getchallenge2(goalBookId);
       return res.json({
         isSuccess: false,
         code: 2223,
         message: "도전하고 있는 챌린지 책이 없습니다. 책을 설정해주세요.",
         getchallenge3Rows,
+        goalBookRows,
         isExpired,
       });
     }
