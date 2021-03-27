@@ -49,42 +49,56 @@ exports.sendEmail = async function (req, res) {
     const emailRows = await passwordDao.isExistEmail(email.email); // 해당 이메일로 가입된 정보가 있는지 확인
     if (emailRows[0].exist === 1) { //가입된 정보가 있을 경우
 
-      let transporter = nodemailer.createTransport({
-        host: "smtp.ethereal.email",
-        //port: 587, //secure: false 일 때만 포트번호 지정 필요
-        secure: true, // true for 465, false for other ports
-        auth: {
-          user: authUser,
-          pass: authPass
-        }
-      });
-
       const tempRandomPW = Math.random().toString(36).slice(2);
-      const txt = "귀하의 임시 비밀번호는 \n" + tempRandomPW + "입니다. \n로그인 후 비밀번호를 재설정해주세요.";
+      const txt = "귀하의 임시 비밀번호는 \n" + tempRandomPW + " 입니다. \n로그인 후 비밀번호를 재설정해주세요.";
+      console.log(txt);
 
-      console.log(tempRandomPW, txt);
+      // nodemailer 모듈 요청
+      var nodemailer = require('nodemailer');
 
-      let mailOptions = {
-        from: fromEmail,        //보내는 사람 주소
-        to: email ,           //받는 사람 주소
-        subject: "[Reading Piece] 임시 비밀번호 발급 안내",  //제목
-        text: txt               //본문
+      // 메일발송 객체
+      var mailSender = {
+        // 메일발송 함수
+        sendGmail : function(param){
+          var transporter = nodemailer.createTransport({
+            service: 'gmail'
+            ,prot : 587
+            ,host :'smtp.gmlail.com'
+            ,secure : false
+            ,requireTLS : true
+            , auth: {
+              user: 'Wants0Server@gmail.com'
+              ,pass: 'WantsServer#2'
+            }
+          });
+          // 메일 옵션
+          var mailOptions = {
+            from: 'Wants0Server@gmail.com',
+            to: email.email, // 수신할 이메일
+            subject: '🍰 Wants Team 🍰', // 메일 제목
+            text: txt // 메일 내용
+          };
+          // 메일 발송
+          transporter.sendMail(mailOptions, function(error, info){
+            if (error) {
+              console.log(error);
+            } else {
+              console.log('Email sent: ' + info.response);
+            }
+          });
+
+        }
+      }
+      // 메일객체 exports
+      module.exports = mailSender;
+
+      let emailParam = {
+        toEmail : email.email
+        ,subject  : 'Wants Team'
+        ,text : txt
       };
 
-      //전송 시작!
-      transporter.sendMail(mailOptions, function(error, info){
-        if (error) { //에러
-          console.log(error);
-          return res.json({
-            isSuccess: false,
-            code: 500,
-            message: "비밀번호 찾기 - 이메일 전송 실패",
-          });
-        }
-        //전송 완료
-        console.log("Finish sending email : " + info.response);
-        transporter.close()
-      })
+      mailSender.sendGmail(emailParam);
 
       //임시 비번 계정DB에 넣어두기.
       const hashedPassword = await crypto
@@ -94,7 +108,6 @@ exports.sendEmail = async function (req, res) {
 
       const updateUserInfoParams = [hashedPassword, email.email];
       await passwordDao.updateUserInfo(updateUserInfoParams);
-      //console.log("여기", updateUserInfoParams);
 
       return res.json({
         isSuccess: true,
