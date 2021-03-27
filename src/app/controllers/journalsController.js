@@ -50,6 +50,7 @@ exports.postjournals = async function (req, res) {
         message: "입력을 해주세요.",
       });
     console.log(goalBookId);
+
     const whatIsYourName = await reviewDao.whatIsYourName(jwt);
     if (whatIsYourName[0].name === "Reader") {
       return res.json({
@@ -60,14 +61,22 @@ exports.postjournals = async function (req, res) {
     }
 
     const goalId1 = await journalsDao.getgoalBookId(goalBookId);
-    const goalId = goalId1[0].GoalId;
 
-    if (goalId.length == 0)
+    console.log(goalId1);
+    if (goalId1.length == 0)
       return res.json({
         isSuccess: true,
         code: 2225,
-        message: "목표가 없습니다.",
+        message: "일지를 작성할 책이 선택되지 않았습니다.",
       });
+    else if (goalId1[0].userId !== jwt)
+      return res.json({
+        isSuccess: true,
+        code: 2226,
+        message: "목표로 등록한 책의 유저와 일지를 작성할 유저가 다릅니다.",
+      });
+    const goalId = goalId1[0].GoalId;
+
     const charPercent2 = await journalsDao.getpercent(goalBookId);
     const charPercent1 = charPercent2[0].percent;
     const charPercent = percent - charPercent1;
@@ -143,6 +152,22 @@ exports.patchjournals = async function (req, res) {
         message: "입력을 해주세요.",
       });
 
+    const journaluserRows = await journalsDao.journaluser(journalId);
+    console.log(journaluserRows);
+
+    if (journaluserRows.length === 0)
+      return res.json({
+        isSuccess: false,
+        code: 2228,
+        message: "어느 유저가 쓴 일지인지 정확하지 않아 수정할 수 없습니다.",
+      });
+    else if (journaluserRows[0].userId !== jwt)
+      return res.json({
+        isSuccess: false,
+        code: 2227,
+        message: "수정할 일지를 작성한 유저와 수정할 유저가 다릅니다.",
+      });
+
     const patchjournalsRows = await journalsDao.patchjournals(
       journalId,
       text,
@@ -187,13 +212,28 @@ exports.deletejournals = async function (req, res) {
         message: "가입되어있지 않은 유저입니다.",
       });
 
-    const { journalId } = req.body;
+    const journalId = req.params.journalId;
     console.log(journalId);
     if (journalId.length === 0 || journalId === undefined)
       return res.json({
         isSuccess: false,
         code: 2100,
         message: "입력을 해주세요.",
+      });
+
+    const journaluserRows = await journalsDao.journaluser(journalId);
+
+    if (journaluserRows.length === 0)
+      return res.json({
+        isSuccess: false,
+        code: 2228,
+        message: "어느 유저가 쓴 일지인지 정확하지 않아 삭제할 수 없습니다.",
+      });
+    else if (journaluserRows[0].userId !== jwt)
+      return res.json({
+        isSuccess: false,
+        code: 2227,
+        message: "수정할 일지를 작성한 유저와 삭제할 유저가 다릅니다.",
       });
 
     const deletejournalsRows = await journalsDao.deletejournals(journalId);
