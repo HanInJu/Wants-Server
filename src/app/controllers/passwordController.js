@@ -6,12 +6,6 @@ const regexEmail = require("regex-email");
 const crypto = require("crypto");
 const secret_config = require("../../../config/secret");
 
-const nodemailer = require("nodemailer");
-// const smtpServerURL = "email SMTP 서버 주소";
-const authUser = "Wants0Server@gmail.com"; //email 계정
-const authPass = "WantsServer#2"; //email 계정 PW
-const fromEmail = 'Wants0Server@gmail.com'; //보내는 사람 email 주소
-
 const userDao = require("../dao/userDao");
 const passwordDao = require("../dao/passwordDao");
 const { constants } = require("buffer");
