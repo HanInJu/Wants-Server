@@ -229,26 +229,38 @@ exports.getchallenge = async function (req, res) {
       });
 
     // goalId 찾기 유저 jwt로
-    const goalIdRows = await challengeDao.getgoalId(jwt);
+    const goalIdRows = await challengeDao.getgoalId(jwt); // 지금 유효한 목표가 있는지
     var isExpired = false;
-    var goalId = 0;
+    var goalId1 = 0;
+    console.log(goalIdRows);
 
     if (goalIdRows.length === 0 || goalIdRows === undefined) {
-      const goalId2Rows = await challengeDao.getgoalId2(jwt);
+      // 목표가 없다면
+      const goalId2Rows = await challengeDao.getgoalId2(jwt); // 가장최근목표찾기
+      console.log(goalId2Row);
+      if (goalId2Rows.length > 0) {
+        // 목표가 하나라도 있으면 여기로 나옴
+        goalId1 = goalId2Rows[0].goalId;
 
-      goalId = goalId2Rows[0].goalId;
+        isExpired = true; // 만료됨
+      } else {
+        // 목표가 아예없다.
+        return res.json({
+          isSuccess: false,
+          code: 2224,
+          message: "목표를 설정해주세요. 지난목표도 없습니다.",
+        });
+      }
+    } else goalId1 = goalIdRows[0].goalId; // 도전중인 목표가있다면 여기로
 
-      isExpired = true;
-    } else goalId = goalIdRows[0].goalId;
-
-    const getchallenge1Rows = await challengeDao.getchallenge1(goalId);
-    const getchallenge3Rows = await challengeDao.getchallenge3(goalId);
-
+    const getchallenge1Rows = await challengeDao.getchallenge1(goalId1);
+    const getchallenge3Rows = await challengeDao.getchallenge3(goalId1);
+    console.log(getchallenge1Rows.length);
     if (getchallenge1Rows.length === 0) {
       return res.json({
         isSuccess: false,
         code: 2223,
-        message: "도전한 챌린지가 없습니다.",
+        message: "도전하고 있는 챌린지 책이 없습니다. 책을 설정해주세요.",
         getchallenge3Rows,
         isExpired,
       });

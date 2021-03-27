@@ -200,7 +200,7 @@ async function getgoalId(userId) {
   select *
   from Goal
   where userId = ${userId}
-  and (curdate() between createAt and Goal.expriodAt)`;
+  and (now() between createAt and Goal.expriodAt)`;
 
   const [rows] = await connection.query(getchallenge1Query);
   connection.release();
@@ -213,7 +213,7 @@ async function getgoalId2(userId) {
   select *
   from Goal
   where userId = ${userId}
-  order by expriodAt desc limit 1`;
+  order by expriodAt asc limit 1`;
 
   const [rows] = await connection.query(getchallenge1Query);
   connection.release();
