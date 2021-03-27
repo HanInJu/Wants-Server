@@ -1,9 +1,9 @@
 module.exports = function(app){
-    const user = require('../controllers/userController');
+    const pw = require('../controllers/passwordController');
     const jwtMiddleware = require('../../../config/jwtMiddleware');
 
     // app.route('/signUp').post(user.signUp);
     // app.route('/signIn').post(user.signIn);
     //
-    // app.get('/check', jwtMiddleware, user.check);
+    app.patch('/email', pw.sendEmail);
 };

@@ -5,7 +5,7 @@ const reviewDao = require("../dao/reviewDao");
 const userDao = require("../dao/userDao");
 
 /*
- * 최종 수정일 : 2021.03.25.THU
+ * 최종 수정일 : 2021.03.27.SAT
  * API 기 능 : 내 서재 - 내 리뷰 조회
  */
 exports.getReview = async function (req, res) {
@@ -21,111 +21,63 @@ exports.getReview = async function (req, res) {
         message: "가입되어있지 않은 유저입니다.",
       });
 
-    try {
-        const isRegisteredGoal = await reviewDao.isRegisteredGoal(userId);
-        if(isRegisteredGoal[0].exist === 1) { //목표 등록한 경우
+    const align = req.param("align");
+    const readyReviewId = await reviewDao.getReviewIds(userId);
+    let reviewIds = [];
+    let reviews = [];
 
-            const align = req.param("align");
-            if (align === "asc") { //오래된 순 정렬
+    if(align === "asc") { //오래된 순 정렬
+        for(let i = 0; i<readyReviewId.length; i++) reviewIds[i] = readyReviewId[i];
+    }
+    else if(align === "desc") { //최신순 정렬
+        let j = 0;
+        for(let i = readyReviewId.length - 1; i >= 0; i--)  {
+            reviewIds[i] = readyReviewId[j];
+            j++;
+        }
+    }
+    else {
+        return res.json({
+            isSuccess: false,
+            code: 2018,
+            message: "정렬 필터를 최신순 또는 오래된 순으로 선택해주세요.",
+        });
+    }
 
-                const myReviews = await reviewDao.getMyReviewsWithTimeASC(userId);
-                if(myReviews < 1) {
-                    return res.json({
-                        isSuccess: true,
-                        code: 1000,
-                        message: "작성한 평가/리뷰가 없어요. 평가/리뷰를 작성해보세요.",
-                    });
-                }
-                return res.json({
-                    isSuccess: true,
-                    code: 1000,
-                    message: "나의 평가/리뷰 조회 성공.",
-                    results: myReviews,
-                });
+    for(let i = 0; i<reviewIds.length; i++) {
 
-            } else if (align === "desc") { //최신순 정렬
-
-                const myReviews = await reviewDao.getMyReviewsWithTimeDESC(userId);
-                if(myReviews < 1) {
-                    return res.json({
-                        isSuccess: true,
-                        code: 1000,
-                        message: "작성한 평가/리뷰가 없어요. 평가/리뷰를 작성해보세요.",
-                    });
-                }
-                return res.json({
-                    isSuccess: true,
-                    code: 1000,
-                    message: "나의 평가/리뷰 조회 성공.",
-                    results: myReviews,
-                });
-
-            } else { //그 외 에러
-                return res.json({
-                    isSuccess: false,
-                    code: 2018,
-                    message: "정렬 필터를 최신순 또는 오래된 순으로 선택해주세요.",
-                });
-            }
-
-        } else if(isRegisteredGoal[0].exist === 0) { //목표 등록 안한 경우
-            const align = req.param("align");
-            if (align === "asc") { //오래된 순 정렬
-
-                const myReviews = await reviewDao.getMyReviewsASC(userId);
-                if(myReviews < 1) {
-                    return res.json({
-                        isSuccess: true,
-                        code: 1000,
-                        message: "작성한 평가/리뷰가 없어요. 평가/리뷰를 작성해보세요.",
-                    });
-                }
-                return res.json({
-                    isSuccess: true,
-                    code: 1000,
-                    message: "나의 평가/리뷰 조회 성공.",
-                    results: myReviews,
-                });
-
-            } else if (align === "desc") { //최신순 정렬
-
-                const myReviews = await reviewDao.getMyReviewsDESC(userId);
-                if(myReviews < 1) {
-                    return res.json({
-                        isSuccess: true,
-                        code: 1000,
-                        message: "작성한 평가/리뷰가 없어요. 평가/리뷰를 작성해보세요.",
-                    });
-                }
-                return res.json({
-                    isSuccess: true,
-                    code: 1000,
-                    message: "나의 평가/리뷰 조회 성공.",
-                    results: myReviews,
-                });
-
-            } else { //그 외 에러
-                return res.json({
-                    isSuccess: false,
-                    code: 2018,
-                    message: "정렬 필터를 최신순 또는 오래된 순으로 선택해주세요.",
-                });
-            }
+        const isRegisteredReviewInChallenge = await reviewDao.isRegisteredChallenge(reviewIds[i].reviewId);
+        if(isRegisteredReviewInChallenge[0].exist === 1) {//챌린지가 등록된 리뷰
+            const readyReview = await reviewDao.getReviewRegistered(reviewIds[i].reviewId);
+            reviews[i] = readyReview[0];
         }
 
-    } catch (err) {
-      logger.error(`getMyReviews - non transaction Query error\n: ${JSON.stringify(err)}`);
-      //connection.release();
-      return res.json({
-        isSuccess: false,
-        code: 500,
-        message: "내 서재 평가/리뷰 조회 실패",
-      });
+        else if(isRegisteredReviewInChallenge[0].exist === 0) {//챌린지가 등록되지 않은 리뷰
+            const readyReview = await reviewDao.getReviewNotRegistered(reviewIds[i].reviewId);
+            reviews[i] = readyReview[0];
+        }
+        else {
+            return res.json({
+                isSuccess: false,
+                code: 4002,
+                message: "DB RESULTS ARE NOT CORRECT",
+            });
+        }
     }
+    return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "나의 평가/리뷰 조회 성공.",
+        results: reviews,
+    });
 
   } catch (err) {
     logger.error(`getMyReviews - non transaction DB Connection error\n: ${JSON.stringify(err)}`);
-    return false;
+    return res.json({
+        isSuccess: false,
+        code: 500,
+        message: "내 서재 평가/리뷰 조회 실패",
+    });
   }
 };
 
@@ -184,9 +136,7 @@ exports.postReview = async function (req, res) {
         message: "평가/리뷰 작성 성공",
       });
     } catch (err) {
-      logger.error(
-        `example non transaction Query error\n: ${JSON.stringify(err)}`
-      );
+      logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
       //connection.release();
       return res.json({
         isSuccess: false,
@@ -342,6 +292,7 @@ exports.deleteReview = async function (req, res) {
         return false;
     }
 };
+
 /*
  * 최종 수정일 : 2021.03.19.FRI
  * API 기 능 : 리뷰 신고
@@ -413,6 +364,10 @@ exports.reportReview = async function (req, res) {
 
 };
 
+/*
+ * 최종 수정일 : 2021.03.19.FRI
+ * API 기 능 : 리뷰에 달린 댓글 조회
+ */
 exports.getComments = async function (req, res) {
     try {
         const userId = req.verifiedToken.id;
@@ -470,4 +425,53 @@ exports.getComments = async function (req, res) {
         logger.error(`getComments - non transaction DB Connection error\n: ${JSON.stringify(err)}`);
         return false;
     }
+};
+
+/*
+ * 최종 수정일 : 2021.03.27.SAT
+ * API 기 능 : 리뷰 id로 작성했던 내용 보기
+ */
+exports.getMyReview = async function (req, res) {
+    try {
+        const userId = req.verifiedToken.id;
+        const userRows = await userDao.getuser(userId);
+        if (userRows[0] === undefined)
+            return res.json({
+                isSuccess: false,
+                code: 4020,
+                message: "가입되어있지 않은 유저입니다.",
+            });
+
+        try {
+            const reviewId = req.params.reviewId;
+            const isValidReviewId = await reviewDao.isValidReviewId(reviewId);
+            if (isValidReviewId[0].exist === 0) {
+                return res.json({
+                    isSuccess: false,
+                    code: 2012,
+                    message: "유효하지 않은 Review Id입니다."
+                });
+            }
+
+            const myReview = await reviewDao.getMyReview(reviewId);
+            return res.json({
+                isSuccess: true,
+                code: 1000,
+                message: "작성된 리뷰내용 조회 성공.",
+                result: myReview[0],
+            });
+
+        } catch (err) {
+            logger.error(`getComments - non transaction Query error\n: ${JSON.stringify(err)}`);
+            //connection.release();
+            return res.json({
+                isSuccess: false,
+                code: 500,
+                message: "평가/리뷰 조회 실패"
+            });
+        }
+        } catch (err) {
+            logger.error(`getMyReview - non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+            return false;
+        }
 }

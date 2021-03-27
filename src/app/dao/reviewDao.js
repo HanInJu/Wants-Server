@@ -166,52 +166,33 @@ async function getCommentsNum(reviewId) {
   return reportRow;
 }
 
-async function isRegisteredGoal(userId) {
+async function getReviewIds(userId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const query = `
-    SELECT EXISTS(SELECT G.goalId, GB.bookId
-                  FROM Goal_book GB
-                         INNER JOIN Goal G on G.goalId = GB.goalId
-                  WHERE userId = ?) as exist;
+    SELECT reviewId FROM Review WHERE userId = ? ORDER BY postAt ASC;
                       `;
   const [row] = await connection.query(query, userId);
 
   connection.release();
   return row;
 }
-
-async function getMyReviewsWithTimeASC(userId) {
+//이 리뷰가 챌린지에 등록된 도서에 대해 쓴 거니?
+async function isRegisteredChallenge(reviewId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const query = `
-    SELECT G.userId,
-           IF(Gb.status = 'Y', '완독', '읽는중') as isCompleted,
-           C.timeSum,
-           Gb.bookId,
-           title,
-           writer,
-           imageURL,
-           R.reviewId,
-           R.star,
-           R.text,
-           IF(R.isPublic = 1, '전체공개', '나만보는중') as isPublic
-    FROM Goal_book Gb
-           INNER JOIN Goal G on G.goalId = Gb.goalId
-           INNER JOIN Book B on Gb.bookId = B.bookId
-           LEFT JOIN Review R on R.bookId = Gb.bookId
-           INNER JOIN (SELECT goalId, goalbookId, SUM(time) as timeSum
-                       FROM Challenge
-                       GROUP BY goalId, goalBookId) C on C.goalBookId = Gb.goalBookId
-    WHERE G.userId = ?
-      AND R.userId = G.userId
-    ORDER BY R.postAt ASC;
+    SELECT EXISTS(SELECT Goal_book.bookId, G.userId
+              FROM Goal_book
+              INNER JOIN Goal G on Goal_book.goalId = G.goalId
+              INNER JOIN Review R on R.bookId = Goal_book.bookId
+              WHERE reviewId = ? AND R.userId = G.userId) as exist;
                       `;
-  const [row] = await connection.query(query, userId);
+  const [row] = await connection.query(query, reviewId);
 
   connection.release();
   return row;
 }
 
-async function getMyReviewsWithTimeDESC(userId) {
+async function getReviewRegistered(reviewId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const query = `
     SELECT G.userId,
@@ -224,7 +205,8 @@ async function getMyReviewsWithTimeDESC(userId) {
            R.reviewId,
            R.star,
            R.text,
-           IF(R.isPublic = 1, '전체공개', '나만보는중') as isPublic
+           IF(R.isPublic = 1, '전체 공개 중', '나만보는 중') as isPublic,
+           DATE_FORMAT(R.postAt, '%Y-%m-%d %H:%i:%s') as postAt
     FROM Goal_book Gb
            INNER JOIN Goal G on G.goalId = Gb.goalId
            INNER JOIN Book B on Gb.bookId = B.bookId
@@ -232,49 +214,48 @@ async function getMyReviewsWithTimeDESC(userId) {
            INNER JOIN (SELECT goalId, goalbookId, SUM(time) as timeSum
                        FROM Challenge
                        GROUP BY goalId, goalBookId) C on C.goalBookId = Gb.goalBookId
-    WHERE G.userId = ?
-      AND R.userId = G.userId
-    ORDER BY R.postAt DESC;
+    WHERE R.reviewId = ?
+      AND R.userId = G.userId;
                       `;
-  const [row] = await connection.query(query, userId);
+  const [row] = await connection.query(query, reviewId);
 
   connection.release();
   return row;
 }
 
-async function getMyReviewsASC(userId) {
+async function getReviewNotRegistered(reviewId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const query = `
     SELECT R.userId,
            '읽는중' as isCompleted,
-           R.bookId, title, writer, imageURL, R.reviewId, R.star, R.text, IF(R.isPublic = 1, '전체공개', '나만보는중') as isPublic
+           R.bookId, title, writer, imageURL, R.reviewId, R.star, R.text, IF(R.isPublic = 1, '전체 공개 중', '나만보는 중') as isPublic,
+           DATE_FORMAT(R.postAt, '%Y-%m-%d %H:%i:%s') as postAt
     FROM Review R
-           INNER JOIN Book B on R.bookId = B.bookId
-    WHERE R.userId = ?
-    ORDER BY R.postAt ASC;
+    INNER JOIN Book B on R.bookId = B.bookId
+    WHERE R.reviewId = ?;
                       `;
-  const [row] = await connection.query(query, userId);
+  const [row] = await connection.query(query, reviewId);
 
   connection.release();
   return row;
 }
 
-async function getMyReviewsDESC(userId) {
+async function getMyReview(reviewId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const query = `
-    SELECT R.userId,
-           '읽는중' as isCompleted,
-           R.bookId, title, writer, imageURL, R.reviewId, R.star, R.text, IF(R.isPublic = 1, '전체공개', '나만보는중') as isPublic
+    SELECT R.bookId, title, writer, publisher, CONCAT(DATE_FORMAT(publishDate, '%Y'), '년') as publishAt, imageURL,
+           R.reviewId, R.star, R.text, IF(R.isPublic = 1, '전체 공개 중', '나만보는 중') as isPublic,
+           DATE_FORMAT(R.postAt, '%Y-%m-%d %H:%i:%s') as postAt
     FROM Review R
            INNER JOIN Book B on R.bookId = B.bookId
-    WHERE R.userId = ?
-    ORDER BY R.postAt DESC;
+    WHERE R.reviewId = ?;
                       `;
-  const [row] = await connection.query(query, userId);
+  const [row] = await connection.query(query, reviewId);
 
   connection.release();
   return row;
 }
+
 
 module.exports = {
   postReview,
@@ -290,9 +271,9 @@ module.exports = {
   reportReview,
   getComments,
   getCommentsNum,
-  isRegisteredGoal,
-  getMyReviewsWithTimeASC,
-  getMyReviewsWithTimeDESC,
-  getMyReviewsASC,
-  getMyReviewsDESC,
+  getReviewIds,
+  isRegisteredChallenge,
+  getReviewRegistered,
+  getReviewNotRegistered,
+  getMyReview,
 };

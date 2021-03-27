@@ -9,4 +9,5 @@ module.exports = function (app) {
     app.route('/report-review/:reviewId').post(jwtMiddleware, review.reportReview);
 
     app.get('/review/:reviewId/comments', jwtMiddleware, review.getComments);
+    app.get('/my-review/:reviewId', jwtMiddleware, review.getMyReview);
 };
