@@ -292,6 +292,7 @@ exports.deleteReview = async function (req, res) {
         return false;
     }
 };
+
 /*
  * 최종 수정일 : 2021.03.19.FRI
  * API 기 능 : 리뷰 신고
@@ -363,6 +364,10 @@ exports.reportReview = async function (req, res) {
 
 };
 
+/*
+ * 최종 수정일 : 2021.03.19.FRI
+ * API 기 능 : 리뷰에 달린 댓글 조회
+ */
 exports.getComments = async function (req, res) {
     try {
         const userId = req.verifiedToken.id;
@@ -420,4 +425,53 @@ exports.getComments = async function (req, res) {
         logger.error(`getComments - non transaction DB Connection error\n: ${JSON.stringify(err)}`);
         return false;
     }
+};
+
+/*
+ * 최종 수정일 : 2021.03.27.SAT
+ * API 기 능 : 리뷰 id로 작성했던 내용 보기
+ */
+exports.getMyReview = async function (req, res) {
+    try {
+        const userId = req.verifiedToken.id;
+        const userRows = await userDao.getuser(userId);
+        if (userRows[0] === undefined)
+            return res.json({
+                isSuccess: false,
+                code: 4020,
+                message: "가입되어있지 않은 유저입니다.",
+            });
+
+        try {
+            const reviewId = req.params.reviewId;
+            const isValidReviewId = await reviewDao.isValidReviewId(reviewId);
+            if (isValidReviewId[0].exist === 0) {
+                return res.json({
+                    isSuccess: false,
+                    code: 2012,
+                    message: "유효하지 않은 Review Id입니다."
+                });
+            }
+
+            const myReview = await reviewDao.getMyReview(reviewId);
+            return res.json({
+                isSuccess: true,
+                code: 1000,
+                message: "작성된 리뷰내용 조회 성공.",
+                result: myReview[0],
+            });
+
+        } catch (err) {
+            logger.error(`getComments - non transaction Query error\n: ${JSON.stringify(err)}`);
+            //connection.release();
+            return res.json({
+                isSuccess: false,
+                code: 500,
+                message: "평가/리뷰 조회 실패"
+            });
+        }
+        } catch (err) {
+            logger.error(`getMyReview - non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+            return false;
+        }
 }
