@@ -215,7 +215,7 @@ async function getReviewRegistered(reviewId) {
                        FROM Challenge
                        GROUP BY goalId, goalBookId) C on C.goalBookId = Gb.goalBookId
     WHERE R.reviewId = ?
-      AND R.userId = G.userId;
+      AND R.userId = G.userId AND R.status = 'OK';
                       `;
   const [row] = await connection.query(query, reviewId);
 
@@ -232,7 +232,7 @@ async function getReviewNotRegistered(reviewId) {
            DATE_FORMAT(R.postAt, '%Y-%m-%d %H:%i:%s') as postAt
     FROM Review R
     INNER JOIN Book B on R.bookId = B.bookId
-    WHERE R.reviewId = ?;
+    WHERE R.reviewId = ? AND R.status = 'OK';
                       `;
   const [row] = await connection.query(query, reviewId);
 
