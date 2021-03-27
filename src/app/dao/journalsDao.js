@@ -32,8 +32,9 @@ async function postjournals2(challengeId, text, journalImageURL, open) {
 async function getgoalBookId(goalBookId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const calendarYNQuery = `
-  select GoalId
+  select userId, Goal.goalId
   from Goal_book
+  inner join Goal on Goal_book.goalId = Goal.goalId
   where goalBookId = ${goalBookId}`;
   const [calendarYNRows] = await connection.query(calendarYNQuery);
   connection.release();
@@ -133,6 +134,18 @@ order by postAt DESC`;
   connection.release();
   return calendarYNRows;
 }
+//////////////////////////////////////////일지수정, 삭제, 추가 위한 목표유저확인//////////////////////////////////////////////
+async function journaluser(journalId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const calendarYNQuery = `
+  select userId
+  from Reading_journal
+  inner join Goal on Reading_journal.goalId = Goal.goalId
+  where journalId = ${journalId}`;
+  const [calendarYNRows] = await connection.query(calendarYNQuery);
+  connection.release();
+  return calendarYNRows;
+}
 module.exports = {
   postjournals,
   postjournals2,
@@ -143,4 +156,5 @@ module.exports = {
   getjournals,
   getpercent,
   getcomjournals,
+  journaluser,
 };
