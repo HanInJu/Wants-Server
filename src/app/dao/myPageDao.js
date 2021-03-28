@@ -77,6 +77,21 @@ async function getReadingInfo(userId) {
   return rows;
 }
 
+// 독서그래프
+async function getgraph(userId, year) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getReadingInfoQuery = `
+  SELECT MONTH(createAt) AS date,
+  sum(time)
+FROM Challenge
+where Challenge.userId = ${userId} && date_format(createAt, "%Y") = '${year}'
+GROUP BY date
+ORDER BY date`;
+
+  const [rows] = await connection.query(getReadingInfoQuery);
+  connection.release();
+  return rows;
+}
 module.exports = {
   postProfile,
   isSameProfile,
@@ -84,5 +99,5 @@ module.exports = {
   getMyProfile,
   getMyPieces,
   getReadingInfo,
-  //getReadingGraph,
+  getgraph,
 };
