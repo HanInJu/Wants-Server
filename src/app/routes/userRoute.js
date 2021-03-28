@@ -7,4 +7,5 @@ module.exports = function(app){
 
     app.get('/check', jwtMiddleware, user.check);
     app.delete('/bye', jwtMiddleware, user.bye);
+    //password 찾는 건 password 관련 파일에 있습니다.
 };
