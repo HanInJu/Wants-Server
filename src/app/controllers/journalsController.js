@@ -62,7 +62,7 @@ exports.postjournals = async function (req, res) {
 
     const goalId1 = await journalsDao.getgoalBookId(goalBookId);
 
-    console.log(goalId1);
+    console.log(goalId1, jwt);
     if (goalId1.length == 0)
       return res.json({
         isSuccess: true,
@@ -75,12 +75,12 @@ exports.postjournals = async function (req, res) {
         code: 2226,
         message: "목표로 등록한 책의 유저와 일지를 작성할 유저가 다릅니다.",
       });
-    const goalId = goalId1[0].GoalId;
+    const goalId = goalId1[0].goalId;
 
     const charPercent2 = await journalsDao.getpercent(goalBookId);
     const charPercent1 = charPercent2[0].percent;
     const charPercent = percent - charPercent1;
-    console.log(charPercent);
+    console.log(charPercent, goalBookId, goalId);
     const postjournalsRows = await journalsDao.postjournals(
       time,
       page,
