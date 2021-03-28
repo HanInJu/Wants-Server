@@ -317,6 +317,8 @@ exports.getjournals = async function (req, res) {
     var jwt = req.verifiedToken.id;
 
     var align = req.query.align;
+    var page = req.query.page;
+    var limit = req.query.limit;
 
     console.log(align);
 
@@ -328,7 +330,12 @@ exports.getjournals = async function (req, res) {
         message: "가입되어있지 않은 유저입니다.",
       });
 
-    const getjournalsRows = await journalsDao.getjournals(jwt, align);
+    const getjournalsRows = await journalsDao.getjournals(
+      jwt,
+      align,
+      page,
+      limit
+    );
 
     if (getjournalsRows.length > 0 || getjournalsRows != undefined) {
       return res.json({
@@ -367,8 +374,9 @@ exports.getcomjournals = async function (req, res) {
         code: 4020,
         message: "가입되어있지 않은 유저입니다.",
       });
-
-    const getcomjournalsRows = await journalsDao.getcomjournals();
+    var page = req.query.page;
+    var limit = req.query.limit;
+    const getcomjournalsRows = await journalsDao.getcomjournals(page, limit);
 
     if (getcomjournalsRows.length > 0 || getcomjournalsRows !== undefined) {
       return res.json({
