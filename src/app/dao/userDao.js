@@ -102,6 +102,19 @@ async function byeChallenge(userId) {
   return rows;
 }
 
+async function isExistNotUnAchievedGoal(userId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const query = `
+    SELECT EXISTS(SELECT goalId
+                  FROM Goal
+                  INNER JOIN User U on Goal.userId = U.userId
+                  WHERE U.email = ? AND isComplete = 0) as exist;
+    `;
+  const [row] = await connection.query(query, userId);
+  connection.release();
+  return row;
+}
+
 module.exports = {
   userEmailCheck,
   insertUserInfo,
@@ -110,4 +123,5 @@ module.exports = {
   byeUser,
   byeReview,
   byeChallenge,
+  isExistNotUnAchievedGoal,
 };

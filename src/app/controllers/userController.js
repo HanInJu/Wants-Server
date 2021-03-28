@@ -189,14 +189,27 @@ exports.signIn = async function (req, res) {
       } // 유효 시간은 90일
     );
 
-    res.json({
-      //userInfo: userInfoRows[0],
-      isSuccess: true,
-      code: 1000,
-      message: "로그인 성공",
-      jwt: token,
-    });
+    //달성하지 않은 목표가 존재하니?
+    const isExistNotUnAchievedGoal = await userDao.isExistNotUnAchievedGoal(email);
 
+    if(isExistNotUnAchievedGoal[0].exist === 1) { //달성하지 않은 목표 있음 -> 메인 이동 불필요
+      res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "로그인 성공",
+        result: "달성하지 않은 챌린지가 있습니다.",
+        jwt: token,
+      });
+    }
+    else { //목표 다 달성했음 => 메인으로 이동해야 함
+      res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "로그인 성공",
+        result: "진행 중인 챌린지가 없습니다. 챌린지를 등록해 보세요.",
+        jwt: token,
+      });
+    }
     //connection.release();
   } catch (err) {
     logger.error(`App - SignIn Query error\n: ${JSON.stringify(err)}`);
