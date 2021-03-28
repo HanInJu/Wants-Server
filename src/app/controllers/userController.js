@@ -259,11 +259,28 @@ exports.bye = async function (req, res) {
     await userDao.byeChallenge(userId);
     await conn.commit() // 커밋
 
-    return res.json({
-      isSuccess: true,
-      code: 1000,
-      message: "탈퇴 성공",
-    });
+    const isCompletedDelete = await userDao.isCompletedDelete(userId);
+    if(isCompletedDelete[0].exist === 1) {
+      return res.json({
+        isSuccess: false,
+        code: 2034,
+        message: "탈퇴가 완료되지 않았습니다.",
+      });
+    }
+    else if(isCompletedDelete[0].exist === 0) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "탈퇴 성공",
+      });
+    }
+    else {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "탈퇴 성공",
+      });
+    }
 
   } catch(err) {
     logger.error(`Bye - non transaction Query error\n: ${JSON.stringify(err)}`);

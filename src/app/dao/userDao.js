@@ -64,7 +64,7 @@ where userId = ${userId};
 async function byeUser(userId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const query = `
-    DELETE User, Rs FROM User INNER JOIN Recent_search Rs on User.userId = Rs.userId WHERE User.userId = ?;
+    DELETE User, Rs FROM User LEFT JOIN Recent_search Rs on User.userId = Rs.userId WHERE User.userId = ?;
                 `;
   const [rows] = await connection.query(query, userId);
   connection.release();
@@ -92,8 +92,8 @@ async function byeChallenge(userId) {
   const query = `
     DELETE G, Gb, C, Rj
     FROM Goal G
-    INNER JOIN Goal_book Gb on G.goalId = Gb.goalId
-    INNER JOIN Challenge C on G.userId = C.userId
+    LEFT JOIN Goal_book Gb on G.goalId = Gb.goalId
+    LEFT JOIN Challenge C on G.userId = C.userId
     LEFT JOIN Reading_journal Rj on G.goalId = Rj.goalId
     WHERE G.userId = ?;         
                 `;
@@ -115,6 +115,18 @@ async function isExistNotUnAchievedGoal(userId) {
   return row;
 }
 
+async function isCompletedDelete(userId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const query = `
+    SELECT EXISTS(SELECT *
+                  FROM User
+                  WHERE userId = ?) as exist;
+    `;
+  const [row] = await connection.query(query, userId);
+  connection.release();
+  return row;
+}
+
 module.exports = {
   userEmailCheck,
   insertUserInfo,
@@ -124,4 +136,5 @@ module.exports = {
   byeReview,
   byeChallenge,
   isExistNotUnAchievedGoal,
+  isCompletedDelete,
 };
