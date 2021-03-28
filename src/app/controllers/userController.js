@@ -192,21 +192,21 @@ exports.signIn = async function (req, res) {
     //달성하지 않은 목표가 존재하니?
     const isExistNotUnAchievedGoal = await userDao.isExistNotUnAchievedGoal(email);
 
-    if(isExistNotUnAchievedGoal[0].exist === 1) { //달성하지 않은 목표 있음 -> 메인 이동 불필요
+    if(isExistNotUnAchievedGoal[0].exist === 1) { //달성하지 않은 목표 있음(result:1) -> 메인 이동 불필요
       res.json({
         isSuccess: true,
         code: 1000,
         message: "로그인 성공",
-        result: "달성하지 않은 챌린지가 있습니다.",
+        result: 1,
         jwt: token,
       });
     }
-    else { //목표 다 달성했음 => 메인으로 이동해야 함
+    else { //목표 다 달성했음(result:0) => 메인으로 이동해야 함
       res.json({
         isSuccess: true,
         code: 1000,
         message: "로그인 성공",
-        result: "진행 중인 챌린지가 없습니다. 챌린지를 등록해 보세요.",
+        result: 0,
         jwt: token,
       });
     }

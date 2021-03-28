@@ -612,16 +612,6 @@ exports.postCake = async function (req, res) {
         });
       }
 
-      const isAlreadyAchieve = await challengeDao.isAchieved(goalId);
-
-      if (isAlreadyAchieve[0].exist === 1) {
-        return res.json({
-          isSuccess: false,
-          code: 2031,
-          message: "이미 달성하여 케이크 종류가 부여된 챌린지입니다.",
-        });
-      }
-
       const ownerId = await challengeDao.whoIsOwner(goalId);
 
       if (ownerId[0].userId !== userId) {
@@ -632,15 +622,27 @@ exports.postCake = async function (req, res) {
         });
       }
 
+      const isAlreadyAchieve = await challengeDao.isAchieved(goalId);
+
+      if (isAlreadyAchieve[0].exist === 1) {
+        return res.json({
+          isSuccess: false,
+          code: 2031,
+          message: "이미 달성하여 케이크 종류가 부여된 챌린지입니다.",
+        });
+      }
+
+      const beforeCake = await challengeDao.getBeforeCake(userId);
       await challengeDao.postCake(cake, goalId);
       return res.json({
         isSuccess: true,
         code: 1000,
-        message: "챌린지 달성! 케이크 종류 입력 완료.",
+        message: "챌린지 달성! " + cake + " 케이크 입력 완료.",
+        beforeCake: beforeCake[0].cake,
       });
     } catch (err) {
       logger.error(
-        `PostCake - non transaction Query error\n: ${JSON.stringify(err)}`
+        `postCake - non transaction Query error\n: ${JSON.stringify(err)}`
       );
       connection.release();
       return res.json({

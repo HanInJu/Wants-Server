@@ -331,6 +331,25 @@ async function postCake(cake, goalId) {
   return rows;
 }
 
+//직전 목표 달성 시 부여됐던 케이크 종류 --Heather
+async function getBeforeCake(userId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const query = `
+    SELECT CASE WHEN GS.isComplete = 1 THEN GS.cake
+                WHEN GS.isComplete = 0 THEN '이전에 달성한 챌린지가 없으므로 직전에 부여된 케이크가 없습니다.'
+             END as cake
+    FROM Goal
+           INNER JOIN (SELECT goalId, cake, isComplete
+                       FROM Goal
+                       WHERE userId = ?
+                       ORDER BY completedAt DESC
+                       LIMIT 1) GS on Goal.goalId = GS.goalId;
+        `;
+  const [row] = await connection.query(query, userId);
+  connection.release();
+  return row;
+}
+
 // 도전책조회
 async function getbookList(goalId) {
   const connection = await pool.getConnection(async (conn) => conn);
@@ -418,6 +437,7 @@ module.exports = {
   isAchieved,
   whoIsOwner,
   postCake,
+  getBeforeCake,
   getgoalId2,
   getbookList,
   getgoalBookId,
