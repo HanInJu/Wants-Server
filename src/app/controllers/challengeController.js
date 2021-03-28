@@ -255,23 +255,24 @@ exports.getchallenge = async function (req, res) {
 
     const getchallenge1Rows = await challengeDao.getchallenge1(goalId1);
     const getchallenge3Rows = await challengeDao.getchallenge3(goalId1);
-    console.log(getchallenge1Rows.length);
+
+    console.log(getchallenge3Rows);
     if (getchallenge1Rows.length === 0) {
-      const goalBookRows = await challengeDao.getchallenge2(goalBookId);
+      //저장된 책이 없을때
+      //const goalBookRows = await challengeDao.getchallenge2(goalBookId);
       return res.json({
         isSuccess: false,
         code: 2223,
         message: "도전하고 있는 챌린지 책이 없습니다. 책을 설정해주세요.",
         getchallenge3Rows,
-        goalBookRows,
         isExpired,
       });
     }
 
     var goalBookId = 0;
     var getchallenge2Rows = [];
-
-    for (var i = 0; i < getchallenge3Rows[0].amount; i++) {
+    // 책 하나당 총 정보
+    for (var i = 0; i < getchallenge1Rows.length; i++) {
       goalBookId = getchallenge1Rows[i].goalBookId;
       const goalBookRows = await challengeDao.getchallenge2(goalBookId);
       getchallenge2Rows.push(goalBookRows);
