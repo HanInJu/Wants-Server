@@ -86,10 +86,10 @@ async function getchallenge3(goalId) {
       where goalId = ${goalId} && percent = 100 && Challenge.status = 'Y'
       group by goalId) as sumAmount,
   User.name, date_format(Goal.expriodAt, '%Y.%m.%d') as expriodAt,
-  TO_DAYS(Goal.expriodAt) - TO_DAYS(curdate()) as Dday, sumJournal
+  TO_DAYS(Goal.expriodAt) - TO_DAYS(curdate()) as Dday, sumJournal, a.challengeId
 from Goal
 inner join User on User.userId = Goal.userId,
-     (select count(Reading_journal.journalId) as sumJournal from Challenge
+     (select count(Reading_journal.journalId) as sumJournal, Challenge.challengeId from Challenge
 inner join Reading_journal on Challenge.challengeId = Reading_journal.challengeId
          where Challenge.goalId = ${goalId}) a
 where Goal.goalId = ${goalId}
