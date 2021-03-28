@@ -354,7 +354,7 @@ exports.getgoalBook = async function (req, res) {
 exports.deletechallengeBook = async function (req, res) {
   try {
     var jwt = req.verifiedToken.id;
-
+    console.log(jwt);
     const userRows = await userDao.getuser(jwt);
     if (userRows[0] === undefined)
       return res.json({
@@ -363,8 +363,8 @@ exports.deletechallengeBook = async function (req, res) {
         message: "가입되어있지 않은 유저입니다.",
       });
 
-    const { goalBookId } = req.body;
-
+    const goalBookId = req.params.goalbookId;
+    console.log(goalBookId);
     if (goalBookId.length === 0 || goalBookId === undefined)
       return res.json({
         isSuccess: false,
@@ -386,11 +386,18 @@ exports.deletechallengeBook = async function (req, res) {
     const deletechallengeBook2 = await challengeDao.deletechallengeBook2(
       goalBookId
     );
+
     if (deletechallengeBook2.affectedRows === 1)
       return res.json({
         isSuccess: true,
         code: 1000,
         message: "챌린지 책 삭제 성공",
+      });
+    else if (deletechallengeBook2.affectedRows === 0)
+      return res.json({
+        isSuccess: true,
+        code: 2201,
+        message: "삭제할 입력하신 챌린지 책이 없습니다.",
       });
     else
       return res.json({
