@@ -324,23 +324,41 @@ exports.getinfo = async function (req, res) {
  * 최종 수정일 : 2021.03.24.WED
  * API 기 능 : 나의 도서통계 중 그래프 정보 조회
  */
-exports.getReadingGraph = async function (req, res) {
+exports.getgraph = async function (req, res) {
   try {
     const userId = req.verifiedToken.id;
     //const connection = await pool.getConnection(async (conn) => conn);
-
-    const userRows = await userDao.getuser(userId);
+    console.log("독서그래프");
+    var jwt = req.verifiedToken.id;
+    const userRows = await userDao.getuser(jwt);
     if (userRows[0] === undefined)
       return res.json({
         isSuccess: false,
-        code: 2231,
-        message: "불러올 목표가 없습니다. 목표를 정해주세요.",
+        code: 4020,
+        message: "가입되어있지 않은 유저입니다.",
       });
-    else
+
+    var year = req.query.year;
+    const getgraphRows = await myPageDao.getgraph(userId, year);
+
+    if (getgraphRows.length > 0 || getgraphRows != undefined) {
       return res.json({
         isSuccess: true,
         code: 1000,
-        message: "나의 도서 통계 그래프 정보조회 성공.",
+        message: "나의 독서그래프 조회 성공",
+        result: getgraphRows,
+      });
+    } else if (getgraphRows.length === 0) {
+      return res.json({
+        isSuccess: false,
+        code: 2229,
+        message: "불러올 독서그래프가 없습니다.",
+      });
+    } else
+      return res.json({
+        isSuccess: false,
+        code: 4000,
+        message: "나의 독서그래프 조회 실패",
       });
   } catch (err) {
     logger.error(`App - SignUp Query error\n: ${err.message}`);
