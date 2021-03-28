@@ -247,7 +247,7 @@ exports.deletejournals = async function (req, res) {
     } else if (deletejournalsRows.affectedRows === 0) {
       return res.json({
         isSuccess: false,
-        code: 2227,
+        code: 2228,
         message: "삭제할 일지가 없습니다.",
       });
     } else
