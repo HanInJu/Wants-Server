@@ -64,15 +64,13 @@ async function getMyPieces(userId) {
 async function getReadingInfo(userId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const getReadingInfoQuery = `
-  select a.userId, a.vow, a.profilePictureURL, a.name, sum(time) as sumTime, a.countBook
-  from Goal_book
-           inner join Challenge on Challenge.goalBookId = Goal_book.goalBookId,
-       (select count(Goal_book.status) as countBook, User.name, User.profilePictureURL, User.vow, User.userId
+  select User.userId, vow, profilePictureURL, name, sum(time) as sumTime, a.countBook
+  from Challenge, User,
+       (select count(Goal_book.status) as countBook
         from Goal_book
                  inner join Goal on Goal_book.goalId = Goal.goalId
-                 inner join User on User.userId = Goal.userId
         where Goal.userId = ${userId} && Goal_book.status = 'Y') a
-  where Challenge.userId = ${userId}`;
+  where User.userId = ${userId}`;
 
   const [rows] = await connection.query(getReadingInfoQuery);
   connection.release();

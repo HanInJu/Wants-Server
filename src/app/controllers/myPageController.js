@@ -250,7 +250,9 @@ exports.getPieces = async function (req, res) {
         });
       }
     } catch (err) {
-      logger.error(`getPieces - non transaction Query error\n: ${JSON.stringify(err)}`);
+      logger.error(
+        `getPieces - non transaction Query error\n: ${JSON.stringify(err)}`
+      );
       //connection.release();
       return res.json({
         isSuccess: false,
@@ -259,7 +261,11 @@ exports.getPieces = async function (req, res) {
       });
     }
   } catch (err) {
-    logger.error(`getPieces - non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+    logger.error(
+      `getPieces - non transaction DB Connection error\n: ${JSON.stringify(
+        err
+      )}`
+    );
     return false;
   }
 };
@@ -287,7 +293,7 @@ exports.getinfo = async function (req, res) {
         getgoalIdRows[0].goalId
       ); // 연속된 시간 구함
     } else {
-      var getcontinuityRows = [];
+      var getcontinuityRows = null;
     }
 
     const getReadingInfoRows = await myPageDao.getReadingInfo(jwt);
@@ -305,7 +311,11 @@ exports.getinfo = async function (req, res) {
     } else if (getReadingInfoRows.length === 0) {
     }
   } catch (err) {
-    logger.error(`getPieces - non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+    logger.error(
+      `getPieces - non transaction DB Connection error\n: ${JSON.stringify(
+        err
+      )}`
+    );
     return false;
   }
 };
