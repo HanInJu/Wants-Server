@@ -237,7 +237,7 @@ exports.check = async function (req, res) {
 };
 
 /*
- * 최종 수정일 : 2021.03.27.SAT
+ * 최종 수정일 : 2021.03.28.SUN
  * API 기 능 : 회원 탈퇴
  */
 exports.bye = async function (req, res) {
