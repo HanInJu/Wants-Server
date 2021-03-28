@@ -7,4 +7,6 @@ module.exports = function(app){
 
     app.get('/check', jwtMiddleware, user.check);
     app.delete('/bye', jwtMiddleware, user.bye);
+
+    //password 관련 파일은 따로 passwordRoutes.js, passwordController.js, passwordDao.js에 있습니다.
 };
