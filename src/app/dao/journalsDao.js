@@ -81,7 +81,8 @@ async function getjournals(userId, align) {
   const connection = await pool.getConnection(async (conn) => conn);
   const calendarYNQuery = `
   select title, Reading_journal.text as text, DATE_FORMAT(postAt, '%Y.%m.%d') as postAt,
-  Challenge.percent as percent, time, page, Book.bookId, journalId
+  Challenge.percent as percent, time, page, Book.bookId, journalId,
+  Reading_journal.journalImageURL as journalImageURL
 from Reading_journal
 inner join Challenge on Reading_journal.challengeId = Challenge.challengeId
 inner join Goal_book on Goal_book.goalId = Challenge.goalId

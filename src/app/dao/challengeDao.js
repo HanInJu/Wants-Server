@@ -38,14 +38,14 @@ async function postchallengeBook(goalId, publishNumber) {
 async function getchallenge1(goalId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const getchallenge1Query = `
-  select Goal.goalId as goalId,
+  select Goal.isComplete,
+  Goal.goalId as goalId,
   Book.bookId,
   Book.title,
   Book.writer,
   Book.imageURL,
   Book.publishNumber,
-  Goal_book.goalBookId,
-    Goal.isComplete
+  Goal_book.goalBookId
 from Goal
     inner join Goal_book on Goal.goalId = Goal_book.goalId
     inner join (select title, writer, imageURL, publishNumber, bookId from Book) Book
@@ -223,11 +223,26 @@ async function getgoalId2(userId) {
 async function getbookTime(goalBookId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const getchallenge1Query = `
-  select Challenge.goalId, Book.title, sum(time) as sumtime, Challenge.userId
+  select Challenge.goalId, Book.title, sum(Challenge.time) as sumtime, Challenge.userId, Goal.time
   from Challenge
   inner join Goal_book on Goal_book.goalBookId = Challenge.goalBookId
   inner join Book on Book.bookId = Goal_book.bookId
+  inner join Goal on Goal_book.goalId = Goal.goalId
   where Challenge.goalBookId = ${goalBookId} && curdate() = DATE_FORMAT(Challenge.createAt, '%Y.%m.%d')
+  group by Goal_book.goalBookId`;
+  const [rows] = await connection.query(getchallenge1Query);
+  connection.release();
+  return rows;
+}
+// 오늘 읽은 책
+async function getbookTime2(goalBookId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getchallenge1Query = `
+  select Book.title, Goal.time
+  from Goal_book
+  inner join Goal on Goal_book.goalId = Goal.goalId
+  inner join Book on Book.bookId = Goal_book.bookId
+  where Goal_book.goalBookId = ${goalBookId}
   group by Goal_book.goalBookId`;
   const [rows] = await connection.query(getchallenge1Query);
   connection.release();
@@ -444,4 +459,5 @@ module.exports = {
   patchgoalBookId,
   patchgoalBookId2,
   getYN,
+  getbookTime2,
 };

@@ -443,11 +443,21 @@ exports.getbookTime = async function (req, res) {
         result: getbookTimeRows,
       });
     } else if (getbookTimeRows.length === 0) {
-      return res.json({
-        isSuccess: false,
-        code: 2229,
-        message: "불러올 시간이 없습니다. 책 읽어주세요.",
-      });
+      const getbookTime2Rows = await challengeDao.getbookTime2(goalBookId);
+      if (getbookTime2Rows.length > 0)
+        return res.json({
+          isSuccess: true,
+          code: 1001,
+          message: "책정보 불러오기, 오늘 읽은 시간을 갱신해주세요.",
+          result: getbookTime2Rows,
+        });
+      else if (getbookTime2Rows.length === 0)
+        return res.json({
+          isSuccess: false,
+          code: 2230,
+          message: "책정보가 없습니다. 챌린지 책을 확인해주세요.",
+          result: getbookTime2Rows,
+        });
     } else
       return res.json({
         isSuccess: false,
