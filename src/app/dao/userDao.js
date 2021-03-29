@@ -94,7 +94,7 @@ async function byeChallenge(userId) {
     FROM Goal G
     LEFT JOIN Goal_book Gb on G.goalId = Gb.goalId
     LEFT JOIN Challenge C on G.userId = C.userId
-    LEFT JOIN Reading_journal Rj on G.goalId = Rj.goalId
+    LEFT JOIN Reading_journal Rj on C.challengeId = Rj.challengeId
     WHERE G.userId = ?;         
                 `;
   const [rows] = await connection.query(query, userId);
