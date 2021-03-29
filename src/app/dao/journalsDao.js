@@ -85,7 +85,7 @@ async function getjournals(userId, align, page, limit) {
   Reading_journal.journalImageURL as journalImageURL
 from Reading_journal
 inner join Challenge on Reading_journal.challengeId = Challenge.challengeId
-inner join Goal_book on Goal_book.goalId = Challenge.goalId
+inner join Goal_book on Goal_book.goalBookId = Challenge.goalBookId
 inner join Book on Book.bookId = Goal_book.bookId
 where Challenge.userId = ${userId}
 order by postAt ${align} limit ${page}, ${limit}`;
