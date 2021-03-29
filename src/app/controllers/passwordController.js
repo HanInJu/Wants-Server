@@ -137,6 +137,13 @@ exports.resetPW = async function (req, res) {
   try {
     const userId = req.verifiedToken.id;
     const password = req.body.password;
+    const presentPW = req.body.presentPW;
+
+    const hashedPresentPW = await crypto
+        .createHash("sha512")
+        .update(presentPW)
+        .digest("hex");
+
     const userRows = await userDao.getuser(userId);
     if (userRows[0] === undefined)
       return res.json({
@@ -165,6 +172,16 @@ exports.resetPW = async function (req, res) {
         .digest("hex");
 
     const beforePW = await passwordDao.isSamePW(userId);
+
+    //기존 비밀번호를 해시한 값(hashedPresentPW)이 가져온 비밀번호랑 같아야 한다.
+    if(hashedPresentPW !== beforePW[0].password) {
+      return res.json({
+        isSuccess: false,
+        code: 2033,
+        message: "입력하신 기존 비밀번호가 맞지 않습니다.",
+      });
+    }
+
     if(beforePW[0].password === hashedPassword) {
       return res.json({
         isSuccess: false,
