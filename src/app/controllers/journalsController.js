@@ -336,12 +336,13 @@ exports.getjournals = async function (req, res) {
       page,
       limit
     );
-
+    const journalcountRows = await journalsDao.journalcount(jwt);
     if (getjournalsRows.length > 0 || getjournalsRows != undefined) {
       return res.json({
         isSuccess: true,
         code: 1000,
         message: "내가 쓴 일지 조회 성공",
+        journalcount: journalcountRows[0].journalcount,
         result: getjournalsRows,
       });
     } else if (getjournalsRows.length === 0) {

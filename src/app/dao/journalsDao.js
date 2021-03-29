@@ -148,6 +148,17 @@ async function journaluser(journalId) {
   connection.release();
   return calendarYNRows;
 }
+//////////////////////////////////////////일지수정, 삭제, 추가 위한 목표유저확인//////////////////////////////////////////////
+async function journalcount(userId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const calendarYNQuery = `
+  select count(Reading_journal.journalId) as journalcount from Reading_journal
+  inner join Challenge on Reading_journal.challengeId = Challenge.challengeId
+  where Challenge.userId = ${userId}`;
+  const [calendarYNRows] = await connection.query(calendarYNQuery);
+  connection.release();
+  return calendarYNRows;
+}
 module.exports = {
   postjournals,
   postjournals2,
@@ -159,4 +170,5 @@ module.exports = {
   getpercent,
   getcomjournals,
   journaluser,
+  journalcount,
 };
