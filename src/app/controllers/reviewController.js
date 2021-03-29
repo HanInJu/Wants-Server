@@ -6,7 +6,7 @@ const userDao = require("../dao/userDao");
 
 /*
  * 최종 수정일 : 2021.03.27.SAT
- * API 기 능 : 내 서재 - 내 리뷰 조회
+ * API 기 능 : 내 서재 - 내 리뷰 조회 : 페이징 추가해보기 (추후 구현)
  */
 exports.getReview = async function (req, res) {
   try {
