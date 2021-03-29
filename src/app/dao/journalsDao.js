@@ -82,11 +82,11 @@ async function getjournals(userId, align, page, limit) {
   const calendarYNQuery = `
   select title, Reading_journal.text as text, DATE_FORMAT(postAt, '%Y.%m.%d') as postAt,
   Challenge.percent as percent, time, page, Book.bookId, journalId,
-  Reading_journal.journalImageURL as journalImageURL
+  Reading_journal.journalImageURL as journalImageURL, Book.publishNumber
 from Reading_journal
 inner join Challenge on Reading_journal.challengeId = Challenge.challengeId
-inner join Goal_book on Goal_book.goalId = Challenge.goalId
-inner join Book on Book.bookId = Goal_book.bookId
+inner join Goal_book on Goal_book.goalBookId = Challenge.goalBookId
+inner join Book on Book.publishNumber = Goal_book.publishNumber
 where Challenge.userId = ${userId}
 order by postAt ${align} limit ${page}, ${limit}`;
   const [calendarYNRows] = await connection.query(calendarYNQuery);
@@ -129,7 +129,7 @@ from Reading_journal
     inner join Challenge on Challenge.challengeId = Reading_journal.challengeId
     inner join Goal_book on Challenge.goalBookId = Goal_book.goalBookId
     inner join User on User.userId = Challenge.userId
-    inner join Book on Book.bookId = Goal_book.bookId
+    inner join Book on Book.publishNumber = Goal_book.publishNumber
 order by postAt DESC
 limit ${page}, ${limit}`;
   const [calendarYNRows] = await connection.query(calendarYNQuery);
@@ -148,6 +148,32 @@ async function journaluser(journalId) {
   connection.release();
   return calendarYNRows;
 }
+//////////////////////////////////////////일지수정, 삭제, 추가 위한 목표유저확인//////////////////////////////////////////////
+async function journalcount(userId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const calendarYNQuery = `
+  select count(Reading_journal.journalId) as journalcount from Reading_journal
+  inner join Challenge on Reading_journal.challengeId = Challenge.challengeId
+  where Challenge.userId = ${userId}`;
+  const [calendarYNRows] = await connection.query(calendarYNQuery);
+  connection.release();
+  return calendarYNRows;
+}
+//////////////////////////////////////////일지수정, 삭제, 추가 위한 목표유저확인//////////////////////////////////////////////
+async function journalcount2() {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const calendarYNQuery = `
+  select count(journalId) as journalcount
+  from Reading_journal
+    inner join Challenge on Challenge.challengeId = Reading_journal.challengeId
+    inner join Goal_book on Challenge.goalBookId = Goal_book.goalBookId
+    inner join User on User.userId = Challenge.userId
+    inner join Book on Book.publishNumber = Goal_book.publishNumber
+  where open = 'Y'`;
+  const [calendarYNRows] = await connection.query(calendarYNQuery);
+  connection.release();
+  return calendarYNRows;
+}
 module.exports = {
   postjournals,
   postjournals2,
@@ -159,4 +185,6 @@ module.exports = {
   getpercent,
   getcomjournals,
   journaluser,
+  journalcount,
+  journalcount2,
 };
