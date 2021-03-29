@@ -173,7 +173,7 @@ exports.resetPW = async function (req, res) {
 
     const beforePW = await passwordDao.isSamePW(userId);
 
-    //기존 비밀번호를 해시한 값(hashedPresentPW)이 가져온 비밀번호랑 같아야 한다.
+    //기존 비밀번호를 해시한 값(hashedPresentPW)이 가져온 비밀번호랑 같아야 한다!
     if(hashedPresentPW !== beforePW[0].password) {
       return res.json({
         isSuccess: false,
