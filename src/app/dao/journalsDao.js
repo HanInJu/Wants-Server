@@ -82,7 +82,7 @@ async function getjournals(userId, align, page, limit) {
   const calendarYNQuery = `
   select title, Reading_journal.text as text, DATE_FORMAT(postAt, '%Y.%m.%d') as postAt,
   Challenge.percent as percent, time, page, Book.bookId, journalId,
-  Reading_journal.journalImageURL as journalImageURL, book.publishNumber
+  Reading_journal.journalImageURL as journalImageURL, Book.publishNumber
 from Reading_journal
 inner join Challenge on Reading_journal.challengeId = Challenge.challengeId
 inner join Goal_book on Goal_book.goalBookId = Challenge.goalBookId
@@ -168,7 +168,7 @@ async function journalcount2() {
     inner join Challenge on Challenge.challengeId = Reading_journal.challengeId
     inner join Goal_book on Challenge.goalBookId = Goal_book.goalBookId
     inner join User on User.userId = Challenge.userId
-    inner join Book on Book.bookId = Goal_book.bookId
+    inner join Book on Book.publishNumber = Goal_book.publishNumber
   where open = 'Y'`;
   const [calendarYNRows] = await connection.query(calendarYNQuery);
   connection.release();
