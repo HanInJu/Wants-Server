@@ -378,12 +378,14 @@ exports.getcomjournals = async function (req, res) {
     var page = req.query.page;
     var limit = req.query.limit;
     const getcomjournalsRows = await journalsDao.getcomjournals(page, limit);
+    const journalcount2Rows = await journalsDao.journalcount2();
 
     if (getcomjournalsRows.length > 0 || getcomjournalsRows !== undefined) {
       return res.json({
         isSuccess: true,
         code: 1000,
         message: "커뮤니티 일지 조회 성공",
+        journalcount: journalcount2Rows[0].journalcount,
         result: getcomjournalsRows,
       });
     } else if (getcomjournalsRows.length === 0) {
