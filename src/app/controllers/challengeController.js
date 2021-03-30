@@ -196,12 +196,16 @@ exports.postchallengeBook = async function (req, res) {
     const getgoalamountRows = await challengeDao.getgoalamount(goalId);
     console.log(getgoalamountRows[0].amount);
     const getcountBookRows = await challengeDao.getcountBook(goalId);
-    if (getgoalamountRows[0].amount === getcountBookRows[0].amount)
+    console.log(getcountBookRows);
+    console.log(getgoalamountRows[0].amount, getcountBookRows.countBook);
+    if (getgoalamountRows[0].amount === getcountBookRows[0].countBook)
       return res.json({
         isSuccess: false,
-        code: 2110,
-        message: "이미 챌린지에 같은 책이 있습니다.",
+        code: 2112,
+        message:
+          "목표로 지정한 권수가 초과하였습니다. 책을 추가하려면 목표 권수를 늘려주세요.",
       });
+
     const postchallengebookRows = await challengeDao.postchallengeBook(
       goalId,
       publishNumber
