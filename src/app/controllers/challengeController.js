@@ -178,7 +178,7 @@ exports.postchallengeBook = async function (req, res) {
       return res.json({
         isSuccess: false,
         code: 2111,
-        message: "책을 추가하고 챌린지에 책을 입력해주세요.",
+        message: "어플에 입력된 책이 없습니다.",
       });
     }
     const getgoalbookRows = await challengeDao.getgoalbook(
@@ -192,6 +192,16 @@ exports.postchallengeBook = async function (req, res) {
         message: "이미 챌린지에 같은 책이 있습니다.",
       });
     }
+
+    const getgoalamountRows = await challengeDao.getgoalamount(goalId);
+    console.log(getgoalamountRows[0].amount);
+    const getcountBookRows = await challengeDao.getcountBook(goalId);
+    if (getgoalamountRows[0].amount === getcountBookRows[0].amount)
+      return res.json({
+        isSuccess: false,
+        code: 2110,
+        message: "이미 챌린지에 같은 책이 있습니다.",
+      });
     const postchallengebookRows = await challengeDao.postchallengeBook(
       goalId,
       publishNumber

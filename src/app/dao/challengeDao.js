@@ -429,7 +429,31 @@ where Goal_book.goalId = a.goalId && reading = 'Y') aa`;
   connection.release();
   return rows;
 }
+
+// 목표로 정한 권수 부르기
+async function getgoalamount(goalId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getchallenge1Query = `
+  select amount
+  from Goal
+  where goalId = ${goalId}`;
+  const [rows] = await connection.query(getchallenge1Query);
+  connection.release();
+  return rows;
+}
+// 이미저장된 책 수
+async function getcountBook(goalId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getchallenge1Query = `
+  select count(Goal_book.publishNumber) as countBook from Goal_book
+  where goalId = ${goalId}`;
+  const [rows] = await connection.query(getchallenge1Query);
+  connection.release();
+  return rows;
+}
 module.exports = {
+  getcountBook,
+  getgoalamount,
   postchallenge,
   getbook,
   postchallengeBook,
