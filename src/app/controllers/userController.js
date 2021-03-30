@@ -98,7 +98,7 @@ exports.signUp = async function (req, res) {
   } catch (err) {
     // await connection.rollback(); // ROLLBACK
     // connection.release();
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`SignUp Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -212,7 +212,7 @@ exports.signIn = async function (req, res) {
     }
     //connection.release();
   } catch (err) {
-    logger.error(`App - SignIn Query error\n: ${JSON.stringify(err)}`);
+    logger.error(`SignIn Query error\n: ${JSON.stringify(err)}`);
     //connection.release();
     return false;
   }

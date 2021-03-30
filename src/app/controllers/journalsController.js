@@ -113,7 +113,7 @@ exports.postjournals = async function (req, res) {
         message: "일지 작성 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`postJournal - error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -188,7 +188,7 @@ exports.patchjournals = async function (req, res) {
         message: "일지 수정 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`reviseJournal - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -251,7 +251,7 @@ exports.deletejournals = async function (req, res) {
         message: "일지 삭제 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`deleteJournal - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -301,7 +301,7 @@ exports.getpatchjournals = async function (req, res) {
         message: "수정할 일지 조회 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`getReviseJournal - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -352,7 +352,7 @@ exports.getjournals = async function (req, res) {
         message: "내가 쓴 일지 조회 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`getMyJournal - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -395,7 +395,7 @@ exports.getcomjournals = async function (req, res) {
         message: "커뮤니티 일지 조회 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`communityJournals - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };

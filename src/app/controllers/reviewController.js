@@ -136,7 +136,7 @@ exports.postReview = async function (req, res) {
         message: "평가/리뷰 작성 성공",
       });
     } catch (err) {
-      logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
+      logger.error(`postReview non transaction Query error\n: ${JSON.stringify(err)}`);
       //connection.release();
       return res.json({
         isSuccess: false,
@@ -146,7 +146,7 @@ exports.postReview = async function (req, res) {
     }
   } catch (err) {
     logger.error(
-      `example non transaction DB Connection error\n: ${JSON.stringify(err)}`
+      `postReview:NOT signIn USER - non transaction DB Connection error\n: ${JSON.stringify(err)}`
     );
     return false;
   }
@@ -218,7 +218,7 @@ exports.reviseReview = async function (req, res) {
       });
     } catch (err) {
       logger.error(
-        `example non transaction Query error\n: ${JSON.stringify(err)}`
+        `reviseReview - non transaction Query error\n: ${JSON.stringify(err)}`
       );
       //connection.release();
       return res.json({
@@ -229,7 +229,7 @@ exports.reviseReview = async function (req, res) {
     }
   } catch (err) {
     logger.error(
-      `example non transaction DB Connection error\n: ${JSON.stringify(err)}`
+      `postReview:NOT signIn USER -  non transaction DB Connection error\n: ${JSON.stringify(err)}`
     );
     return false;
   }
@@ -279,7 +279,7 @@ exports.deleteReview = async function (req, res) {
             });
 
         } catch (err) {
-            logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
+            logger.error(`delete Review - non transaction Query error\n: ${JSON.stringify(err)}`);
             //connection.release();
             return res.json({
                 isSuccess: false,
@@ -288,7 +288,7 @@ exports.deleteReview = async function (req, res) {
             });
         }
     } catch (err) {
-        logger.error(`example non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+        logger.error(`postReview:NOT signIn USER -  non transaction DB Connection error\n: ${JSON.stringify(err)}`);
         return false;
     }
 };
@@ -348,7 +348,7 @@ exports.reportReview = async function (req, res) {
             });
 
         } catch (err) {
-            logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
+            logger.error(`reportReview - non transaction Query error\n: ${JSON.stringify(err)}`);
             //connection.release();
             return res.json({
                 isSuccess: false,
@@ -358,7 +358,7 @@ exports.reportReview = async function (req, res) {
         }
 
     } catch (err) {
-        logger.error(`example non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+        logger.error(`postReview:NOT signIn USER -  non transaction DB Connection error\n: ${JSON.stringify(err)}`);
         return false;
     }
 
@@ -422,7 +422,7 @@ exports.getComments = async function (req, res) {
         }
 
     } catch (err) {
-        logger.error(`getComments - non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+        logger.error(`postReview:NOT signIn USER - non transaction DB Connection error\n: ${JSON.stringify(err)}`);
         return false;
     }
 };
@@ -471,7 +471,7 @@ exports.getMyReview = async function (req, res) {
             });
         }
         } catch (err) {
-            logger.error(`getMyReview - non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+            logger.error(`postReview:NOT signIn USER - non transaction DB Connection error\n: ${JSON.stringify(err)}`);
             return false;
         }
 }

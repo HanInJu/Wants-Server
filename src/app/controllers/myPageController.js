@@ -86,7 +86,7 @@ exports.profile = async function (req, res) {
       });
     } catch (err) {
       logger.error(
-        `example non transaction Query error\n: ${JSON.stringify(err)}`
+        `register Profile - non transaction Query error\n: ${JSON.stringify(err)}`
       );
       //connection.release();
       return res.json({
@@ -97,7 +97,7 @@ exports.profile = async function (req, res) {
     }
   } catch (err) {
     logger.error(
-      `example non transaction DB Connection error\n: ${JSON.stringify(err)}`
+      `register Profile:NOT signIn USER -  non transaction DB Connection error\n: ${JSON.stringify(err)}`
     );
     return false;
   }
@@ -154,7 +154,7 @@ exports.isDuplicatedName = async function (req, res) {
       }
     } catch (err) {
       logger.error(
-        `example non transaction Query error\n: ${JSON.stringify(err)}`
+        `reviseProfile - non transaction Query error\n: ${JSON.stringify(err)}`
       );
       //connection.release();
       return res.json({
@@ -165,7 +165,7 @@ exports.isDuplicatedName = async function (req, res) {
     }
   } catch (err) {
     logger.error(
-      `example non transaction DB Connection error\n: ${JSON.stringify(err)}`
+      `reviseProfile:NOT signIn USER -  non transaction DB Connection error\n: ${JSON.stringify(err)}`
     );
     return false;
   }
@@ -198,7 +198,7 @@ exports.getProfile = async function (req, res) {
       });
     } catch (err) {
       logger.error(
-        `example non transaction Query error\n: ${JSON.stringify(err)}`
+        `getProfile - non transaction Query error\n: ${JSON.stringify(err)}`
       );
       //connection.release();
       return res.json({
@@ -209,7 +209,7 @@ exports.getProfile = async function (req, res) {
     }
   } catch (err) {
     logger.error(
-      `example non transaction DB Connection error\n: ${JSON.stringify(err)}`
+      `getProfile:NOT signIn USER -  non transaction DB Connection error\n: ${JSON.stringify(err)}`
     );
     return false;
   }
@@ -262,7 +262,7 @@ exports.getPieces = async function (req, res) {
     }
   } catch (err) {
     logger.error(
-      `getPieces - non transaction DB Connection error\n: ${JSON.stringify(
+      `getPieces:NOT signIn USER - non transaction DB Connection error\n: ${JSON.stringify(
         err
       )}`
     );
@@ -312,7 +312,7 @@ exports.getinfo = async function (req, res) {
     }
   } catch (err) {
     logger.error(
-      `getPieces - non transaction DB Connection error\n: ${JSON.stringify(
+      `getInfo - non transaction DB Connection error\n: ${JSON.stringify(
         err
       )}`
     );
@@ -361,7 +361,7 @@ exports.getgraph = async function (req, res) {
         message: "나의 독서그래프 조회 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`getGraph - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };

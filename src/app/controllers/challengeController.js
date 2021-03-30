@@ -78,7 +78,7 @@ exports.postchallenge = async function (req, res) {
         message: "챌린지 추가 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`addChallenge - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -147,7 +147,7 @@ exports.patchchallenge = async function (req, res) {
         message: "목표 변경 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`changeGoal - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -224,7 +224,7 @@ exports.postchallengeBook = async function (req, res) {
         message: "챌린지 책 추가 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`addBook - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -309,7 +309,7 @@ exports.getchallenge = async function (req, res) {
         message: "오늘의 챌린지 조회 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`getTodaysChallenge - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -359,7 +359,7 @@ exports.getgoalBook = async function (req, res) {
         message: "도전책 조회 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`getChallengeBook - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -420,7 +420,7 @@ exports.deletechallengeBook = async function (req, res) {
         message: "챌린지 책 삭제 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`deleteChallengeBook - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -479,7 +479,7 @@ exports.getbookTime = async function (req, res) {
         message: "시간 조회 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`getTime - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -533,7 +533,7 @@ exports.getgoal = async function (req, res) {
         message: "시간 조회 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`presentChallenge - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -597,7 +597,7 @@ exports.patchgoalBook = async function (req, res) {
         message: "도전할 책 변경 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`challengeBook - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -684,7 +684,7 @@ exports.postCake = async function (req, res) {
       });
     }
   } catch (err) {
-    logger.error(`PostCake - DB Connection error\n: ${JSON.stringify(err)}`);
+    logger.error(`postCake:NOT signIn USER - DB Connection error\n: ${JSON.stringify(err)}`);
     return false;
   }
 };

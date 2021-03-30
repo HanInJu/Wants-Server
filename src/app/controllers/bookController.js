@@ -64,7 +64,7 @@ exports.postbook = async function (req, res) {
         bookId: getbookRows[0].bookId,
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`postBooks - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -100,7 +100,7 @@ exports.getbook = async function (req, res) {
         message: "책 조회 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`getBook - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
