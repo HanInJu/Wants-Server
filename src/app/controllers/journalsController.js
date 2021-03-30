@@ -21,7 +21,7 @@ exports.postjournals = async function (req, res) {
       });
 
     const { time, text, open, goalBookId, page, percent } = req.body;
-
+    console.log("1", percent);
     if (
       time.length === 0 ||
       time === undefined ||
@@ -70,8 +70,12 @@ exports.postjournals = async function (req, res) {
     const goalId = goalId1[0].goalId;
 
     const charPercent2 = await journalsDao.getpercent(goalBookId);
-    const charPercent1 = charPercent2[0].percent;
-    const charPercent = percent - charPercent1;
+    var charPercent = 0;
+    console.log(charPercent2);
+    if (charPercent2.length !== 0) {
+      var charPercent1 = charPercent2[0].percent;
+      charPercent = percent - charPercent1;
+    }
     console.log(charPercent, goalBookId, goalId);
     const postjournalsRows = await journalsDao.postjournals(
       time,
