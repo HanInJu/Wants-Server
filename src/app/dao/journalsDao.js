@@ -19,11 +19,11 @@ async function postjournals(
   return calendarYNRows;
 }
 //////////////////////////////////////////일지추가2//////////////////////////////////////////////
-async function postjournals2(challengeId, text, journalImageURL, open) {
+async function postjournals2(challengeId, text, open) {
   const connection = await pool.getConnection(async (conn) => conn);
   const calendarYNQuery = `
-  insert into Reading_journal(challengeId, text, journalImageURL, open)
-  values ( ${challengeId}, '${text}', '${journalImageURL}' , '${open}')`;
+  insert into Reading_journal(challengeId, text, open)
+  values ( ${challengeId}, '${text}', '${open}')`;
   const [calendarYNRows] = await connection.query(calendarYNQuery);
   connection.release();
   return calendarYNRows;
@@ -41,11 +41,11 @@ async function getgoalBookId(goalBookId) {
   return calendarYNRows;
 }
 //////////////////////////////////////////일지 수정//////////////////////////////////////////////
-async function patchjournals(journalId, text, journalImageURL, open) {
+async function patchjournals(journalId, text, open) {
   const connection = await pool.getConnection(async (conn) => conn);
   const calendarYNQuery = `
   UPDATE Reading_journal 
-  SET text = '${text}', journalImageURL = '${journalImageURL}', open = '${open}'
+  SET text = '${text}', open = '${open}'
   WHERE journalId = ${journalId}`;
   const [calendarYNRows] = await connection.query(calendarYNQuery);
   connection.release();
@@ -66,7 +66,7 @@ async function deletejournals(journalId) {
 async function getpatchjournals(journalId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const calendarYNQuery = `
-  select journalId, text, journalImageURL, open, time, page, Challenge.percent, title, writer, imageURL, journalId
+  select journalId, text, open, time, page, Challenge.percent, title, writer, imageURL, journalId
   from Reading_journal
   inner join Challenge on Challenge.challengeId = Reading_journal.challengeId
   inner join Goal_book on Goal_book.goalId = Reading_journal.goalId
@@ -82,7 +82,7 @@ async function getjournals(userId, align, page, limit) {
   const calendarYNQuery = `
   select title, Reading_journal.text as text, DATE_FORMAT(postAt, '%Y.%m.%d') as postAt,
   Challenge.percent as percent, time, page, Book.bookId, journalId,
-  Reading_journal.journalImageURL as journalImageURL, Book.publishNumber
+  Book.publishNumber
 from Reading_journal
 inner join Challenge on Reading_journal.challengeId = Challenge.challengeId
 inner join Goal_book on Goal_book.goalBookId = Challenge.goalBookId
@@ -120,7 +120,6 @@ async function getcomjournals(page, limit) {
   Goal_book.status,
   date_format(Reading_journal.postAt, '%Y.%m.%d') as postAt,
   Reading_journal.text,
-  Reading_journal.journalImageURL,
   Reading_journal.journalId,
   User.userId,
   User.profilePictureURL,

@@ -20,15 +20,7 @@ exports.postjournals = async function (req, res) {
         message: "가입되어있지 않은 유저입니다.",
       });
 
-    const {
-      time,
-      text,
-      journalImageURL,
-      open,
-      goalBookId,
-      page,
-      percent,
-    } = req.body;
+    const { time, text, open, goalBookId, page, percent } = req.body;
 
     if (
       time.length === 0 ||
@@ -96,7 +88,6 @@ exports.postjournals = async function (req, res) {
       const postjournals2Rows = await journalsDao.postjournals2(
         challengeId,
         text,
-        journalImageURL,
         open
       );
       if (postjournals2Rows.affectedRows === 1)
@@ -136,7 +127,7 @@ exports.patchjournals = async function (req, res) {
         message: "가입되어있지 않은 유저입니다.",
       });
 
-    const { journalId, text, journalImageURL, open } = req.body;
+    const { journalId, text, open } = req.body;
 
     if (
       journalId.length === 0 ||
@@ -171,7 +162,6 @@ exports.patchjournals = async function (req, res) {
     const patchjournalsRows = await journalsDao.patchjournals(
       journalId,
       text,
-      journalImageURL,
       open
     );
 
