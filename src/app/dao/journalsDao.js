@@ -139,9 +139,10 @@ limit ${page}, ${limit}`;
 async function journaluser(journalId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const calendarYNQuery = `
-  select userId
+  select Goal.userId
   from Reading_journal
-  inner join Goal on Reading_journal.goalId = Goal.goalId
+    inner join Challenge on Challenge.challengeId = Reading_journal.challengeId
+  inner join Goal on Challenge.goalId = Goal.goalId
   where journalId = ${journalId}`;
   const [calendarYNRows] = await connection.query(calendarYNQuery);
   connection.release();
