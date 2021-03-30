@@ -24,16 +24,31 @@ async function getbook(publishNumber) {
   return rows;
 }
 // 목표책추가
-async function postchallengeBook(goalId, publishNumber) {
+// async function postchallengeBook(goalId, publishNumber) {
+//   const connection = await pool.getConnection(async (conn) => conn);
+//   const postchallengeQuery = `
+//   insert into Goal_book(goalId, publishNumber)
+//   value (${goalId}, '${publishNumber}')`;
+//
+//   const [rows] = await connection.query(postchallengeQuery);
+//   connection.release();
+//   return rows;
+// }
+/*
+ * Goal_book 테이블에 목표책 추가하기
+ * Heather
+ */
+async function postchallengeBook(goalId, bookId) {
   const connection = await pool.getConnection(async (conn) => conn);
-  const postchallengeQuery = `
-  insert into Goal_book(goalId, publishNumber)
-  value (${goalId}, '${publishNumber}')`;
-
-  const [rows] = await connection.query(postchallengeQuery);
+  const query = `
+  INSERT INTO Goal_book(goalId, bookId) VALUES(?,?);
+                              `;
+  const bookParams = [goalId, bookId];
+  const [rows] = await connection.query(query, bookParams);
   connection.release();
   return rows;
 }
+
 // 오늘의 챌린지 조회1
 async function getchallenge1(goalId) {
   const connection = await pool.getConnection(async (conn) => conn);
@@ -366,14 +381,29 @@ async function getBeforeCake(userId) {
 }
 
 // 도전책조회
+// async function getbookList(goalId) {
+//   const connection = await pool.getConnection(async (conn) => conn);
+//   const getchallenge1Query = `
+//   select title, imageURL, writer, goalBookId, reading
+//   from Goal_book
+//   inner join Book on Book.bookId = Goal_book.bookId
+//   where Goal_book.goalId = ${goalId}`;
+//   const [rows] = await connection.query(getchallenge1Query);
+//   connection.release();
+//   return rows;
+// }
+/*
+ * 도전 중인 책과 도전중이 아닌 책 조회
+ */
 async function getbookList(goalId) {
   const connection = await pool.getConnection(async (conn) => conn);
-  const getchallenge1Query = `
-  select title, imageURL, writer, goalBookId, reading
-  from Goal_book
-  inner join Book on Book.bookId = Goal_book.bookId
-  where Goal_book.goalId = ${goalId}`;
-  const [rows] = await connection.query(getchallenge1Query);
+  const query = `
+    SELECT G.bookId, title, imageURL, writer, goalBookId, IF(reading = 'Y', '도전 중', '도전 중 아님') as reading
+    FROM Goal_book G
+    INNER JOIN Book on Book.bookId = G.bookId
+    WHERE G.goalId = ?;
+                            `;
+  const [rows] = await connection.query(query, goalId);
   connection.release();
   return rows;
 }

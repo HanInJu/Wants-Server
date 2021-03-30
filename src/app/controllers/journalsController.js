@@ -369,9 +369,13 @@ exports.getcomjournals = async function (req, res) {
         code: 4020,
         message: "가입되어있지 않은 유저입니다.",
       });
-    var page = req.query.page;
-    var limit = req.query.limit;
-    const getcomjournalsRows = await journalsDao.getcomjournals(page, limit);
+    const page = req.query.page;
+    const limit = req.query.limit;
+    //const getcomjournalsRows = await journalsDao.getcomjournals(page, limit);
+    /*Heather : 위의 코드 한 줄을 빼고*/
+    const getParams = [parseInt(page), parseInt(limit)];
+    const getcomjournalsRows = await journalsDao.getComJournals(getParams);
+    /*여기까지를 넣었습니다!*/
     const journalcount2Rows = await journalsDao.journalcount2();
 
     if (getcomjournalsRows.length > 0 || getcomjournalsRows !== undefined) {

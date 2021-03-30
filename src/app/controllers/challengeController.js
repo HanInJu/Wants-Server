@@ -164,7 +164,7 @@ exports.postchallengeBook = async function (req, res) {
         message: "가입되어있지 않은 유저입니다.",
       });
 
-    const { publishNumber, goalId } = req.body;
+    const { bookId, publishNumber, goalId } = req.body;
 
     if (goalId.length === 0 || publishNumber.length === 0)
       return res.json({
@@ -206,10 +206,12 @@ exports.postchallengeBook = async function (req, res) {
           "목표로 지정한 권수가 초과하였습니다. 책을 추가하려면 목표 권수를 늘려주세요.",
       });
 
-    const postchallengebookRows = await challengeDao.postchallengeBook(
-      goalId,
-      publishNumber
-    );
+    // const postchallengebookRows = await challengeDao.postchallengeBook(
+    //   goalId,
+    //   publishNumber
+    // );
+
+    const postchallengebookRows = await challengeDao.postchallengeBook(goalId, bookId);
 
     if (postchallengebookRows.affectedRows === 1) {
       return res.json({
@@ -337,8 +339,8 @@ exports.getgoalBook = async function (req, res) {
       });
 
     const goalId = goalIdRows[0].goalId;
-    console.log(goalId);
     const getbookListRows = await challengeDao.getbookList(goalId);
+
     if (getbookListRows.length > 0)
       return res.json({
         isSuccess: true,
@@ -346,6 +348,7 @@ exports.getgoalBook = async function (req, res) {
         message: "도전책 조회 성공",
         getbookListRows,
       });
+
     else if (getbookListRows.length === 0)
       return res.json({
         isSuccess: false,

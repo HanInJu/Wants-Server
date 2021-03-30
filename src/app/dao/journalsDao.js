@@ -174,6 +174,32 @@ async function journalcount2() {
   connection.release();
   return calendarYNRows;
 }
+
+/*
+ * API 기능 : 일지 조회
+ * 작 성 자  : Heather
+ */
+async function getComJournals(getParams) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const query = `
+    SELECT     C.userId, name, IFNULL(U.profilePictureURL, '사진 없음') as profilePic,
+               journalId, text, DATE_FORMAT(postAt, '%Y.%m.%d') as postAt, CONCAT(C.percent,'%') as percent,
+               CONCAT(C.page, '쪽') as page, C.time,
+               G.bookId, B.title, B.writer, B.imageURL,
+               IF(G.status = 'Y', '완독', '읽는 중') as status
+    FROM       Reading_journal
+    INNER JOIN Challenge C on Reading_journal.challengeId = C.challengeId
+    INNER JOIN User U on U.userId = C.userId
+    INNER JOIN Goal_book G on G.goalBookId = C.goalBookId
+    INNER JOIN Book B on G.bookId = B.bookId
+    ORDER BY   postAt DESC
+    LIMIT      ?, ?;
+    `;
+  const [rows] = await connection.query(query, getParams);
+  connection.release();
+  return rows;
+}
+
 module.exports = {
   postjournals,
   postjournals2,
@@ -187,4 +213,5 @@ module.exports = {
   journaluser,
   journalcount,
   journalcount2,
+  getComJournals,
 };
