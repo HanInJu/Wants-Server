@@ -7,6 +7,7 @@ const crypto = require("crypto");
 const secret_config = require("../../../config/secret");
 
 const userDao = require("../dao/userDao");
+const reviewDao = require("../dao/reviewDao");
 const { constants } = require("buffer");
 
 /**
@@ -295,3 +296,39 @@ exports.bye = async function (req, res) {
   }
 
 };
+
+exports.isReader = async function (req, res) {
+  const userId = req.verifiedToken.id;
+  const userRows = await userDao.getuser(userId);
+  if (userRows[0] === undefined)
+    return res.json({
+      isSuccess: false,
+      code: 4020,
+      message: "가입되어있지 않은 유저입니다.",
+    });
+
+  try {
+    const whatIsYourName = await reviewDao.whatIsYourName(userId);
+    if (whatIsYourName[0].name === "Reader") {
+      return res.json({
+        isSuccess: false,
+        code: 3001,
+        message: "닉네임을 설정해주세요.",
+      });
+    }
+    else
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "나만의 이름이 등록되어 있습니다.",
+      });
+
+  } catch (err) {
+    logger.error(`checkName - non transaction Query error\n: ${JSON.stringify(err)}`);
+    return res.json({
+      isSuccess: false,
+      code: 500,
+      message: "이름 조회 실패",
+    });
+  }
+}
