@@ -164,16 +164,16 @@ exports.postchallengeBook = async function (req, res) {
         message: "가입되어있지 않은 유저입니다.",
       });
 
-    const { bookId, publishNumber, goalId } = req.body;
+    const { bookId, goalId } = req.body;
 
-    if (goalId.length === 0 || publishNumber.length === 0)
+    if (goalId.length === 0 || bookId.length === 0)
       return res.json({
         isSuccess: false,
         code: 2100,
         message: "입력을 해주세요.",
       });
 
-    const getbookRows = await challengeDao.getbook(publishNumber);
+    const getbookRows = await challengeDao.getbook(bookId);
     if (getbookRows.length === 0) {
       return res.json({
         isSuccess: false,
@@ -181,10 +181,7 @@ exports.postchallengeBook = async function (req, res) {
         message: "어플에 입력된 책이 없습니다.",
       });
     }
-    const getgoalbookRows = await challengeDao.getgoalbook(
-      publishNumber,
-      goalId
-    );
+    const getgoalbookRows = await challengeDao.getgoalbook(bookId, goalId);
     if (getgoalbookRows.length > 0) {
       return res.json({
         isSuccess: false,
@@ -211,7 +208,10 @@ exports.postchallengeBook = async function (req, res) {
     //   publishNumber
     // );
 
-    const postchallengebookRows = await challengeDao.postchallengeBook(goalId, bookId);
+    const postchallengebookRows = await challengeDao.postchallengeBook(
+      goalId,
+      bookId
+    );
 
     if (postchallengebookRows.affectedRows === 1) {
       return res.json({
@@ -272,6 +272,7 @@ exports.getchallenge = async function (req, res) {
     const getchallenge1Rows = await challengeDao.getchallenge1(goalId1);
     const getchallenge3Rows = await challengeDao.getchallenge3(goalId1);
 
+    console.log(getchallenge1Rows);
     console.log(getchallenge3Rows);
     if (getchallenge1Rows.length === 0) {
       //저장된 책이 없을때
@@ -348,7 +349,6 @@ exports.getgoalBook = async function (req, res) {
         message: "도전책 조회 성공",
         getbookListRows,
       });
-
     else if (getbookListRows.length === 0)
       return res.json({
         isSuccess: false,
@@ -687,7 +687,9 @@ exports.postCake = async function (req, res) {
       });
     }
   } catch (err) {
-    logger.error(`postCake:NOT signIn USER - DB Connection error\n: ${JSON.stringify(err)}`);
+    logger.error(
+      `postCake:NOT signIn USER - DB Connection error\n: ${JSON.stringify(err)}`
+    );
     return false;
   }
 };
