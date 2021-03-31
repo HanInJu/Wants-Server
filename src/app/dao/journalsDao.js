@@ -32,7 +32,7 @@ async function postjournals2(challengeId, text, open) {
 async function getgoalBookId(goalBookId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const calendarYNQuery = `
-  select userId, Goal.goalId
+  select userId, Goal.goalId, amount
   from Goal_book
   inner join Goal on Goal_book.goalId = Goal.goalId
   where goalBookId = ${goalBookId}`;

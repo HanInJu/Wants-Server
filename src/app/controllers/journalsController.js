@@ -1,6 +1,7 @@
 const { pool } = require("../../../config/database");
 const { logger } = require("../../../config/winston");
 
+const challengeDao = require("../dao/challengeDao");
 const reviewDao = require("../dao/reviewDao");
 const journalsDao = require("../dao/journalsDao");
 const userDao = require("../dao/userDao");
@@ -103,6 +104,16 @@ exports.postjournals = async function (req, res) {
         text,
         open
       );
+
+      if (goalId1[0].amount > 0) {
+        console.log(goalId1[0].amount);
+        const bookstatusRows = await challengeDao.Goal_bookstatus(goalId);
+        console.log(bookstatusRows);
+        if (goalId1[0].amount === bookstatusRows[0].goalBookId) {
+          await challengeDao.patchComplete(goalId);
+        }
+      }
+
       if (postjournals2Rows.affectedRows === 1)
         return res.json({
           isSuccess: true,

@@ -492,6 +492,28 @@ async function patchexpriodAt(goalId, expriodAt) {
   connection.release();
   return rows;
 }
+// 완독한 책 몇개인지
+async function Goal_bookstatus(goalId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getchallenge1Query = `
+  select count(goalBookId) as goalBookId
+  from Goal_book
+  where Goal_book.status = 'Y' && goalId = ${goalId}`;
+  const [rows] = await connection.query(getchallenge1Query);
+  connection.release();
+  return rows;
+}
+// 완독한 책이랑 목표책 같으면 목표 다했다는 표시
+async function patchComplete(goalId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getchallenge1Query = `
+  update Goal
+  SET isComplete = 1
+  where goalId = ${goalId};`;
+  const [rows] = await connection.query(getchallenge1Query);
+  connection.release();
+  return rows;
+}
 module.exports = {
   getcountBook,
   getgoalamount,
@@ -526,4 +548,6 @@ module.exports = {
   getYN,
   getbookTime2,
   patchexpriodAt,
+  Goal_bookstatus,
+  patchComplete,
 };
