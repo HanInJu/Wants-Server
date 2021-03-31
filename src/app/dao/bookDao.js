@@ -27,8 +27,17 @@ async function getbook(bookId) {
   publisher,
   imageURL,
   DATE_FORMAT(publishDate, '%Y.%m.%d') as publishDate,
-  contents,
-  count(Review.reviewId)               as reviewSum,
+  contents
+from Book
+where Book.bookId = ${bookId}`;
+  const [rows] = await connection.query(getbookQuery);
+  connection.release();
+  return rows;
+}
+async function getbook2(bookId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getbookQuery = `
+  select count(Review.reviewId)               as reviewSum,
   User.userId                          as userId,
   User.name                            as name,
   profilePictureURL,
@@ -48,24 +57,17 @@ limit 1;`;
   connection.release();
   return rows;
 }
-async function getbook2(reviewId) {
-  const connection = await pool.getConnection(async (conn) => conn);
-  const getbookQuery = `
-  select count(Review_like.status) as ReviewlikeCount
-  from Review_like
-  where Review_like.status = 'Y' && Review_like.reviewId = ${reviewId}
-  order by reviewId`;
-  const [rows] = await connection.query(getbookQuery);
-  connection.release();
-  return rows;
-}
 async function getbook3(reviewId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const getbookQuery = `
-  select count(Review_comment.status) as ReviewcommentCount
-  from Review_comment
-  where Review_comment.reviewId = ${reviewId}
-  order by reviewId`;
+  select count(Review_like.status) as ReviewlikeCount,
+  (select count(Review_comment.status)
+from Review_comment
+where Review_comment.reviewId = ${reviewId}
+order by reviewId) as ReviewcommentCount
+from Review_like
+where Review_like.status = 'Y' && Review_like.reviewId = ${reviewId}
+order by reviewId;`;
   const [rows] = await connection.query(getbookQuery);
   connection.release();
   return rows;

@@ -71,30 +71,29 @@ exports.signUp = async function (req, res) {
       .update(password)
       .digest("hex");
 
-      const insertUserInfoParams = [email, hashedPassword, nickname];
-      await userDao.insertUserInfo(insertUserInfoParams);
+    const insertUserInfoParams = [email, hashedPassword, nickname];
+    await userDao.insertUserInfo(insertUserInfoParams);
 
-      const [userInfoRows] = await userDao.selectUserInfo(email);
-      let token = await jwt.sign(
-          {
-            id: userInfoRows[0].userId,
-          }, // 토큰의 내용(payload)
-          secret_config.jwtsecret, // 비밀 키
-          {
-            expiresIn: "90d",
-            subject: "userInfo",
-          } // 유효 시간은 90일
-      );
+    const [userInfoRows] = await userDao.selectUserInfo(email);
+    let token = await jwt.sign(
+      {
+        id: userInfoRows[0].userId,
+      }, // 토큰의 내용(payload)
+      secret_config.jwtsecret, // 비밀 키
+      {
+        expiresIn: "90d",
+        subject: "userInfo",
+      } // 유효 시간은 90일
+    );
 
-      //  await connection.commit(); // COMMIT
-      // connection.release();
-      return res.json({
-        isSuccess: true,
-        code: 1000,
-        message: "회원가입 성공",
-        jwt: token,
-      });
-
+    //  await connection.commit(); // COMMIT
+    // connection.release();
+    return res.json({
+      isSuccess: true,
+      code: 1000,
+      message: "회원가입 성공",
+      jwt: token,
+    });
   } catch (err) {
     // await connection.rollback(); // ROLLBACK
     // connection.release();
@@ -190,9 +189,12 @@ exports.signIn = async function (req, res) {
     );
 
     //달성하지 않은 목표가 존재하니?
-    const isExistNotUnAchievedGoal = await userDao.isExistNotUnAchievedGoal(email);
+    const isExistNotUnAchievedGoal = await userDao.isExistNotUnAchievedGoal(
+      email
+    );
 
-    if(isExistNotUnAchievedGoal[0].exist === 1) { //달성하지 않은 목표 있음(result:1) -> 메인 이동 불필요
+    if (isExistNotUnAchievedGoal[0].exist === 1) {
+      //달성하지 않은 목표 있음(result:1) -> 메인 이동 불필요
       res.json({
         isSuccess: true,
         code: 1000,
@@ -200,8 +202,8 @@ exports.signIn = async function (req, res) {
         result: 1,
         jwt: token,
       });
-    }
-    else { //목표 다 달성했음(result:0) => 메인으로 이동해야 함
+    } else {
+      //목표 다 달성했음(result:0) => 메인으로 이동해야 함
       res.json({
         isSuccess: true,
         code: 1000,
@@ -241,7 +243,6 @@ exports.check = async function (req, res) {
  * API 기 능 : 회원 탈퇴
  */
 exports.bye = async function (req, res) {
-
   const userId = req.verifiedToken.id;
   const userRows = await userDao.getuser(userId);
   if (userRows[0] === undefined)
@@ -251,38 +252,35 @@ exports.bye = async function (req, res) {
       message: "가입되어있지 않은 유저입니다.",
     });
 
-  const conn = await pool.getConnection()
+  const conn = await pool.getConnection();
   try {
     await conn.beginTransaction(); // 트랜잭션 적용 시작
     await userDao.byeUser(userId);
     await userDao.byeReview(userId);
     await userDao.byeChallenge(userId);
-    await conn.commit() // 커밋
+    await conn.commit(); // 커밋
 
     const isCompletedDelete = await userDao.isCompletedDelete(userId);
-    if(isCompletedDelete[0].exist === 1) {
+    if (isCompletedDelete[0].exist === 1) {
       return res.json({
         isSuccess: false,
         code: 2034,
         message: "탈퇴가 완료되지 않았습니다.",
       });
-    }
-    else if(isCompletedDelete[0].exist === 0) {
+    } else if (isCompletedDelete[0].exist === 0) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "탈퇴 성공",
+      });
+    } else {
       return res.json({
         isSuccess: true,
         code: 1000,
         message: "탈퇴 성공",
       });
     }
-    else {
-      return res.json({
-        isSuccess: true,
-        code: 1000,
-        message: "탈퇴 성공",
-      });
-    }
-
-  } catch(err) {
+  } catch (err) {
     logger.error(`Bye - non transaction Query error\n: ${JSON.stringify(err)}`);
     await conn.rollback();
     return res.json({
@@ -293,5 +291,4 @@ exports.bye = async function (req, res) {
   } finally {
     conn.release(); // conn 회수
   }
-
 };

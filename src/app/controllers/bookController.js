@@ -73,8 +73,9 @@ exports.getbook = async function (req, res) {
   try {
     const bookId = req.params.bookId;
     const getbookRows = await bookDao.getbook(bookId);
-    const getbook2Rows = await bookDao.getbook2(getbookRows[0].reviewId);
-    const getbook3Rows = await bookDao.getbook3(getbookRows[0].reviewId);
+    const getbook2Rows = await bookDao.getbook2(bookId);
+    console.log(getbook2Rows);
+    const getbook3Rows = await bookDao.getbook3(getbook2Rows[0].reviewId);
     const currentReadRows = await bookDao.currentRead(bookId);
 
     if (getbookRows.length > 0) {
@@ -83,8 +84,8 @@ exports.getbook = async function (req, res) {
         code: 1000,
         message: "책 조회 성공",
         getbookRows,
-        ReviewlikeCount: getbook2Rows[0].ReviewlikeCount,
-        ReviewcommentCount: getbook3Rows[0].ReviewcommentCount,
+        review: getbook2Rows,
+        reviewInfo: getbook3Rows,
         currentReadRows,
       });
     } else if (getbookRows.length === 0) {

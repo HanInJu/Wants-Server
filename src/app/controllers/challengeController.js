@@ -164,16 +164,16 @@ exports.postchallengeBook = async function (req, res) {
         message: "가입되어있지 않은 유저입니다.",
       });
 
-    const { publishNumber, goalId } = req.body;
+    const { bookId, goalId } = req.body;
 
-    if (goalId.length === 0 || publishNumber.length === 0)
+    if (goalId.length === 0 || bookId.length === 0)
       return res.json({
         isSuccess: false,
         code: 2100,
         message: "입력을 해주세요.",
       });
 
-    const getbookRows = await challengeDao.getbook(publishNumber);
+    const getbookRows = await challengeDao.getbook(bookId);
     if (getbookRows.length === 0) {
       return res.json({
         isSuccess: false,
@@ -181,10 +181,7 @@ exports.postchallengeBook = async function (req, res) {
         message: "어플에 입력된 책이 없습니다.",
       });
     }
-    const getgoalbookRows = await challengeDao.getgoalbook(
-      publishNumber,
-      goalId
-    );
+    const getgoalbookRows = await challengeDao.getgoalbook(bookId, goalId);
     if (getgoalbookRows.length > 0) {
       return res.json({
         isSuccess: false,
@@ -194,10 +191,10 @@ exports.postchallengeBook = async function (req, res) {
     }
 
     const getgoalamountRows = await challengeDao.getgoalamount(goalId);
-    console.log(getgoalamountRows[0].amount);
+
     const getcountBookRows = await challengeDao.getcountBook(goalId);
-    console.log(getcountBookRows);
-    console.log(getgoalamountRows[0].amount, getcountBookRows.countBook);
+
+    console.log(getgoalamountRows[0].amount, getcountBookRows[0].countBook);
     if (getgoalamountRows[0].amount === getcountBookRows[0].countBook)
       return res.json({
         isSuccess: false,
@@ -206,9 +203,16 @@ exports.postchallengeBook = async function (req, res) {
           "목표로 지정한 권수가 초과하였습니다. 책을 추가하려면 목표 권수를 늘려주세요.",
       });
 
+    const getReadingRows = await challengeDao.getReading(goalId); // 기존에 도전중이였던 목표책 인덱스 부름
+    if (getReadingRows.length > 0) {
+      console.log("기존꺼 비활");
+      const YgoalBookId = getReadingRows[0].goalBookId;
+      await challengeDao.patchgoalBookId(YgoalBookId); // 기존에 도전중이였던 목표책 인덱스 N으로 바꿈
+    }
+
     const postchallengebookRows = await challengeDao.postchallengeBook(
       goalId,
-      publishNumber
+      bookId
     );
 
     if (postchallengebookRows.affectedRows === 1) {

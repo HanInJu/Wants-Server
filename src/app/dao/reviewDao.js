@@ -123,7 +123,10 @@ async function isDuplicatedReport(reportParams) {
   const duplicatedReportQuery = `
     SELECT EXISTS(SELECT * FROM Review_report WHERE reviewId = ? AND userId = ?) AS exist;
                       `;
-  const [duplicatedReportRow] = await connection.query(duplicatedReportQuery, reportParams);
+  const [duplicatedReportRow] = await connection.query(
+    duplicatedReportQuery,
+    reportParams
+  );
 
   connection.release();
   return duplicatedReportRow;
@@ -255,7 +258,6 @@ async function getMyReview(reviewId) {
   connection.release();
   return row;
 }
-
 
 module.exports = {
   postReview,

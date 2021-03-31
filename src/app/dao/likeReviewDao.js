@@ -19,7 +19,10 @@ async function postComment(likeReviewParams) {
     INSERT INTO Review_comment(reviewId, userId, text) VALUES(?,?,?);
                  `;
 
-  const [postCommentRows] = await connection.query(postCommentQuery, likeReviewParams);
+  const [postCommentRows] = await connection.query(
+    postCommentQuery,
+    likeReviewParams
+  );
   connection.release();
   return postCommentRows;
 }
@@ -30,7 +33,10 @@ async function isDuplicatedComment(likeReviewParams) {
     SELECT EXISTS(SELECT * FROM Review_comment WHERE reviewId = ? AND userId = ? AND text = ?) as exist;
                  `;
 
-  const [duplicatedCommentRows] = await connection.query(duplicatedCommentQuery, likeReviewParams);
+  const [duplicatedCommentRows] = await connection.query(
+    duplicatedCommentQuery,
+    likeReviewParams
+  );
   connection.release();
   return duplicatedCommentRows;
 }
@@ -41,7 +47,10 @@ async function isValidCommentId(commentId) {
     SELECT EXISTS(SELECT * FROM Review_comment WHERE commentId = ?) as exist;
                  `;
 
-  const [validCommentRows] = await connection.query(validCommentQuery, commentId);
+  const [validCommentRows] = await connection.query(
+    validCommentQuery,
+    commentId
+  );
   connection.release();
   return validCommentRows;
 }
@@ -52,7 +61,10 @@ async function isAuthorizedUser(commentId) {
     SELECT userId FROM Review_comment WHERE commentId = ?;
                  `;
 
-  const [authorizedUserRows] = await connection.query(authorizedUserQuery, commentId);
+  const [authorizedUserRows] = await connection.query(
+    authorizedUserQuery,
+    commentId
+  );
   connection.release();
   return authorizedUserRows;
 }
@@ -63,7 +75,10 @@ async function isDeletedComment(commentId) {
     SELECT EXISTS(SELECT * FROM Review_comment WHERE commentId = ? AND status = 'DELETE') as exist;
                  `;
 
-  const [deletedCommentRows] = await connection.query(deletedCommentQuery, commentId);
+  const [deletedCommentRows] = await connection.query(
+    deletedCommentQuery,
+    commentId
+  );
   connection.release();
   return deletedCommentRows;
 }
@@ -86,10 +101,7 @@ async function isDuplicatedReport(commentId, userId) {
                  `;
 
   const duplicatedParams = [commentId, userId];
-  const [duplicatedRows] = await connection.query(
-      query,
-      duplicatedParams
-  );
+  const [duplicatedRows] = await connection.query(query, duplicatedParams);
   connection.release();
   return duplicatedRows;
 }
@@ -101,10 +113,7 @@ async function reportComment(commentId, userId) {
                  `;
 
   const reportParams = [commentId, userId];
-  const [reportRows] = await connection.query(
-      reportQuery,
-      reportParams
-  );
+  const [reportRows] = await connection.query(reportQuery, reportParams);
   connection.release();
   return reportRows;
 }

@@ -5,7 +5,6 @@ const likeReviewDao = require("../dao/likeReviewDao");
 const reviewDao = require("../dao/reviewDao");
 const userDao = require("../dao/userDao");
 
-
 /*
  * 최종 수정일 : 2021.03.19.FRI
  * API 기 능 : 리뷰 좋아요 등록 및 삭제
@@ -58,9 +57,10 @@ exports.like = async function (req, res) {
         code: 1000,
         message: "평가/리뷰 좋아요 등록/취소 성공",
       });
-
     } catch (err) {
-      logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
+      logger.error(
+        `example non transaction Query error\n: ${JSON.stringify(err)}`
+      );
       //connection.release();
       return res.json({
         isSuccess: false,
@@ -68,9 +68,10 @@ exports.like = async function (req, res) {
         message: "평가/리뷰 좋아요 등록 실패",
       });
     }
-
   } catch (err) {
-    logger.error(`example non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+    logger.error(
+      `example non transaction DB Connection error\n: ${JSON.stringify(err)}`
+    );
     return false;
   }
 };
@@ -114,7 +115,9 @@ exports.comment = async function (req, res) {
 
       const text = req.body.text;
       const likeReviewParams = [reviewId, userId, text];
-      const isDuplicatedComment = await likeReviewDao.isDuplicatedComment(likeReviewParams);
+      const isDuplicatedComment = await likeReviewDao.isDuplicatedComment(
+        likeReviewParams
+      );
 
       if (isDuplicatedComment[0].exist === 1) {
         return res.json({
@@ -130,9 +133,10 @@ exports.comment = async function (req, res) {
         code: 1000,
         message: "댓글 등록 성공",
       });
-
     } catch (err) {
-      logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
+      logger.error(
+        `example non transaction Query error\n: ${JSON.stringify(err)}`
+      );
       //connection.release();
       return res.json({
         isSuccess: false,
@@ -140,9 +144,10 @@ exports.comment = async function (req, res) {
         message: "댓글 등록 실패",
       });
     }
-
   } catch (err) {
-    logger.error(`example non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+    logger.error(
+      `example non transaction DB Connection error\n: ${JSON.stringify(err)}`
+    );
     return false;
   }
 };
@@ -152,7 +157,6 @@ exports.comment = async function (req, res) {
  * API 기 능 : 리뷰에 등록한 댓글 삭제 API
  */
 exports.deleteComment = async function (req, res) {
-
   try {
     const userId = req.verifiedToken.id;
     //const connection = await pool.getConnection(async (conn) => conn);
@@ -200,9 +204,10 @@ exports.deleteComment = async function (req, res) {
         code: 1000,
         message: "댓글 삭제 성공",
       });
-
     } catch (err) {
-      logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
+      logger.error(
+        `example non transaction Query error\n: ${JSON.stringify(err)}`
+      );
       //connection.release();
       return res.json({
         isSuccess: false,
@@ -210,10 +215,10 @@ exports.deleteComment = async function (req, res) {
         message: "댓글 삭제 실패",
       });
     }
-
-
   } catch (err) {
-    logger.error(`example non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+    logger.error(
+      `example non transaction DB Connection error\n: ${JSON.stringify(err)}`
+    );
     return false;
   }
 };
@@ -264,24 +269,28 @@ exports.reportComment = async function (req, res) {
         });
       }
 
-      const isDuplicatedReport = await likeReviewDao.isDuplicatedReport(commentId, userId);
-       if (isDuplicatedReport[0].exist === 1) {
-          return res.json({
-            isSuccess: false,
-            code: 2024,
-            message: "이미 신고한 댓글입니다.",
-          });
-       }
-
-        await likeReviewDao.reportComment(commentId, userId);
+      const isDuplicatedReport = await likeReviewDao.isDuplicatedReport(
+        commentId,
+        userId
+      );
+      if (isDuplicatedReport[0].exist === 1) {
         return res.json({
           isSuccess: false,
-          code: 1000,
-          message: "댓글 신고 성공",
+          code: 2024,
+          message: "이미 신고한 댓글입니다.",
         });
+      }
 
+      await likeReviewDao.reportComment(commentId, userId);
+      return res.json({
+        isSuccess: false,
+        code: 1000,
+        message: "댓글 신고 성공",
+      });
     } catch (err) {
-      logger.error(`example non transaction Query error\n: ${JSON.stringify(err)}`);
+      logger.error(
+        `example non transaction Query error\n: ${JSON.stringify(err)}`
+      );
       //connection.release();
       return res.json({
         isSuccess: false,
@@ -289,9 +298,10 @@ exports.reportComment = async function (req, res) {
         message: "댓글 신고 실패",
       });
     }
-
   } catch (err) {
-    logger.error(`example non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+    logger.error(
+      `example non transaction DB Connection error\n: ${JSON.stringify(err)}`
+    );
     return false;
   }
 };
