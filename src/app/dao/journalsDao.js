@@ -174,6 +174,17 @@ async function journalcount2() {
   connection.release();
   return calendarYNRows;
 }
+//////////////////////////////////////////퍼센트가 100이면 완독표시//////////////////////////////////////////////
+async function percentY(goalBookId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const calendarYNQuery = `
+  update Goal_book
+  SET Goal_book.status = 'Y'
+  where goalBookId = ${goalBookId}`;
+  const [calendarYNRows] = await connection.query(calendarYNQuery);
+  connection.release();
+  return calendarYNRows;
+}
 module.exports = {
   postjournals,
   postjournals2,
@@ -187,4 +198,5 @@ module.exports = {
   journaluser,
   journalcount,
   journalcount2,
+  percentY,
 };

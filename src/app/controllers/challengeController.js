@@ -688,3 +688,66 @@ exports.postCake = async function (req, res) {
     return false;
   }
 };
+
+// 만료된 챌린지 재시작
+exports.patchexpiration = async function (req, res) {
+  try {
+    var jwt = req.verifiedToken.id;
+
+    const userRows = await userDao.getuser(jwt);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 4020,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+
+    const goalIdRows = await challengeDao.getgoalId(jwt); // 지금 유효한 목표가 있는지
+    console.log(goalIdRows);
+    if (goalIdRows.length === 0 || goalIdRows === undefined) {
+      const goalId2Rows = await challengeDao.getgoalId2(jwt); // 가장최근목표찾기
+      console.log(goalId2Rows);
+      if (goalId2Rows.length === 0) {
+        // 목표가 아예없다.
+        return res.json({
+          isSuccess: false,
+          code: 2261,
+          message: "목표를 설정해주세요. 지난목표도 없습니다.",
+        });
+      } else if (goalId2Rows.length > 0) {
+        var addexpriodAt = moment().add(7, "d");
+        var expriodAt = addexpriodAt.format("YYYY-MM-DD HH:mm:ss");
+        console.log(expriodAt);
+        const patchexpriodAtRows = await challengeDao.patchexpriodAt(
+          goalId2Rows[0].goalId,
+          expriodAt
+        );
+        if (patchexpriodAtRows.changedRows === 1)
+          return res.json({
+            isSuccess: true,
+            code: 1000,
+            message: "만료된 챌린지 재시작 성공",
+          });
+        else
+          return res.json({
+            isSuccess: false,
+            code: 4000,
+            message: "만료된 챌린지 재시작 실패",
+          });
+      } else
+        return res.json({
+          isSuccess: false,
+          code: 2262,
+          message: "만료된 목표찾기 실패",
+        });
+    } else
+      return res.json({
+        isSuccess: false,
+        code: 2263,
+        message: "유효한 목표가 있습니다.",
+      });
+  } catch (err) {
+    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
+  }
+};

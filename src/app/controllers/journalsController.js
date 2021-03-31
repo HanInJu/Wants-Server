@@ -21,7 +21,7 @@ exports.postjournals = async function (req, res) {
       });
 
     const { time, text, open, goalBookId, page, percent } = req.body;
-    console.log("1", percent);
+
     if (
       time.length === 0 ||
       time === undefined ||
@@ -41,7 +41,12 @@ exports.postjournals = async function (req, res) {
         code: 2100,
         message: "입력을 해주세요.",
       });
-    console.log(goalBookId);
+    else if (percent > 100)
+      return res.json({
+        isSuccess: false,
+        code: 2227,
+        message: "퍼센트는 100까지만 입력 가능합니다.",
+      });
 
     const whatIsYourName = await reviewDao.whatIsYourName(jwt);
     if (whatIsYourName[0].name === "Reader") {
@@ -68,6 +73,10 @@ exports.postjournals = async function (req, res) {
         message: "목표로 등록한 책의 유저와 일지를 작성할 유저가 다릅니다.",
       });
     const goalId = goalId1[0].goalId;
+
+    if (percent === 100) {
+      await journalsDao.percentY(goalBookId);
+    }
 
     const charPercent2 = await journalsDao.getpercent(goalBookId);
     var charPercent = 0;
