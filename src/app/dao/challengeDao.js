@@ -481,6 +481,17 @@ async function getcountBook(goalId) {
   connection.release();
   return rows;
 }
+// 만료된 챌린지 만료일 재설정
+async function patchexpriodAt(goalId, expriodAt) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getchallenge1Query = `
+  update Goal
+  SET expriodAt = '${expriodAt}'
+  where goalId = ${goalId};`;
+  const [rows] = await connection.query(getchallenge1Query);
+  connection.release();
+  return rows;
+}
 module.exports = {
   getcountBook,
   getgoalamount,
@@ -514,4 +525,5 @@ module.exports = {
   patchgoalBookId2,
   getYN,
   getbookTime2,
+  patchexpriodAt,
 };

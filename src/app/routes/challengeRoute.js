@@ -24,4 +24,5 @@ module.exports = function (app) {
     jwtMiddleware,
     challenge.patchgoalBook
   ); // 도전중인 책 변경
+  app.patch("/challenge/expiration", jwtMiddleware, challenge.patchexpiration); // 만료된 챌린지 재시작
 };

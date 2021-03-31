@@ -174,7 +174,6 @@ async function journalcount2() {
   connection.release();
   return calendarYNRows;
 }
-
 /*
  * API 기능 : 일지 조회
  * 작 성 자  : Heather
@@ -200,6 +199,18 @@ async function getComJournals(getParams) {
   return rows;
 }
 
+//////////////////////////////////////////퍼센트가 100이면 완독표시//////////////////////////////////////////////
+async function percentY(goalBookId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const calendarYNQuery = `
+  update Goal_book
+  SET Goal_book.status = 'Y'
+  where goalBookId = ${goalBookId}`;
+  const [calendarYNRows] = await connection.query(calendarYNQuery);
+  connection.release();
+  return calendarYNRows;
+}
+
 module.exports = {
   postjournals,
   postjournals2,
@@ -214,4 +225,5 @@ module.exports = {
   journalcount,
   journalcount2,
   getComJournals,
+  percentY,
 };
