@@ -8,6 +8,7 @@ const secret_config = require("../../../config/secret");
 
 const userDao = require("../dao/userDao");
 const reviewDao = require("../dao/reviewDao");
+const myPageDao = require("../dao/myPageDao");
 const { constants } = require("buffer");
 
 /**
@@ -331,4 +332,109 @@ exports.isReader = async function (req, res) {
       message: "이름 조회 실패",
     });
   }
-}
+};
+
+/*
+ * update : 2021.03.31.WED
+ * join API : 회원가입(이름 필요)
+ */
+exports.join = async function (req, res) {
+  const { email, password, name } = req.body;
+
+  const nickname = name;
+
+  if (name.length > 30) {
+    return res.json({
+      isSuccess: false,
+      code: 2025,
+      message: "닉네임의 최대 길이는 30자입니다.",
+    });
+  }
+
+  const isDuplicatedName = await myPageDao.isDuplicatedName(name);
+  if (isDuplicatedName[0].exist === 1) {
+    return res.json({
+      isSuccess: false,
+      code: 2026,
+      message: "이미 사용중인 닉네임입니다.",
+    });
+  }
+
+  if (!email)
+    return res.json({
+      isSuccess: false,
+      code: 301,
+      message: "이메일을 입력해주세요.",
+    });
+
+  if (email.length > 30)
+    return res.json({
+      isSuccess: false,
+      code: 2001,
+      message: "이메일은 30자리 미만으로 입력해주세요.",
+    });
+
+  if (!regexEmail.test(email))
+    return res.json({
+      isSuccess: false,
+      code: 2002,
+      message: "이메일을 형식을 정확하게 입력해주세요.",
+    });
+
+  if (!password)
+    return res.json({
+      isSuccess: false,
+      code: 2003,
+      message: "비밀번호를 입력해주세요.",
+    });
+
+  if (password.length < 6 || password.length > 20)
+    return res.json({
+      isSuccess: false,
+      code: 2004,
+      message: "비밀번호는 6~20자리를 입력해주세요.",
+    });
+
+  try {
+    // 이메일 중복 확인
+    const emailRows = await userDao.userEmailCheck(email);
+    if (emailRows[0].exist === 1) {
+      return res.json({
+        isSuccess: false,
+        code: 2005,
+        message: "중복된 이메일입니다.",
+      });
+    }
+
+    const hashedPassword = await crypto
+        .createHash("sha512")
+        .update(password)
+        .digest("hex");
+
+    const insertUserInfoParams = [email, hashedPassword, nickname];
+    await userDao.insertUserInfo(insertUserInfoParams);
+
+    const [userInfoRows] = await userDao.selectUserInfo(email);
+    let token = await jwt.sign(
+        {
+          id: userInfoRows[0].userId,
+        }, // 토큰의 내용(payload)
+        secret_config.jwtsecret, // 비밀 키
+        {
+          expiresIn: "90d",
+          subject: "userInfo",
+        } // 유효 시간은 90일
+    );
+
+    return res.json({
+      isSuccess: true,
+      code: 1000,
+      message: "회원가입 성공",
+      jwt: token,
+    });
+
+  } catch (err) {
+    logger.error(`join - Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
+  }
+};
