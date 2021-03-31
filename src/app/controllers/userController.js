@@ -438,3 +438,43 @@ exports.join = async function (req, res) {
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
+
+/*
+ * 최종 수정일 : 2021.03.31.WED
+ * API 기 능 : 회원가입 시 닉네임 중복검사
+ */
+exports.isDuplicated = async function (req, res) {
+  try {
+    const name = req.body.name;
+    if (name.length > 30) {
+      return res.json({
+        isSuccess: false,
+        code: 2025,
+        message: "닉네임의 최대 길이는 30자입니다.",
+      });
+    }
+
+    const isDuplicatedName = await myPageDao.isDuplicatedName(name);
+    if (isDuplicatedName[0].exist === 0) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "사용가능한 닉네임입니다.",
+      });
+    } else {
+      return res.json({
+        isSuccess: false,
+        code: 2026,
+        message: "이미 사용중인 닉네임입니다.",
+      });
+    }
+
+  } catch (err) {
+    logger.error(`join:DuplicatedName - non transaction Query error\n: ${JSON.stringify(err)}`);
+    return res.json({
+      isSuccess: false,
+      code: 500,
+      message: "닉네임 중복검사 실패",
+    });
+  }
+};
