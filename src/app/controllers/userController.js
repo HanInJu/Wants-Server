@@ -441,7 +441,7 @@ exports.join = async function (req, res) {
  */
 exports.isDuplicated = async function (req, res) {
   try {
-    var name = req.query.name;
+    const name = req.query.name;
 
     if (name.length > 30) {
       return res.json({
@@ -466,11 +466,7 @@ exports.isDuplicated = async function (req, res) {
       });
     }
   } catch (err) {
-    logger.error(
-      `join:DuplicatedName - non transaction Query error\n: ${JSON.stringify(
-        err
-      )}`
-    );
+    logger.error(`join:DuplicatedName - non transaction Query error\n: ${JSON.stringify(err)}`);
     return res.json({
       isSuccess: false,
       code: 500,
