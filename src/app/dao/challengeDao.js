@@ -174,10 +174,22 @@ async function deletechallengeBook2(goalBookId) {
 async function goalBookId(goalBookId, jwt) {
   const connection = await pool.getConnection(async (conn) => conn);
   const postchallengeQuery = `
-  select userId
+  select userId, Goal_book.goalId
 from Goal_book
 inner join Goal on Goal_book.goalId = Goal.goalId
 where goalBookId = ${goalBookId} && userId = ${jwt};`;
+
+  const [rows] = await connection.query(postchallengeQuery);
+  connection.release();
+  return rows;
+}
+// 가지고있는챌린지 책 수
+async function countgoalBookId(goalId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const postchallengeQuery = `
+  select count(goalBookId) as goalBookId
+  from Goal_book
+  where goalId = ${goalId}`;
 
   const [rows] = await connection.query(postchallengeQuery);
   connection.release();
@@ -561,4 +573,5 @@ module.exports = {
   Goal_bookstatus,
   patchComplete,
   getgoalBookId2,
+  countgoalBookId,
 };

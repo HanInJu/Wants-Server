@@ -409,23 +409,40 @@ exports.deletechallengeBook = async function (req, res) {
         code: 2200,
         message: "삭제할 수 있는 권한이 없습니다.",
       });
-
-    const deletechallengeBook = await challengeDao.deletechallengeBook(
-      goalBookId
+    else if (selectGoalUser.length === 0) {
+      return res.json({
+        isSuccess: false,
+        code: 2203,
+        message: "삭제하실 책을 챌린지 책으로 설정하지 않았습니다.",
+      });
+    }
+    console.log(selectGoalUser);
+    const countgoalBookIdRows = await challengeDao.countgoalBookId(
+      selectGoalUser[0].goalId
     );
+    console.log(countgoalBookIdRows);
+    if (countgoalBookIdRows[0].goalBookId === 1) {
+      return res.json({
+        isSuccess: false,
+        code: 2202,
+        message: "챌린지 책이 한권이라 삭제할 수 없습니다.",
+      });
+    }
+
+    await challengeDao.deletechallengeBook(goalBookId);
     const deletechallengeBook2 = await challengeDao.deletechallengeBook2(
       goalBookId
     );
-
-    if (deletechallengeBook2.affectedRows === 1)
+    console.log(deletechallengeBook2);
+    if (deletechallengeBook2.changedRows === 0)
       return res.json({
         isSuccess: true,
         code: 1000,
         message: "챌린지 책 삭제 성공",
       });
-    else if (deletechallengeBook2.affectedRows === 0)
+    else if (deletechallengeBook2.changedRows === 1)
       return res.json({
-        isSuccess: true,
+        isSuccess: false,
         code: 2201,
         message: "삭제할 입력하신 챌린지 책이 없습니다.",
       });
