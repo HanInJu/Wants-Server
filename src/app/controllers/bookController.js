@@ -72,11 +72,12 @@ exports.postbook = async function (req, res) {
 
 exports.getbook = async function (req, res) {
   try {
-    const bookId = req.params.bookId;
-    const getbookRows = await bookDao.getbook(bookId);
+    const publishNumber = req.query.publishNumber;
+    console.log(publishNumber);
+    const getbookRows = await bookDao.getbook(publishNumber);
     const getbook2Rows = await bookDao.getbook2(getbookRows[0].reviewId);
     const getbook3Rows = await bookDao.getbook3(getbookRows[0].reviewId);
-    const currentReadRows = await bookDao.currentRead(bookId);
+    const currentReadRows = await bookDao.currentRead(getbookRows[0].bookId);
 
     if (getbookRows.length > 0) {
       return res.json({

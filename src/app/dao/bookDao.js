@@ -19,7 +19,7 @@ async function postbook(
   connection.release();
   return rows;
 }
-async function getbook(bookId) {
+async function getbook(publishNumber) {
   const connection = await pool.getConnection(async (conn) => conn);
   const getbookQuery = `
   select title,
@@ -36,14 +36,15 @@ async function getbook(bookId) {
   text,
   star,
   reviewId,
+  Book.bookId,
   Goal_book.status
 from Book
     inner join Review on Review.bookId = Book.bookId
 inner join Goal_book on Book.bookId = Goal_book.bookId
     inner join User on User.userId = Review.userId
-where Book.bookId = ${bookId}
+where Book.publishNumber = '${publishNumber}'
 order by postAt DESC
-limit 1;`;
+limit 1`;
   const [rows] = await connection.query(getbookQuery);
   connection.release();
   return rows;
