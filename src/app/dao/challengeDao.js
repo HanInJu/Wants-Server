@@ -12,12 +12,12 @@ async function postchallenge(userId, period, amount, time, expriodAt) {
   return rows;
 }
 // 책있는지 확인
-async function getbook(bookId) {
+async function getbook(publishNumber) {
   const connection = await pool.getConnection(async (conn) => conn);
   const postchallengeQuery = `
   select *
   from Book
-  where bookId = '${bookId}'`;
+  where publishNumber = '${publishNumber}'`;
 
   const [rows] = await connection.query(postchallengeQuery);
   connection.release();

@@ -32,7 +32,7 @@ exports.postbook = async function (req, res) {
     const publishDate1 = publishDate.substring(0, 10);
 
     const getbookRows = await challengeDao.getbook(publishNumber);
-
+    console.log(getbookRows);
     if (getbookRows.length <= 0) {
       const bookRows = await bookDao.postbook(
         writer,
