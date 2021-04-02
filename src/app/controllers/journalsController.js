@@ -7,7 +7,7 @@ const journalsDao = require("../dao/journalsDao");
 const userDao = require("../dao/userDao");
 var url = require("url");
 /*
- * API 기 능 : 일지 추가
+ * API 기 능 : 일지 작성
  */
 exports.postjournals = async function (req, res) {
   try {
@@ -77,7 +77,7 @@ exports.postjournals = async function (req, res) {
       return res.json({
         isSuccess: true,
         code: 2225,
-        message: "일지를 작성할 책이 선택되지 않았습니다.",
+        message: "책이 챌린지책으로 등록되어있지 않습니다.",
       });
     else if (goalId1[0].userId !== jwt)
       return res.json({

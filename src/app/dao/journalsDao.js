@@ -88,7 +88,7 @@ inner join Challenge on Reading_journal.challengeId = Challenge.challengeId
 inner join Goal_book on Goal_book.goalBookId = Challenge.goalBookId
 inner join Book on Book.bookId = Goal_book.bookId
 where Challenge.userId = ${userId}
-order by postAt ${align} limit ${page}, ${limit}`;
+order by Reading_journal.createAt ${align} limit ${page}, ${limit}`;
   const [calendarYNRows] = await connection.query(calendarYNQuery);
   connection.release();
   return calendarYNRows;
