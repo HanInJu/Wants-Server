@@ -77,7 +77,8 @@ from Goal
     inner join Goal_book on Goal.goalId = Goal_book.goalId
     inner join (select title, writer, imageURL, publishNumber, bookId from Book) Book
                on Book.bookId = Goal_book.bookId
-where Goal.goalId = ${goalId}`;
+where Goal.goalId = ${goalId}
+order by reading desc`;
 
   const [rows] = await connection.query(getchallenge1Query);
   connection.release();
@@ -426,7 +427,7 @@ async function getbookList(goalId) {
   FROM Goal_book
   INNER JOIN Book on Book.bookId = Goal_book.bookId
   WHERE goalId = ${goalId}
-                            `;
+  order by reading desc`;
   const [rows] = await connection.query(query, goalId);
   connection.release();
   return rows;
