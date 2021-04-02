@@ -67,6 +67,7 @@ exports.postjournals = async function (req, res) {
       });
     }
 
+    const timeY = parseInt(time / 60);
     const goalId1 = await journalsDao.getgoalBookId(goalBookId);
 
     console.log(goalId1, jwt);
@@ -95,9 +96,9 @@ exports.postjournals = async function (req, res) {
       var charPercent1 = charPercent2[0].percent;
       charPercent = percent - charPercent1;
     }
-    console.log(charPercent, goalBookId, goalId);
+    console.log(charPercent, goalBookId, goalId, timeY);
     const postjournalsRows = await journalsDao.postjournals(
-      time,
+      timeY,
       page,
       percent,
       goalBookId,

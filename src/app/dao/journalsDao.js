@@ -2,7 +2,7 @@ const { pool } = require("../../../config/database");
 
 //////////////////////////////////////////일지추가//////////////////////////////////////////////
 async function postjournals(
-  time,
+  timeY,
   page,
   percent,
   goalBookId,
@@ -13,7 +13,7 @@ async function postjournals(
   const connection = await pool.getConnection(async (conn) => conn);
   const calendarYNQuery = `
   insert into Challenge(time, page, percent, goalBookId, goalId, userId, charPercent)
-  values (${time}, ${page}, ${percent}, ${goalBookId}, ${goalId}, ${jwt}, ${charPercent})`;
+  values (${timeY}, ${page}, ${percent}, ${goalBookId}, ${goalId}, ${jwt}, ${charPercent})`;
   const [calendarYNRows] = await connection.query(calendarYNQuery);
   connection.release();
   return calendarYNRows;
