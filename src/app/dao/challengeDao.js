@@ -398,10 +398,10 @@ async function getBeforeCake(userId) {
 async function getbookList(goalId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const query = `
-    SELECT G.bookId, title, imageURL, writer, goalBookId, IF(reading = 'Y', '도전 중', '도전 중 아님') as reading
-    FROM Goal_book G
-    INNER JOIN Book on Book.bookId = G.bookId
-    WHERE G.goalId = ?;
+  SELECT status, Book.bookId, title, imageURL, writer, goalBookId, IF(reading = 'Y', true, false) as reading
+  FROM Goal_book
+  INNER JOIN Book on Book.bookId = Goal_book.bookId
+  WHERE goalId = ${goalId}
                             `;
   const [rows] = await connection.query(query, goalId);
   connection.release();
@@ -420,7 +420,17 @@ async function getgoalBookId(goalBookId) {
   connection.release();
   return rows;
 }
-
+// 기존의 도전중인 책 인덱스 찾기
+async function getgoalBookId2(goalId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getchallenge1Query = `
+  select goalBookId
+  from Goal_book
+  where goalId = ${goalId} && Goal_book.reading = 'Y'`;
+  const [rows] = await connection.query(getchallenge1Query);
+  connection.release();
+  return rows;
+}
 // 기존의 도전중인 책 비활
 async function patchgoalBookId(goalBookId) {
   const connection = await pool.getConnection(async (conn) => conn);
@@ -550,4 +560,5 @@ module.exports = {
   patchexpriodAt,
   Goal_bookstatus,
   patchComplete,
+  getgoalBookId2,
 };

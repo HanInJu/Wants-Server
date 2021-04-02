@@ -207,7 +207,20 @@ exports.postchallengeBook = async function (req, res) {
     //   goalId,
     //   publishNumber
     // );
+    const getgoalBookId2Rows = await challengeDao.getgoalBookId2(goalId);
+    console.log(getgoalBookId2Rows);
 
+    if (getgoalBookId2Rows.length > 0) {
+      const getgoalBookIdRows = await challengeDao.getgoalBookId(
+        getgoalBookId2Rows[0].goalBookId
+      ); // 기존에 도전중이였던 목표책 인덱스 부름
+      console.log(getgoalBookIdRows);
+      if (getgoalBookIdRows.length > 0) {
+        console.log("기존꺼 비활");
+        const YgoalBookId = getgoalBookIdRows[0].goalBookId;
+        await challengeDao.patchgoalBookId(YgoalBookId); // 기존에 도전중이였던 목표책 인덱스 N으로 바꿈
+      }
+    }
     const postchallengebookRows = await challengeDao.postchallengeBook(
       goalId,
       bookId
