@@ -87,8 +87,7 @@ where Goal.goalId = ${goalId}`;
 async function getchallenge2(goalBookId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const getchallenge2Query = `
-  select (select Goal_book.reading from Goal_book where goalBookId = ${goalBookId}) as isReading,
-         a.goalBookId, a.page, a.percent, a.time
+  select a.goalBookId, a.page, a.percent, a.time
   from (select goalBookId, page, percent, sum(time) as time
         from Challenge
         where goalBookId = ${goalBookId} && status = 'Y'
