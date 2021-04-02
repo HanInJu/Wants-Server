@@ -23,6 +23,18 @@ async function getbook(publishNumber) {
   connection.release();
   return rows;
 }
+// 책있는지 확인
+async function getbook2(bookId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const postchallengeQuery = `
+  select *
+  from Book
+  where bookId = '${bookId}'`;
+
+  const [rows] = await connection.query(postchallengeQuery);
+  connection.release();
+  return rows;
+}
 // 목표책추가
 // async function postchallengeBook(goalId, publishNumber) {
 //   const connection = await pool.getConnection(async (conn) => conn);
@@ -574,4 +586,5 @@ module.exports = {
   patchComplete,
   getgoalBookId2,
   countgoalBookId,
+  getbook2,
 };

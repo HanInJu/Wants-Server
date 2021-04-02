@@ -173,7 +173,8 @@ exports.postchallengeBook = async function (req, res) {
         message: "입력을 해주세요.",
       });
 
-    const getbookRows = await challengeDao.getbook(bookId);
+    const getbookRows = await challengeDao.getbook2(bookId);
+    console.log(getbookRows, bookId);
     if (getbookRows.length === 0) {
       return res.json({
         isSuccess: false,
