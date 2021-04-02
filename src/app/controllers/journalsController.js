@@ -20,7 +20,14 @@ exports.postjournals = async function (req, res) {
         code: 4020,
         message: "가입되어있지 않은 유저입니다.",
       });
-
+    const whatIsYourName = await reviewDao.whatIsYourName(jwt);
+    if (whatIsYourName[0].name === "Reader") {
+      return res.json({
+        isSuccess: false,
+        code: 3001,
+        message: "닉네임을 설정해주세요.",
+      });
+    }
     const { time, text, open, goalBookId, page, percent } = req.body;
 
     if (
@@ -49,12 +56,14 @@ exports.postjournals = async function (req, res) {
         message: "퍼센트는 100까지만 입력 가능합니다.",
       });
 
-    const whatIsYourName = await reviewDao.whatIsYourName(jwt);
-    if (whatIsYourName[0].name === "Reader") {
+    const journalpercent = await journalsDao.journalpercent(goalBookId);
+
+    if (journalpercent[0].percent > percent) {
       return res.json({
         isSuccess: false,
-        code: 3001,
-        message: "닉네임을 설정해주세요.",
+        code: 2228,
+        message:
+          "이전에 입력한 퍼센트보다 낮습니다. 이전에 입력한 퍼센트보다 같거나 높게 적어주세요.",
       });
     }
 

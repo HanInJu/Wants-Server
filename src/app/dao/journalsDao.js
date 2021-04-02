@@ -210,7 +210,18 @@ async function percentY(goalBookId) {
   connection.release();
   return calendarYNRows;
 }
-
+//////////////////////////////////////////이전일지 퍼센트 가져오기//////////////////////////////////////////////
+async function journalpercent(goalBookId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const calendarYNQuery = `
+  select Challenge.percent
+  from Challenge
+  where goalBookId = ${goalBookId}
+  order by challengeId desc limit 1`;
+  const [calendarYNRows] = await connection.query(calendarYNQuery);
+  connection.release();
+  return calendarYNRows;
+}
 module.exports = {
   postjournals,
   postjournals2,
@@ -226,4 +237,5 @@ module.exports = {
   journalcount2,
   getComJournals,
   percentY,
+  journalpercent,
 };
