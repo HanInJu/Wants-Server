@@ -65,7 +65,7 @@ async function postchallengeBook(goalId, bookId) {
 async function getchallenge1(goalId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const getchallenge1Query = `
-  select Goal.isComplete,
+  select Goal_book.reading, Goal.isComplete,
   Goal.goalId as goalId,
   Book.bookId,
   Book.title,
