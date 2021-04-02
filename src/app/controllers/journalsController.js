@@ -58,13 +58,15 @@ exports.postjournals = async function (req, res) {
 
     const journalpercent = await journalsDao.journalpercent(goalBookId);
 
-    if (journalpercent[0].percent > percent) {
-      return res.json({
-        isSuccess: false,
-        code: 2228,
-        message:
-          "이전에 입력한 퍼센트보다 낮습니다. 이전에 입력한 퍼센트보다 같거나 높게 적어주세요.",
-      });
+    if (journalpercent.length > 0) {
+      if (journalpercent[0].percent > percent) {
+        return res.json({
+          isSuccess: false,
+          code: 2228,
+          message:
+            "이전에 입력한 퍼센트보다 낮습니다. 이전에 입력한 퍼센트보다 같거나 높게 적어주세요.",
+        });
+      }
     }
 
     const timeY = parseInt(time / 60);
