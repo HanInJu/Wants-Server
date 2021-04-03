@@ -405,8 +405,8 @@ exports.getcomjournals = async function (req, res) {
     const limit = req.query.limit;
     //const getcomjournalsRows = await journalsDao.getcomjournals(page, limit);
     /*Heather : 위의 코드 한 줄을 빼고*/
-    const getParams = [parseInt(page), parseInt(limit)];
-    const getcomjournalsRows = await journalsDao.getComJournals(getParams);
+    //const getParams = [parseInt(page), parseInt(limit)];
+    const getcomjournalsRows = await journalsDao.getcomjournals(page, limit);
     /*여기까지를 넣었습니다!*/
     const journalcount2Rows = await journalsDao.journalcount2();
 
