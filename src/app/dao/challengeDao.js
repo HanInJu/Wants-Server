@@ -161,24 +161,35 @@ async function patchchallengeBook2(goalBookId) {
   connection.release();
   return rows;
 }
-// 챌린지 책 변경
+// 챌린지 책 삭제
 async function deletechallengeBook(goalBookId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const patchchallengeBookQuery = `
-  DELETE
+DELETE
 FROM Goal_book
-WHERE goalBookId = ${goalBookId};`;
+WHERE goalBookId = ${goalBookId}`;
   const [rows] = await connection.query(patchchallengeBookQuery);
   connection.release();
   return rows;
 }
-// 챌린지 책 변경
-async function deletechallengeBook2(goalBookId) {
+// 챌린지 삭제된 책 챌린지아이디 구하기
+async function getchallengeId(goalBookId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const patchchallengeBook2Query = `
-  update Challenge
-  SET status = 'N'
-  WHERE goalbookId = ${goalBookId}`;
+  select challengeId
+  from Challenge
+  where goalbookId = ${goalBookId}`;
+  const [rows] = await connection.query(patchchallengeBook2Query);
+  connection.release();
+  return rows;
+}
+// 챌린지 삭제된 책 챌린지아이디 구하기
+async function deletechallengeId(goalBookId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const patchchallengeBook2Query = `
+  DELETE
+  FROM Challenge
+  WHERE goalBookId = ${goalBookId}`;
   const [rows] = await connection.query(patchchallengeBook2Query);
   connection.release();
   return rows;
@@ -549,6 +560,17 @@ async function patchComplete(goalId) {
   connection.release();
   return rows;
 }
+// 완독한 책이랑 목표책 같으면 목표 다했다는 표시
+async function deletejournal(challengeId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getchallenge1Query = `
+  DELETE
+  FROM Reading_journal
+  WHERE challengeId = ${challengeId}`;
+  const [rows] = await connection.query(getchallenge1Query);
+  connection.release();
+  return rows;
+}
 module.exports = {
   getcountBook,
   getgoalamount,
@@ -569,7 +591,7 @@ module.exports = {
   getcontinuity,
   getcontinuity2,
   patchchallengeBook2,
-  deletechallengeBook2,
+  getchallengeId,
   isValidGoalId,
   isAchieved,
   whoIsOwner,
@@ -588,4 +610,6 @@ module.exports = {
   getgoalBookId2,
   countgoalBookId,
   getbook2,
+  deletejournal,
+  deletechallengeId,
 };

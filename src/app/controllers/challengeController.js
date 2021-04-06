@@ -430,18 +430,31 @@ exports.deletechallengeBook = async function (req, res) {
       });
     }
 
-    await challengeDao.deletechallengeBook(goalBookId);
-    const deletechallengeBook2 = await challengeDao.deletechallengeBook2(
+    const deletechallengeBook = await challengeDao.deletechallengeBook(
       goalBookId
     );
-    console.log(deletechallengeBook2);
-    if (deletechallengeBook2.changedRows === 0)
+    console.log("s", goalBookId);
+    const getchallengeId = await challengeDao.getchallengeId(goalBookId);
+    console.log(getchallengeId);
+    const deletechallengeId = await challengeDao.deletechallengeId(goalBookId);
+
+    if (getchallengeId.length > 0) {
+      var challengeId = 0;
+
+      for (var i = 0; i < getchallengeId.length; i++) {
+        challengeId = getchallengeId[i].challengeId;
+        const deletejournal = await challengeDao.deletejournal(challengeId);
+        console.log(deletejournal);
+      }
+    }
+
+    if (deletechallengeBook.affectedRows === 1)
       return res.json({
         isSuccess: true,
         code: 1000,
         message: "챌린지 책 삭제 성공",
       });
-    else if (deletechallengeBook2.changedRows === 1)
+    else if (deletechallengeBook.affectedRows === 0)
       return res.json({
         isSuccess: false,
         code: 2201,
