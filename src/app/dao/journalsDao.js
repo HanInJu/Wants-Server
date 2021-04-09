@@ -129,6 +129,7 @@ from Reading_journal
     inner join Goal_book on Challenge.goalBookId = Goal_book.goalBookId
     inner join User on User.userId = Challenge.userId
     inner join Book on Book.bookId = Goal_book.bookId
+where Reading_journal.open = 'Y'
 order by Reading_journal.createAt desc limit ${page}, ${limit}`;
   const [calendarYNRows] = await connection.query(calendarYNQuery);
   connection.release();
