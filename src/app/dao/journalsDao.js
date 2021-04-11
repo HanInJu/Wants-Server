@@ -222,6 +222,7 @@ async function journalpercent(goalBookId) {
   connection.release();
   return calendarYNRows;
 }
+
 module.exports = {
   postjournals,
   postjournals2,

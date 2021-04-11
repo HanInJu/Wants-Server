@@ -433,20 +433,6 @@ exports.deletechallengeBook = async function (req, res) {
     const deletechallengeBook = await challengeDao.deletechallengeBook(
       goalBookId
     );
-    console.log("s", goalBookId);
-    const getchallengeId = await challengeDao.getchallengeId(goalBookId);
-    console.log(getchallengeId);
-    const deletechallengeId = await challengeDao.deletechallengeId(goalBookId);
-
-    if (getchallengeId.length > 0) {
-      var challengeId = 0;
-
-      for (var i = 0; i < getchallengeId.length; i++) {
-        challengeId = getchallengeId[i].challengeId;
-        const deletejournal = await challengeDao.deletejournal(challengeId);
-        console.log(deletejournal);
-      }
-    }
 
     if (deletechallengeBook.affectedRows === 1)
       return res.json({
