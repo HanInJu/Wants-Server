@@ -127,6 +127,8 @@ exports.patchchallenge = async function (req, res) {
       time,
       expriodAt
     );
+    console.log(goalId, period, amount, time, expriodAt);
+    console.log(postchallengeRows);
 
     if (postchallengeRows.changedRows === 1) {
       return res.json({

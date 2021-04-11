@@ -511,7 +511,7 @@ async function patchexpriodAt(goalId, expriodAt) {
   const connection = await pool.getConnection(async (conn) => conn);
   const getchallenge1Query = `
   update Goal
-  SET expriodAt = '${expriodAt}'
+  SET expriodAt = '${expriodAt}', period = 'D'
   where goalId = ${goalId};`;
   const [rows] = await connection.query(getchallenge1Query);
   connection.release();
