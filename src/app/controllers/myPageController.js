@@ -149,7 +149,7 @@ exports.isDuplicatedName = async function (req, res) {
           code: 1000,
           message: "사용가능한 닉네임입니다.",
         });
-      } else {
+      } else { //여기서 원래 자기가 쓰던 이름으로 변경하는 건 제외해줘야 하므로, 이 부분 수정하기!
         return res.json({
           isSuccess: false,
           code: 2026,
