@@ -9,4 +9,5 @@ module.exports = function (app) {
 
   app.get("/reading/info", jwtMiddleware, myPage.getinfo); // 독서통계
   app.get("/reading/graph", jwtMiddleware, myPage.getgraph); // 독서통계
+  app.get("/uri/:uriId", jwtMiddleware, myPage.geturi); // uri 가져오기
 };

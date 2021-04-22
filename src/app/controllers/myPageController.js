@@ -86,7 +86,9 @@ exports.profile = async function (req, res) {
       });
     } catch (err) {
       logger.error(
-        `register Profile - non transaction Query error\n: ${JSON.stringify(err)}`
+        `register Profile - non transaction Query error\n: ${JSON.stringify(
+          err
+        )}`
       );
       //connection.release();
       return res.json({
@@ -97,7 +99,9 @@ exports.profile = async function (req, res) {
     }
   } catch (err) {
     logger.error(
-      `register Profile:NOT signIn USER -  non transaction DB Connection error\n: ${JSON.stringify(err)}`
+      `register Profile:NOT signIn USER -  non transaction DB Connection error\n: ${JSON.stringify(
+        err
+      )}`
     );
     return false;
   }
@@ -165,7 +169,9 @@ exports.isDuplicatedName = async function (req, res) {
     }
   } catch (err) {
     logger.error(
-      `reviseProfile:NOT signIn USER -  non transaction DB Connection error\n: ${JSON.stringify(err)}`
+      `reviseProfile:NOT signIn USER -  non transaction DB Connection error\n: ${JSON.stringify(
+        err
+      )}`
     );
     return false;
   }
@@ -209,7 +215,9 @@ exports.getProfile = async function (req, res) {
     }
   } catch (err) {
     logger.error(
-      `getProfile:NOT signIn USER -  non transaction DB Connection error\n: ${JSON.stringify(err)}`
+      `getProfile:NOT signIn USER -  non transaction DB Connection error\n: ${JSON.stringify(
+        err
+      )}`
     );
     return false;
   }
@@ -312,9 +320,7 @@ exports.getinfo = async function (req, res) {
     }
   } catch (err) {
     logger.error(
-      `getInfo - non transaction DB Connection error\n: ${JSON.stringify(
-        err
-      )}`
+      `getInfo - non transaction DB Connection error\n: ${JSON.stringify(err)}`
     );
     return false;
   }
@@ -359,6 +365,48 @@ exports.getgraph = async function (req, res) {
         isSuccess: false,
         code: 4000,
         message: "나의 독서그래프 조회 실패",
+      });
+  } catch (err) {
+    logger.error(`getGraph - Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
+  }
+};
+
+/*
+ * 최종 수정일 : 2021.04.22
+ * API 기 능 : uri 조회
+ */
+exports.geturi = async function (req, res) {
+  try {
+    var jwt = req.verifiedToken.id;
+    const userRows = await userDao.getuser(jwt);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 4020,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+    const uriId = req.params.uriId;
+    const geturiRows = await myPageDao.geturi(uriId);
+
+    if (geturiRows.length > 0) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "uri 조회 성공",
+        result: geturiRows,
+      });
+    } else if (geturiRows.length === 0) {
+      return res.json({
+        isSuccess: false,
+        code: 2400,
+        message: "가져올 uri가 없습니다.",
+      });
+    } else
+      return res.json({
+        isSuccess: false,
+        code: 4000,
+        message: "uri 조회 실패",
       });
   } catch (err) {
     logger.error(`getGraph - Query error\n: ${err.message}`);

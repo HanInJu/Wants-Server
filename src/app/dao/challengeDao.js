@@ -209,6 +209,17 @@ async function patchchallenge(goalId, period, amount, time, expriodAt) {
   connection.release();
   return rows;
 }
+// 챌린지 변경
+async function patchchallengeTime(goalId, time) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const patchchallengeQuery = `
+  update Goal
+  SET time = ${time}
+  WHERE goalId = ${goalId}`;
+  const [rows] = await connection.query(patchchallengeQuery);
+  connection.release();
+  return rows;
+}
 //////////////////////////////////////////날짜확인//////////////////////////////////////////////
 async function calendarYN(jwt, expriodAt) {
   // 데이터베이스 함수를 selectmypage로 함
@@ -578,4 +589,5 @@ module.exports = {
   getgoalBookId2,
   countgoalBookId,
   getbook2,
+  patchchallengeTime,
 };

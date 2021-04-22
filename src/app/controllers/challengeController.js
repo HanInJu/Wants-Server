@@ -153,7 +153,56 @@ exports.patchchallenge = async function (req, res) {
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
+//챌린지 변경 patchchallengeTime
+exports.patchchallengeTime = async function (req, res) {
+  try {
+    var jwt = req.verifiedToken.id;
 
+    const userRows = await userDao.getuser(jwt);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 4020,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+
+    const { goalId, time } = req.body;
+
+    if (time === 0 || goalId === 0)
+      return res.json({
+        isSuccess: false,
+        code: 2100,
+        message: "입력을 해주세요.",
+      });
+
+    const postchallengeRows = await challengeDao.patchchallengeTime(
+      goalId,
+      time
+    );
+
+    if (postchallengeRows.changedRows === 1) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "목표 변경 성공",
+      });
+    } else if (postchallengeRows.changedRows === 0)
+      return res.json({
+        isSuccess: false,
+        code: 2120,
+        message: "목표가 변경되지 않았습니다.",
+      });
+    else
+      return res.json({
+        isSuccess: false,
+        code: 4000,
+        message: "목표 변경 실패",
+      });
+  } catch (err) {
+    logger.error(`changeGoal - Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
+  }
+};
 exports.postchallengeBook = async function (req, res) {
   try {
     var jwt = req.verifiedToken.id;
