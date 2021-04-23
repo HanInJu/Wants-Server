@@ -104,7 +104,7 @@ async function getchallenge2(goalBookId) {
 async function getchallenge3(goalId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const getchallenge2Query = `
-  select (select sum(time)
+  select Goal.cake, (select sum(time)
   from Challenge
   where goalId = ${goalId} && date_format(createAt, '%Y-%m-%d') = date_format(now(), '%Y-%m-%d') && Challenge.status = 'Y'
   group by goalId) as todayTime,
