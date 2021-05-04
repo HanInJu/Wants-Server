@@ -69,7 +69,7 @@ async function getpatchjournals(journalId) {
   select journalId, text, open, time, page, Challenge.percent, title, writer, imageURL, journalId
   from Reading_journal
   inner join Challenge on Challenge.challengeId = Reading_journal.challengeId
-  inner join Goal_book on Goal_book.goalId = Challenge.goalId
+  inner join Goal_book on Goal_book.goalBookId = Challenge.goalBookId
   inner join Book on Book.bookId = Goal_book.bookId
   where journalId = ${journalId}`;
   const [calendarYNRows] = await connection.query(calendarYNQuery);
