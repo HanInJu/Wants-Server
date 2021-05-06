@@ -13,6 +13,7 @@ module.exports = function (app) {
     challenge.deletechallengeBook
   ); // 챌린지 책 삭제
   app.patch("/challenge", jwtMiddleware, challenge.patchchallenge); // 목표 변경
+  app.patch("/challenge/time", jwtMiddleware, challenge.patchchallengeTime); // 시간만 변경
 
   app.get("/challenge/:goalBookId/times", jwtMiddleware, challenge.getbookTime); // 오늘 읽은 책의 총 시간
 
