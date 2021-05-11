@@ -243,6 +243,7 @@ exports.postchallengeBook = async function (req, res) {
     }
 
     const getgoalamountRows = await challengeDao.getgoalamount(goalId);
+    console.log(getgoalamountRows);
     console.log(getgoalamountRows[0].amount);
     const getcountBookRows = await challengeDao.getcountBook(goalId);
     console.log(getcountBookRows);

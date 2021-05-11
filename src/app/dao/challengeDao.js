@@ -512,7 +512,7 @@ async function getcountBook(goalId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const getchallenge1Query = `
   select count(Goal_book.bookId) as countBook from Goal_book
-  where goalId = ${goalId}`;
+  where goalId = ${goalId} && deleteYN = 'N'`;
   const [rows] = await connection.query(getchallenge1Query);
   connection.release();
   return rows;
