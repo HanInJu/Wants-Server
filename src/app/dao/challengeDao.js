@@ -133,7 +133,7 @@ async function getgoalbook(bookId, goalId) {
   const postchallengeQuery = `
   select *
   from Goal_book
-  where bookId = '${bookId}' && goalId = ${goalId}`;
+  where bookId = '${bookId}' && goalId = ${goalId} && deleteYN = 'N'`;
 
   const [rows] = await connection.query(postchallengeQuery);
   connection.release();
