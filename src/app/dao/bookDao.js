@@ -83,10 +83,24 @@ async function currentRead(bookId) {
   connection.release();
   return rows;
 }
+async function getbookreview(publishNumber) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const currentReadQuery = `
+  select User.userId, User.profilePictureURL, User.name, Review.text,
+  Review.star, date_format(Review.postAt, '%Y.%m.%d') as postAt
+from Book
+inner join Review on Review.bookId = Book.bookId
+inner join User on User.userId = Review.userId
+where Book.publishNumber = '${publishNumber}' && Review.isPublic = 1`;
+  const [rows] = await connection.query(currentReadQuery);
+  connection.release();
+  return rows;
+}
 module.exports = {
   postbook,
   getbook,
   currentRead,
   getbook2,
   getbook3,
+  getbookreview
 };

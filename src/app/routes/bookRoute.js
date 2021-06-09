@@ -3,4 +3,5 @@ module.exports = function (app) {
 
   app.post("/book", book.postbook); // 책 추가
   app.get("/book", book.getbook); // 책 상세 조회
+  app.get("/book/review", book.getbookreview); // 책 상세 조회
 };

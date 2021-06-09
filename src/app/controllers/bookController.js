@@ -106,3 +106,34 @@ exports.getbook = async function (req, res) {
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
+
+exports.getbookreview = async function (req, res) {
+  try {
+    const publishNumber = req.query.publishNumber;
+    console.log(publishNumber);
+    const getbookreview = await bookDao.getbookreview(publishNumber);
+
+    if (getbookreview.length > 0) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "리뷰 조회 성공",
+        getbookreview
+      });
+    } else if (getbookreview.length === 0) {
+      return res.json({
+        isSuccess: false,
+        code: 2232,
+        message: "리뷰가 없습니다.",
+      });
+    } else
+      return res.json({
+        isSuccess: false,
+        code: 4000,
+        message: "리뷰 조회 실패",
+      });
+  } catch (err) {
+    logger.error(`getBook - Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
+  }
+};
