@@ -85,8 +85,8 @@ exports.getbook = async function (req, res) {
         code: 1000,
         message: "책 조회 성공",
         getbookRows,
-        ReviewlikeCount: getbook2Rows[0].ReviewlikeCount,
-        ReviewcommentCount: getbook3Rows[0].ReviewcommentCount,
+        review: getbook2Rows,
+        reviewInfo: getbook3Rows,
         currentReadRows,
       });
     } else if (getbookRows.length === 0) {

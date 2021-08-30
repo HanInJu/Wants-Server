@@ -224,8 +224,10 @@ exports.postchallengeBook = async function (req, res) {
         message: "입력을 해주세요.",
       });
 
+
     const getbookRows = await challengeDao.getbook2(bookId);
     console.log(getbookRows, bookId);
+
     if (getbookRows.length === 0) {
       return res.json({
         isSuccess: false,
@@ -243,11 +245,13 @@ exports.postchallengeBook = async function (req, res) {
     }
 
     const getgoalamountRows = await challengeDao.getgoalamount(goalId);
+
     console.log(getgoalamountRows);
     console.log(getgoalamountRows[0].amount);
+
     const getcountBookRows = await challengeDao.getcountBook(goalId);
-    console.log(getcountBookRows);
-    console.log(getgoalamountRows[0].amount, getcountBookRows.countBook);
+
+    console.log(getgoalamountRows[0].amount, getcountBookRows[0].countBook);
     if (getgoalamountRows[0].amount === getcountBookRows[0].countBook)
       return res.json({
         isSuccess: false,
@@ -274,6 +278,7 @@ exports.postchallengeBook = async function (req, res) {
         await challengeDao.patchgoalBookId(YgoalBookId); // 기존에 도전중이였던 목표책 인덱스 N으로 바꿈
       }
     }
+
     const postchallengebookRows = await challengeDao.postchallengeBook(
       goalId,
       bookId

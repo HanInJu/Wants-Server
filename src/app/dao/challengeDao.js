@@ -11,8 +11,8 @@ async function postchallenge(userId, period, amount, time, expriodAt) {
   connection.release();
   return rows;
 }
-// 책있는지 확인
-async function getbook(publishNumber) {
+// 책추가에서...
+async function getbook2(publishNumber) {
   const connection = await pool.getConnection(async (conn) => conn);
   const postchallengeQuery = `
   select *
@@ -24,12 +24,14 @@ async function getbook(publishNumber) {
   return rows;
 }
 // 책있는지 확인
+
 async function getbook2(bookId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const postchallengeQuery = `
   select *
   from Book
   where bookId = '${bookId}'`;
+
 
   const [rows] = await connection.query(postchallengeQuery);
   connection.release();
@@ -75,6 +77,7 @@ async function getchallenge1(goalId) {
   Goal_book.goalBookId
 from Goal
     inner join Goal_book on Goal.goalId = Goal_book.goalId
+
     inner join (select title, writer, imageURL, publishNumber, bookId from Book) Book
                on Book.bookId = Goal_book.bookId
 where Goal.goalId = ${goalId}  && Goal_book.deleteYN = 'N'
@@ -133,7 +136,9 @@ async function getgoalbook(bookId, goalId) {
   const postchallengeQuery = `
   select *
   from Goal_book
+
   where bookId = '${bookId}' && goalId = ${goalId} && deleteYN = 'N'`;
+
 
   const [rows] = await connection.query(postchallengeQuery);
   connection.release();
@@ -512,6 +517,7 @@ async function getcountBook(goalId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const getchallenge1Query = `
   select count(Goal_book.bookId) as countBook from Goal_book
+
   where goalId = ${goalId} && deleteYN = 'N'`;
   const [rows] = await connection.query(getchallenge1Query);
   connection.release();
@@ -546,10 +552,12 @@ async function patchComplete(goalId) {
   update Goal
   SET isComplete = 1
   where goalId = ${goalId};`;
+
   const [rows] = await connection.query(getchallenge1Query);
   connection.release();
   return rows;
 }
+
 
 module.exports = {
   getcountBook,
@@ -583,6 +591,7 @@ module.exports = {
   patchgoalBookId2,
   getYN,
   getbookTime2,
+
   patchexpriodAt,
   Goal_bookstatus,
   patchComplete,
@@ -590,4 +599,5 @@ module.exports = {
   countgoalBookId,
   getbook2,
   patchchallengeTime,
+
 };

@@ -76,6 +76,7 @@ exports.signUp = async function (req, res) {
     const insertUserInfoParams = [email, hashedPassword, nickname];
     await userDao.insertUserInfo(insertUserInfoParams);
 
+
     const [userInfoRows] = await userDao.selectUserInfo(email);
     let token = await jwt.sign(
       {
@@ -87,6 +88,7 @@ exports.signUp = async function (req, res) {
         subject: "userInfo",
       } // 유효 시간은 90일
     );
+
 
     //  await connection.commit(); // COMMIT
     // connection.release();
