@@ -1,12 +1,13 @@
 const { pool } = require("../../../config/database");
 const { logger } = require("../../../config/winston");
 
+const challengeDao = require("../dao/challengeDao");
 const reviewDao = require("../dao/reviewDao");
 const journalsDao = require("../dao/journalsDao");
 const userDao = require("../dao/userDao");
 var url = require("url");
 /*
- * API 기 능 : 일지 추가
+ * API 기 능 : 일지 작성
  */
 exports.postjournals = async function (req, res) {
   try {
@@ -19,9 +20,16 @@ exports.postjournals = async function (req, res) {
         code: 4020,
         message: "가입되어있지 않은 유저입니다.",
       });
-
+    const whatIsYourName = await reviewDao.whatIsYourName(jwt);
+    if (whatIsYourName[0].name === "Reader") {
+      return res.json({
+        isSuccess: false,
+        code: 3001,
+        message: "닉네임을 설정해주세요.",
+      });
+    }
     const { time, text, open, goalBookId, page, percent } = req.body;
-    console.log("1", percent);
+
     if (
       time.length === 0 ||
       time === undefined ||
@@ -41,17 +49,27 @@ exports.postjournals = async function (req, res) {
         code: 2100,
         message: "입력을 해주세요.",
       });
-    console.log(goalBookId);
-
-    const whatIsYourName = await reviewDao.whatIsYourName(jwt);
-    if (whatIsYourName[0].name === "Reader") {
+    else if (percent > 100)
       return res.json({
         isSuccess: false,
-        code: 3001,
-        message: "닉네임을 설정해주세요.",
+        code: 2227,
+        message: "퍼센트는 100까지만 입력 가능합니다.",
       });
+
+    const journalpercent = await journalsDao.journalpercent(goalBookId);
+
+    if (journalpercent.length > 0) {
+      if (journalpercent[0].percent > percent) {
+        return res.json({
+          isSuccess: false,
+          code: 2228,
+          message:
+            "이전에 입력한 퍼센트보다 낮습니다. 이전에 입력한 퍼센트보다 같거나 높게 적어주세요.",
+        });
+      }
     }
 
+    const timeY = parseInt(time / 60);
     const goalId1 = await journalsDao.getgoalBookId(goalBookId);
 
     console.log(goalId1, jwt);
@@ -59,7 +77,7 @@ exports.postjournals = async function (req, res) {
       return res.json({
         isSuccess: true,
         code: 2225,
-        message: "일지를 작성할 책이 선택되지 않았습니다.",
+        message: "책이 챌린지책으로 등록되어있지 않습니다.",
       });
     else if (goalId1[0].userId !== jwt)
       return res.json({
@@ -69,6 +87,10 @@ exports.postjournals = async function (req, res) {
       });
     const goalId = goalId1[0].goalId;
 
+    if (percent === 100) {
+      await journalsDao.percentY(goalBookId);
+    }
+
     const charPercent2 = await journalsDao.getpercent(goalBookId);
     var charPercent = 0;
     console.log(charPercent2);
@@ -76,9 +98,9 @@ exports.postjournals = async function (req, res) {
       var charPercent1 = charPercent2[0].percent;
       charPercent = percent - charPercent1;
     }
-    console.log(charPercent, goalBookId, goalId);
+    console.log(charPercent, goalBookId, goalId, timeY);
     const postjournalsRows = await journalsDao.postjournals(
-      time,
+      timeY,
       page,
       percent,
       goalBookId,
@@ -94,6 +116,16 @@ exports.postjournals = async function (req, res) {
         text,
         open
       );
+
+      if (goalId1[0].amount > 0) {
+        console.log(goalId1[0].amount);
+        const bookstatusRows = await challengeDao.Goal_bookstatus(goalId);
+        console.log(bookstatusRows);
+        if (goalId1[0].amount === bookstatusRows[0].goalBookId) {
+          await challengeDao.patchComplete(goalId);
+        }
+      }
+
       if (postjournals2Rows.affectedRows === 1)
         return res.json({
           isSuccess: true,
@@ -113,7 +145,7 @@ exports.postjournals = async function (req, res) {
         message: "일지 작성 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`postJournal - error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -188,7 +220,7 @@ exports.patchjournals = async function (req, res) {
         message: "일지 수정 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`reviseJournal - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -251,7 +283,7 @@ exports.deletejournals = async function (req, res) {
         message: "일지 삭제 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`deleteJournal - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -301,7 +333,7 @@ exports.getpatchjournals = async function (req, res) {
         message: "수정할 일지 조회 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`getReviseJournal - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -352,7 +384,7 @@ exports.getjournals = async function (req, res) {
         message: "내가 쓴 일지 조회 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`getMyJournal - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -369,9 +401,13 @@ exports.getcomjournals = async function (req, res) {
         code: 4020,
         message: "가입되어있지 않은 유저입니다.",
       });
-    var page = req.query.page;
-    var limit = req.query.limit;
+    const page = req.query.page;
+    const limit = req.query.limit;
+    //const getcomjournalsRows = await journalsDao.getcomjournals(page, limit);
+    /*Heather : 위의 코드 한 줄을 빼고*/
+    //const getParams = [parseInt(page), parseInt(limit)];
     const getcomjournalsRows = await journalsDao.getcomjournals(page, limit);
+    /*여기까지를 넣었습니다!*/
     const journalcount2Rows = await journalsDao.journalcount2();
 
     if (getcomjournalsRows.length > 0 || getcomjournalsRows !== undefined) {
@@ -395,7 +431,7 @@ exports.getcomjournals = async function (req, res) {
         message: "커뮤니티 일지 조회 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`communityJournals - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };

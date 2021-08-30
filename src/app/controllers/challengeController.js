@@ -78,7 +78,7 @@ exports.postchallenge = async function (req, res) {
         message: "챌린지 추가 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`addChallenge - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -127,6 +127,8 @@ exports.patchchallenge = async function (req, res) {
       time,
       expriodAt
     );
+    console.log(goalId, period, amount, time, expriodAt);
+    console.log(postchallengeRows);
 
     if (postchallengeRows.changedRows === 1) {
       return res.json({
@@ -147,11 +149,60 @@ exports.patchchallenge = async function (req, res) {
         message: "목표 변경 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`changeGoal - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
+//챌린지 변경 patchchallengeTime
+exports.patchchallengeTime = async function (req, res) {
+  try {
+    var jwt = req.verifiedToken.id;
 
+    const userRows = await userDao.getuser(jwt);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 4020,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+
+    const { goalId, time } = req.body;
+
+    if (time === 0 || goalId === 0)
+      return res.json({
+        isSuccess: false,
+        code: 2100,
+        message: "입력을 해주세요.",
+      });
+
+    const postchallengeRows = await challengeDao.patchchallengeTime(
+      goalId,
+      time
+    );
+
+    if (postchallengeRows.changedRows === 1) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "목표 변경 성공",
+      });
+    } else if (postchallengeRows.changedRows === 0)
+      return res.json({
+        isSuccess: false,
+        code: 2120,
+        message: "목표가 변경되지 않았습니다.",
+      });
+    else
+      return res.json({
+        isSuccess: false,
+        code: 4000,
+        message: "목표 변경 실패",
+      });
+  } catch (err) {
+    logger.error(`changeGoal - Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
+  }
+};
 exports.postchallengeBook = async function (req, res) {
   try {
     var jwt = req.verifiedToken.id;
@@ -173,7 +224,10 @@ exports.postchallengeBook = async function (req, res) {
         message: "입력을 해주세요.",
       });
 
-    const getbookRows = await challengeDao.getbook(bookId);
+
+    const getbookRows = await challengeDao.getbook2(bookId);
+    console.log(getbookRows, bookId);
+
     if (getbookRows.length === 0) {
       return res.json({
         isSuccess: false,
@@ -192,6 +246,9 @@ exports.postchallengeBook = async function (req, res) {
 
     const getgoalamountRows = await challengeDao.getgoalamount(goalId);
 
+    console.log(getgoalamountRows);
+    console.log(getgoalamountRows[0].amount);
+
     const getcountBookRows = await challengeDao.getcountBook(goalId);
 
     console.log(getgoalamountRows[0].amount, getcountBookRows[0].countBook);
@@ -203,11 +260,23 @@ exports.postchallengeBook = async function (req, res) {
           "목표로 지정한 권수가 초과하였습니다. 책을 추가하려면 목표 권수를 늘려주세요.",
       });
 
-    const getReadingRows = await challengeDao.getReading(goalId); // 기존에 도전중이였던 목표책 인덱스 부름
-    if (getReadingRows.length > 0) {
-      console.log("기존꺼 비활");
-      const YgoalBookId = getReadingRows[0].goalBookId;
-      await challengeDao.patchgoalBookId(YgoalBookId); // 기존에 도전중이였던 목표책 인덱스 N으로 바꿈
+    // const postchallengebookRows = await challengeDao.postchallengeBook(
+    //   goalId,
+    //   publishNumber
+    // );
+    const getgoalBookId2Rows = await challengeDao.getgoalBookId2(goalId);
+    console.log(getgoalBookId2Rows);
+
+    if (getgoalBookId2Rows.length > 0) {
+      const getgoalBookIdRows = await challengeDao.getgoalBookId(
+        getgoalBookId2Rows[0].goalBookId
+      ); // 기존에 도전중이였던 목표책 인덱스 부름
+      console.log(getgoalBookIdRows);
+      if (getgoalBookIdRows.length > 0) {
+        console.log("기존꺼 비활");
+        const YgoalBookId = getgoalBookIdRows[0].goalBookId;
+        await challengeDao.patchgoalBookId(YgoalBookId); // 기존에 도전중이였던 목표책 인덱스 N으로 바꿈
+      }
     }
 
     const postchallengebookRows = await challengeDao.postchallengeBook(
@@ -228,7 +297,7 @@ exports.postchallengeBook = async function (req, res) {
         message: "챌린지 책 추가 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`addBook - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -274,6 +343,7 @@ exports.getchallenge = async function (req, res) {
     const getchallenge1Rows = await challengeDao.getchallenge1(goalId1);
     const getchallenge3Rows = await challengeDao.getchallenge3(goalId1);
 
+    console.log(getchallenge1Rows);
     console.log(getchallenge3Rows);
     if (getchallenge1Rows.length === 0) {
       //저장된 책이 없을때
@@ -313,7 +383,7 @@ exports.getchallenge = async function (req, res) {
         message: "오늘의 챌린지 조회 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`getTodaysChallenge - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -341,8 +411,8 @@ exports.getgoalBook = async function (req, res) {
       });
 
     const goalId = goalIdRows[0].goalId;
-    console.log(goalId);
     const getbookListRows = await challengeDao.getbookList(goalId);
+
     if (getbookListRows.length > 0)
       return res.json({
         isSuccess: true,
@@ -363,7 +433,7 @@ exports.getgoalBook = async function (req, res) {
         message: "도전책 조회 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`getChallengeBook - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -397,23 +467,39 @@ exports.deletechallengeBook = async function (req, res) {
         code: 2200,
         message: "삭제할 수 있는 권한이 없습니다.",
       });
+    else if (selectGoalUser.length === 0) {
+      return res.json({
+        isSuccess: false,
+        code: 2203,
+        message: "삭제하실 책을 챌린지 책으로 설정하지 않았습니다.",
+      });
+    }
+    console.log(selectGoalUser);
+    const countgoalBookIdRows = await challengeDao.countgoalBookId(
+      selectGoalUser[0].goalId
+    );
+    console.log(countgoalBookIdRows);
+    if (countgoalBookIdRows[0].goalBookId === 1) {
+      return res.json({
+        isSuccess: false,
+        code: 2202,
+        message: "챌린지 책이 한권이라 삭제할 수 없습니다.",
+      });
+    }
 
     const deletechallengeBook = await challengeDao.deletechallengeBook(
       goalBookId
     );
-    const deletechallengeBook2 = await challengeDao.deletechallengeBook2(
-      goalBookId
-    );
 
-    if (deletechallengeBook2.affectedRows === 1)
+    if (deletechallengeBook.affectedRows === 1)
       return res.json({
         isSuccess: true,
         code: 1000,
         message: "챌린지 책 삭제 성공",
       });
-    else if (deletechallengeBook2.affectedRows === 0)
+    else if (deletechallengeBook.affectedRows === 0)
       return res.json({
-        isSuccess: true,
+        isSuccess: false,
         code: 2201,
         message: "삭제할 입력하신 챌린지 책이 없습니다.",
       });
@@ -424,7 +510,7 @@ exports.deletechallengeBook = async function (req, res) {
         message: "챌린지 책 삭제 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`deleteChallengeBook - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -483,7 +569,7 @@ exports.getbookTime = async function (req, res) {
         message: "시간 조회 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`getTime - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -537,7 +623,7 @@ exports.getgoal = async function (req, res) {
         message: "시간 조회 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`presentChallenge - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -601,7 +687,7 @@ exports.patchgoalBook = async function (req, res) {
         message: "도전할 책 변경 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`challengeBook - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
@@ -688,7 +774,72 @@ exports.postCake = async function (req, res) {
       });
     }
   } catch (err) {
-    logger.error(`PostCake - DB Connection error\n: ${JSON.stringify(err)}`);
+    logger.error(
+      `postCake:NOT signIn USER - DB Connection error\n: ${JSON.stringify(err)}`
+    );
     return false;
+  }
+};
+
+// 만료된 챌린지 재시작
+exports.patchexpiration = async function (req, res) {
+  try {
+    var jwt = req.verifiedToken.id;
+
+    const userRows = await userDao.getuser(jwt);
+    if (userRows[0] === undefined)
+      return res.json({
+        isSuccess: false,
+        code: 4020,
+        message: "가입되어있지 않은 유저입니다.",
+      });
+
+    const goalIdRows = await challengeDao.getgoalId(jwt); // 지금 유효한 목표가 있는지
+    console.log(goalIdRows);
+    if (goalIdRows.length === 0 || goalIdRows === undefined) {
+      const goalId2Rows = await challengeDao.getgoalId2(jwt); // 가장최근목표찾기
+      console.log(goalId2Rows);
+      if (goalId2Rows.length === 0) {
+        // 목표가 아예없다.
+        return res.json({
+          isSuccess: false,
+          code: 2261,
+          message: "목표를 설정해주세요. 지난목표도 없습니다.",
+        });
+      } else if (goalId2Rows.length > 0) {
+        var addexpriodAt = moment().add(7, "d");
+        var expriodAt = addexpriodAt.format("YYYY-MM-DD HH:mm:ss");
+        console.log(expriodAt);
+        const patchexpriodAtRows = await challengeDao.patchexpriodAt(
+          goalId2Rows[0].goalId,
+          expriodAt
+        );
+        if (patchexpriodAtRows.changedRows === 1)
+          return res.json({
+            isSuccess: true,
+            code: 1000,
+            message: "만료된 챌린지 재시작 성공",
+          });
+        else
+          return res.json({
+            isSuccess: false,
+            code: 4000,
+            message: "만료된 챌린지 재시작 실패",
+          });
+      } else
+        return res.json({
+          isSuccess: false,
+          code: 2262,
+          message: "만료된 목표찾기 실패",
+        });
+    } else
+      return res.json({
+        isSuccess: false,
+        code: 2263,
+        message: "유효한 목표가 있습니다.",
+      });
+  } catch (err) {
+    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
   }
 };

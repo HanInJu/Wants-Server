@@ -2,7 +2,7 @@ const { pool } = require("../../../config/database");
 
 //////////////////////////////////////////일지추가//////////////////////////////////////////////
 async function postjournals(
-  time,
+  timeY,
   page,
   percent,
   goalBookId,
@@ -13,7 +13,7 @@ async function postjournals(
   const connection = await pool.getConnection(async (conn) => conn);
   const calendarYNQuery = `
   insert into Challenge(time, page, percent, goalBookId, goalId, userId, charPercent)
-  values (${time}, ${page}, ${percent}, ${goalBookId}, ${goalId}, ${jwt}, ${charPercent})`;
+  values (${timeY}, ${page}, ${percent}, ${goalBookId}, ${goalId}, ${jwt}, ${charPercent})`;
   const [calendarYNRows] = await connection.query(calendarYNQuery);
   connection.release();
   return calendarYNRows;
@@ -32,7 +32,7 @@ async function postjournals2(challengeId, text, open) {
 async function getgoalBookId(goalBookId) {
   const connection = await pool.getConnection(async (conn) => conn);
   const calendarYNQuery = `
-  select userId, Goal.goalId
+  select userId, Goal.goalId, amount
   from Goal_book
   inner join Goal on Goal_book.goalId = Goal.goalId
   where goalBookId = ${goalBookId}`;
@@ -69,7 +69,9 @@ async function getpatchjournals(journalId) {
   select journalId, text, open, time, page, Challenge.percent, title, writer, imageURL, journalId
   from Reading_journal
   inner join Challenge on Challenge.challengeId = Reading_journal.challengeId
-  inner join Goal_book on Goal_book.goalId = Reading_journal.goalId
+
+  inner join Goal_book on Goal_book.goalBookId = Challenge.goalBookId
+
   inner join Book on Book.bookId = Goal_book.bookId
   where journalId = ${journalId}`;
   const [calendarYNRows] = await connection.query(calendarYNQuery);
@@ -88,7 +90,7 @@ inner join Challenge on Reading_journal.challengeId = Challenge.challengeId
 inner join Goal_book on Goal_book.goalBookId = Challenge.goalBookId
 inner join Book on Book.bookId = Goal_book.bookId
 where Challenge.userId = ${userId}
-order by postAt ${align} limit ${page}, ${limit}`;
+order by Reading_journal.createAt ${align} limit ${page}, ${limit}`;
   const [calendarYNRows] = await connection.query(calendarYNQuery);
   connection.release();
   return calendarYNRows;
@@ -129,8 +131,10 @@ from Reading_journal
     inner join Goal_book on Challenge.goalBookId = Goal_book.goalBookId
     inner join User on User.userId = Challenge.userId
     inner join Book on Book.bookId = Goal_book.bookId
-order by postAt DESC
-limit ${page}, ${limit}`;
+
+where Reading_journal.open = 'Y'
+order by Reading_journal.createAt desc limit ${page}, ${limit}`;
+
   const [calendarYNRows] = await connection.query(calendarYNQuery);
   connection.release();
   return calendarYNRows;
@@ -174,6 +178,55 @@ async function journalcount2() {
   connection.release();
   return calendarYNRows;
 }
+/*
+ * API 기능 : 일지 조회
+ * 작 성 자  : Heather
+ */
+async function getComJournals(getParams) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const query = `
+    SELECT     C.userId, name, IFNULL(U.profilePictureURL, '사진 없음') as profilePic,
+               journalId, text, DATE_FORMAT(postAt, '%Y.%m.%d') as postAt, CONCAT(C.percent,'%') as percent,
+               CONCAT(C.page, '쪽') as page, C.time,
+               G.bookId, B.title, B.writer, B.imageURL,
+               IF(G.status = 'Y', '완독', '읽는 중') as status
+    FROM       Reading_journal
+    INNER JOIN Challenge C on Reading_journal.challengeId = C.challengeId
+    INNER JOIN User U on U.userId = C.userId
+    INNER JOIN Goal_book G on G.goalBookId = C.goalBookId
+    INNER JOIN Book B on G.bookId = B.bookId
+    ORDER BY   postAt DESC
+    LIMIT      ?, ?;
+    `;
+  const [rows] = await connection.query(query, getParams);
+  connection.release();
+  return rows;
+}
+
+//////////////////////////////////////////퍼센트가 100이면 완독표시//////////////////////////////////////////////
+async function percentY(goalBookId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const calendarYNQuery = `
+  update Goal_book
+  SET Goal_book.status = 'Y'
+  where goalBookId = ${goalBookId}`;
+  const [calendarYNRows] = await connection.query(calendarYNQuery);
+  connection.release();
+  return calendarYNRows;
+}
+//////////////////////////////////////////이전일지 퍼센트 가져오기//////////////////////////////////////////////
+async function journalpercent(goalBookId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const calendarYNQuery = `
+  select Challenge.percent
+  from Challenge
+  where goalBookId = ${goalBookId}
+  order by challengeId desc limit 1`;
+  const [calendarYNRows] = await connection.query(calendarYNQuery);
+  connection.release();
+  return calendarYNRows;
+}
+
 module.exports = {
   postjournals,
   postjournals2,
@@ -187,4 +240,7 @@ module.exports = {
   journaluser,
   journalcount,
   journalcount2,
+  getComJournals,
+  percentY,
+  journalpercent,
 };

@@ -99,6 +99,19 @@ ORDER BY date`;
   connection.release();
   return rows;
 }
+
+// uri
+async function geturi(uriId) {
+  const connection = await pool.getConnection(async (conn) => conn);
+  const getReadingInfoQuery = `
+  select *
+  from Uri
+  where uriId = ${uriId}`;
+
+  const [rows] = await connection.query(getReadingInfoQuery);
+  connection.release();
+  return rows;
+}
 module.exports = {
   postProfile,
   isSameProfile,
@@ -107,4 +120,5 @@ module.exports = {
   getMyPieces,
   getReadingInfo,
   getgraph,
+  geturi,
 };

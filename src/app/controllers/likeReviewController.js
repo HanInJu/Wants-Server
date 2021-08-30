@@ -58,9 +58,9 @@ exports.like = async function (req, res) {
         message: "평가/리뷰 좋아요 등록/취소 성공",
       });
     } catch (err) {
-      logger.error(
-        `example non transaction Query error\n: ${JSON.stringify(err)}`
-      );
+
+      logger.error(`likeReview - non transaction Query error\n: ${JSON.stringify(err)}`);
+
       //connection.release();
       return res.json({
         isSuccess: false,
@@ -69,9 +69,9 @@ exports.like = async function (req, res) {
       });
     }
   } catch (err) {
-    logger.error(
-      `example non transaction DB Connection error\n: ${JSON.stringify(err)}`
-    );
+
+    logger.error(`likeReview:NOT signIn USER -  non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+
     return false;
   }
 };
@@ -134,9 +134,9 @@ exports.comment = async function (req, res) {
         message: "댓글 등록 성공",
       });
     } catch (err) {
-      logger.error(
-        `example non transaction Query error\n: ${JSON.stringify(err)}`
-      );
+
+      logger.error(`postComment - non transaction Query error\n: ${JSON.stringify(err)}`);
+
       //connection.release();
       return res.json({
         isSuccess: false,
@@ -145,9 +145,9 @@ exports.comment = async function (req, res) {
       });
     }
   } catch (err) {
-    logger.error(
-      `example non transaction DB Connection error\n: ${JSON.stringify(err)}`
-    );
+
+    logger.error(`postComment:NOT signIn USER -  non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+
     return false;
   }
 };
@@ -205,9 +205,9 @@ exports.deleteComment = async function (req, res) {
         message: "댓글 삭제 성공",
       });
     } catch (err) {
-      logger.error(
-        `example non transaction Query error\n: ${JSON.stringify(err)}`
-      );
+
+      logger.error(`deleteComment - non transaction Query error\n: ${JSON.stringify(err)}`);
+
       //connection.release();
       return res.json({
         isSuccess: false,
@@ -216,9 +216,9 @@ exports.deleteComment = async function (req, res) {
       });
     }
   } catch (err) {
-    logger.error(
-      `example non transaction DB Connection error\n: ${JSON.stringify(err)}`
-    );
+
+    logger.error(`deleteComment:NOT signIn USER -  non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+
     return false;
   }
 };
@@ -288,9 +288,9 @@ exports.reportComment = async function (req, res) {
         message: "댓글 신고 성공",
       });
     } catch (err) {
-      logger.error(
-        `example non transaction Query error\n: ${JSON.stringify(err)}`
-      );
+
+      logger.error(`reportComment - non transaction Query error\n: ${JSON.stringify(err)}`);
+
       //connection.release();
       return res.json({
         isSuccess: false,
@@ -299,9 +299,9 @@ exports.reportComment = async function (req, res) {
       });
     }
   } catch (err) {
-    logger.error(
-      `example non transaction DB Connection error\n: ${JSON.stringify(err)}`
-    );
+
+    logger.error(`reportComment:NOT signIn USER -  non transaction DB Connection error\n: ${JSON.stringify(err)}`);
+
     return false;
   }
 };

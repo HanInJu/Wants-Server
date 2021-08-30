@@ -33,6 +33,7 @@ exports.postbook = async function (req, res) {
 
     const getbookRows = await challengeDao.getbook(publishNumber);
 
+    console.log(getbookRows);
     if (getbookRows.length <= 0) {
       const bookRows = await bookDao.postbook(
         writer,
@@ -64,19 +65,19 @@ exports.postbook = async function (req, res) {
         bookId: getbookRows[0].bookId,
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`postBooks - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
 
 exports.getbook = async function (req, res) {
   try {
-    const bookId = req.params.bookId;
-    const getbookRows = await bookDao.getbook(bookId);
-    const getbook2Rows = await bookDao.getbook2(bookId);
-    console.log(getbook2Rows);
-    const getbook3Rows = await bookDao.getbook3(getbook2Rows[0].reviewId);
-    const currentReadRows = await bookDao.currentRead(bookId);
+    const publishNumber = req.query.publishNumber;
+    console.log(publishNumber);
+    const getbookRows = await bookDao.getbook(publishNumber);
+    const getbook2Rows = await bookDao.getbook2(getbookRows[0].reviewId);
+    const getbook3Rows = await bookDao.getbook3(getbookRows[0].reviewId);
+    const currentReadRows = await bookDao.currentRead(getbookRows[0].bookId);
 
     if (getbookRows.length > 0) {
       return res.json({
@@ -101,7 +102,38 @@ exports.getbook = async function (req, res) {
         message: "책 조회 실패",
       });
   } catch (err) {
-    logger.error(`App - SignUp Query error\n: ${err.message}`);
+    logger.error(`getBook - Query error\n: ${err.message}`);
+    return res.status(500).send(`Error: ${err.message}`);
+  }
+};
+
+exports.getbookreview = async function (req, res) {
+  try {
+    const publishNumber = req.query.publishNumber;
+    console.log(publishNumber);
+    const getbookreview = await bookDao.getbookreview(publishNumber);
+
+    if (getbookreview.length > 0) {
+      return res.json({
+        isSuccess: true,
+        code: 1000,
+        message: "리뷰 조회 성공",
+        getbookreview
+      });
+    } else if (getbookreview.length === 0) {
+      return res.json({
+        isSuccess: false,
+        code: 2232,
+        message: "리뷰가 없습니다.",
+      });
+    } else
+      return res.json({
+        isSuccess: false,
+        code: 4000,
+        message: "리뷰 조회 실패",
+      });
+  } catch (err) {
+    logger.error(`getBook - Query error\n: ${err.message}`);
     return res.status(500).send(`Error: ${err.message}`);
   }
 };
